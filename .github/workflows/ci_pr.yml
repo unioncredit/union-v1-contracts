@@ -1,0 +1,47 @@
+name: run-coverage-and-slither-on-pr
+
+on: [pull_request]
+
+jobs:
+    buildAndTest:
+        name: Build and Run coverage
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Run coverage
+              run: |
+                  npm run lint
+                  npm run coverage
+                  npx codecov
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+
+    slither:
+        name: Slither analyzer
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+            - uses: actions/setup-python@v2
+              with:
+                  python-version: "3.x"
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Run Slither
+              run: |
+                  pip3 install slither-analyzer
+                  npm run slither
+              env:
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
