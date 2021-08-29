@@ -1,4 +1,4 @@
-name: run-coverage-and-slither-on-pr
+name: coverage and slither
 
 on: [pull_request]
 
