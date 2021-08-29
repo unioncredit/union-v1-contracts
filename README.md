@@ -1,6 +1,6 @@
 # Smart Contracts for Union V1
 
-![build](https://github.com/unioncredit/union-contracts/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/unioncredit/union-contracts/branch/develop/graph/badge.svg?token=7bdacdZz4E)](https://codecov.io/gh/unioncredit/union-contracts)
+![build](https://github.com/unioncredit/union-v1-contracts/workflows/build/badge.svg) [![codecov](https://codecov.io/gh/unioncredit/union-v1-contracts/branch/master/graph/badge.svg?token=RWHSS7TLO6)](https://codecov.io/gh/unioncredit/union-v1-contracts)
 
 # Networks
 
