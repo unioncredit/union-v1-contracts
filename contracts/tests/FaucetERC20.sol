@@ -36,6 +36,12 @@ contract FaucetERC20 is Initializable, ERC20Upgradeable {
         return true;
     }
 
+    function burn(address to, uint256 value) public returns (bool) {
+        // require(value <= 10000000 ether, "dont be greedy");
+        _burn(to, value);
+        return true;
+    }
+
     function permit(
         address holder,
         address spender,
