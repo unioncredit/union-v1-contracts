@@ -27,6 +27,12 @@ module.exports = {
             accounts: {
                 mnemonic: process.env.MNEMONIC_TEST
             }
+        },
+        kovan: {
+            url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID,
+            accounts: {
+                mnemonic: process.env.MNEMONIC_TEST
+            }
         }
     },
     solidity: {
