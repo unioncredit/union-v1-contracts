@@ -2,7 +2,7 @@ const {ethers} = require("hardhat");
 
 const {expect} = require("chai");
 require("chai").should();
-const {encodeParameters, etherMantissa, waitNBlocks, increaseTime} = require("../utils");
+const {encodeParameters, etherMantissa, waitNBlocks, increaseTime} = require("../../utils");
 
 async function enfranchise(contract, actor, amount) {
     await contract.transfer(actor.address, etherMantissa(amount));

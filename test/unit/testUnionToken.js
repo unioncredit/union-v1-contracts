@@ -5,7 +5,7 @@ const {parseEther} = require("ethers").utils;
 const {AddressZero} = require("ethers").constants;
 const {signERC2612Permit} = require("eth-permit");
 
-const {waitNBlocks, increaseTime} = require("../utils");
+const {waitNBlocks, increaseTime} = require("../../utils");
 
 describe("UnionToken Contract", () => {
     let ADMIN, ALICE, BOB, GEORGE, COMPTROLLER, delegatee;

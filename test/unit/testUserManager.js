@@ -4,7 +4,7 @@ const {expect} = require("chai");
 require("chai").should();
 const {signDaiPermit, signERC2612Permit} = require("eth-permit");
 const {parseEther} = require("ethers").utils;
-const {waitNBlocks} = require("../utils");
+const {waitNBlocks} = require("../../utils");
 
 const AddressZero = ethers.constants.AddressZero;
 

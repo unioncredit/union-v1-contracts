@@ -3,7 +3,7 @@ const {expect} = require("chai");
 require("chai").should();
 const {parseEther} = require("ethers").utils;
 
-const {waitNBlocks, increaseTime} = require("../utils");
+const {waitNBlocks, increaseTime} = require("../../utils");
 
 describe("Treasury Contract", () => {
     before(async function () {

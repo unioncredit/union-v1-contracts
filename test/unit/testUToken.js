@@ -1,4 +1,4 @@
-const {waitNBlocks} = require("../utils");
+const {waitNBlocks} = require("../../utils");
 const {ethers, upgrades, waffle} = require("hardhat");
 const {expect} = require("chai");
 
