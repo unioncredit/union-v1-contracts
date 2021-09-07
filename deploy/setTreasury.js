@@ -1,7 +1,7 @@
 const configs = require("../deployConfig.json");
 
 module.exports = async ({getNamedAccounts, getChainId}) => {
-    const {execute} = deployments;
+    const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
 
     const chainId = await getChainId();
@@ -10,15 +10,25 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
 
     const params = configs[chainId]["Treasury"];
 
-    await execute(
-        "Treasury",
-        {from: deployer},
-        "addSchedule",
-        params.dripStart,
-        params.dripRate,
-        comptroller.address,
-        params.dripAmount
-    );
+    console.log("setTreasury start");
+    if (
+        !(
+            (await read("Treasury", {from: deployer}, "tokenSchedules", comptroller.address)).amount ===
+            params.dripAmount
+        )
+    ) {
+        tx = await execute(
+            "Treasury",
+            {from: deployer},
+            "addSchedule",
+            params.dripStart,
+            params.dripRate,
+            comptroller.address,
+            params.dripAmount
+        );
+        console.log("Treasury addSchedule, tx is:", tx.transactionHash);
+    }
+    console.log("setTreasury end");
 };
 module.exports.tags = ["TreasurySetting"];
 module.exports.dependencies = ["Treasury", "Comptroller"];
