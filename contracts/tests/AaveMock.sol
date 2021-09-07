@@ -9,11 +9,11 @@ interface IErc20 is IERC20Upgradeable {
     function burn(address account, uint256 amount) external;
 }
 
-contract AvaeMock is Initializable {
+contract AaveMock is Initializable {
     uint128 public rate;
     address public aToken;
 
-    function __AvaeMock_init(uint128 _rate, address _aToken) public initializer {
+    function __AaveMock_init(uint128 _rate, address _aToken) public initializer {
         rate = _rate;
         aToken = _aToken;
     }
