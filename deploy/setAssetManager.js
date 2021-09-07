@@ -7,20 +7,6 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
-    console.log("setAssetManager start");
-    tx = await execute("AssetManager", {from: deployer}, "addAdapter", (await deployments.get("AaveAdapter")).address);
-    console.log("AssetManager addAdapter AaveAdapter, tx is:", tx.transactionHash);
-
-    tx = await execute(
-        "AssetManager",
-        {from: deployer},
-        "addAdapter",
-        (
-            await deployments.get("CompoundAdapter")
-        ).address
-    );
-    console.log("AssetManager addAdapter CompoundAdapter, tx is:", tx.transactionHash);
-
     tx = await execute(
         "AssetManager",
         {from: deployer},
@@ -30,6 +16,31 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
         ).address
     );
     console.log("AssetManager addAdapter PureTokenAdapter, tx is:", tx.transactionHash);
+
+    if (configs[chainId]["AaveAdapter"]) {
+        console.log("setAssetManager start");
+        tx = await execute(
+            "AssetManager",
+            {from: deployer},
+            "addAdapter",
+            (
+                await deployments.get("AaveAdapter")
+            ).address
+        );
+        console.log("AssetManager addAdapter AaveAdapter, tx is:", tx.transactionHash);
+    }
+
+    if (configs[chainId]["CompoundAdapter"]) {
+        tx = await execute(
+            "AssetManager",
+            {from: deployer},
+            "addAdapter",
+            (
+                await deployments.get("CompoundAdapter")
+            ).address
+        );
+        console.log("AssetManager addAdapter CompoundAdapter, tx is:", tx.transactionHash);
+    }
 
     if (!(await read("AssetManager", {from: deployer}, "isMarketSupported", DAI))) {
         tx = await execute("AssetManager", {from: deployer}, "addToken", DAI);
