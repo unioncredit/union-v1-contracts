@@ -128,11 +128,6 @@
             "pureTokenCeiling": "1000000000000000000000000",
             "pureTokenFloor": "10000000000000000000000"
         },
-        "AaveAdapter": {
-            "aaveTokenCeiling": "1000000000000000000000000",
-            "aaveTokenFloor": "10000000000000000000000",
-            "lendingPool": "0x1cbaf7ef4f34c6be06ed5860ceeecac5e3042c47"
-        },
         "CompoundAdapter": {
             "compoundTokenCeiling": "1000000000000000000000000",
             "compoundTokenFloor": "10000000000000000000000"

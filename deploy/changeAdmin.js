@@ -40,6 +40,7 @@ module.exports = async ({getNamedAccounts}) => {
         tx = await execute("UToken", {from: deployer}, "addAdmin", timelock.address);
         console.log("UToken addAdmin, tx is:", tx.transactionHash);
     }
+    //After running for a period of time, give up the admin permission of the deployer
     console.log("changeAdmin end");
 };
 module.exports.tags = ["ChangeAdmin"];
