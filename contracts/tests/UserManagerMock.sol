@@ -29,7 +29,7 @@ contract UserManagerMock {
         isMember = isMember_;
     }
 
-    function checkIsMember(address account) public view returns (bool) {
+    function checkIsMember(address) public view returns (bool) {
         return isMember;
     }
 
@@ -37,7 +37,7 @@ contract UserManagerMock {
         stakerBalance = stakerBalance_;
     }
 
-    function getStakerBalance(address account) public view returns (uint256) {
+    function getStakerBalance(address) public view returns (uint256) {
         return stakerBalance;
     }
 
@@ -45,7 +45,7 @@ contract UserManagerMock {
         totalLockedStake = totalLockedStake_;
     }
 
-    function getTotalLockedStake(address staker) public view returns (uint256) {
+    function getTotalLockedStake(address) public view returns (uint256) {
         return totalLockedStake;
     }
 
@@ -53,7 +53,7 @@ contract UserManagerMock {
         totalFrozenAmount = totalFrozenAmount_;
     }
 
-    function getTotalFrozenAmount(address staker) public view returns (uint256) {
+    function getTotalFrozenAmount(address) public view returns (uint256) {
         return totalFrozenAmount;
     }
 
@@ -61,7 +61,7 @@ contract UserManagerMock {
         limit = limit_;
     }
 
-    function getCreditLimit(address borrower) public view returns (int256) {
+    function getCreditLimit(address) public view returns (int256) {
         return limit;
     }
 

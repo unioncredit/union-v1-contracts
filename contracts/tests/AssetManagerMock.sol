@@ -49,15 +49,15 @@ contract AssetManagerMock is Controller {
         return 0;
     }
 
-    function totalSupply(address tokenAddress) public returns (uint256) {
+    function totalSupply(address) public pure returns (uint256) {
         return 0;
     }
 
-    function totalSupplyView(address tokenAddress) public view returns (uint256) {
+    function totalSupplyView(address) public pure returns (uint256) {
         return 0;
     }
 
-    function isMarketSupported(address tokenAddress) public view returns (bool) {
+    function isMarketSupported(address) public pure returns (bool) {
         return false;
     }
 
@@ -129,11 +129,11 @@ contract AssetManagerMock is Controller {
         }
     }
 
-    function _isUToken(address sender, address token) private view returns (bool) {
+    function _isUToken(address, address) private pure returns (bool) {
         return true;
     }
 
-    function _isUserManager(address sender, address token) private view returns (bool) {
+    function _isUserManager(address, address) private pure returns (bool) {
         return true;
     }
 }

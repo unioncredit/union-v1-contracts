@@ -133,7 +133,7 @@ contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, Governo
         return super.supportsInterface(interfaceId);
     }
 
-    function _checkUserLatestProposal() private {
+    function _checkUserLatestProposal() private view {
         uint256 latestProposalId = latestProposalIds[_msgSender()];
         if (latestProposalId != 0) {
             ProposalState proposersLatestProposalState = state(latestProposalId);
