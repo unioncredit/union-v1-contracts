@@ -440,7 +440,7 @@ describe("User Manager Contract", () => {
         await erc20.connect(MEMBER1).approve(userManager.address, amount);
         await userManager.connect(MEMBER1).stake(amount);
         await expect(userManager.connect(MEMBER1).withdrawRewards()).to.be.revertedWith(
-            "UserManager: user rewards is zero or comptroller balance not enough"
+            "UserManager: not enough rewards"
         );
         await unionToken.transfer(comptroller.address, amount);
         //mock transfer reward

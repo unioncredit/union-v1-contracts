@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -63,7 +64,7 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
         pauseGuardian = admin_;
     }
 
-    function _authorizeUpgrade(address) internal override onlyAdmin {}
+    function _authorizeUpgrade(address) internal view override onlyAdmin {}
 
     /**
      * @dev Check if the address provided is the admin

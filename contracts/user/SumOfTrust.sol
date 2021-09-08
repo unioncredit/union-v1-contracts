@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
@@ -95,9 +96,10 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
     }
 
     function _sortArray(LockedInfo[] memory arr, bool isPositive) private pure returns (LockedInfo[] memory) {
-        uint256 l = arr.length;
-        for (uint256 i = 0; i < l; i++) {
-            for (uint256 j = i + 1; j < l; j++) {
+        uint256 length = arr.length;
+
+        for (uint256 i = 0; i < length; i++) {
+            for (uint256 j = i + 1; j < length; j++) {
                 if (isPositive) {
                     if (arr[i].vouchingAmount < arr[j].vouchingAmount) {
                         LockedInfo memory temp = arr[j];
