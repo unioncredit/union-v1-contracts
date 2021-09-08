@@ -676,7 +676,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     function withdrawRewards() external whenNotPaused nonReentrant {
         uint256 rewards = comptroller.withdrawRewards(msg.sender, stakingToken);
-        require(rewards > 0, "UserManager: user rewards is zero or comptroller balance not enough");
+        require(rewards > 0, "UserManager: not enough rewards");
     }
 
     /**
@@ -710,14 +710,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         _updateTotalFrozen(borrower, true);
         require(totalFrozen >= amount, "UserManager: amount exceeds the totalFrozen");
         comptroller.withdrawRewards(msg.sender, stakingToken);
+
         //The borrower is still overdue, do not call comptroller.addFrozenCoinAge
-        // uint256 lastRepay = uToken.getLastRepay(borrower);
-        // comptroller.addFrozenCoinAge(
-        //     msg.sender,
-        //     stakingToken,
-        //     lockedAmount,
-        //     lastRepay
-        // );
 
         stakers[msg.sender] -= amount;
         totalStaked -= amount;
