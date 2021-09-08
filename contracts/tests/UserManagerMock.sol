@@ -138,6 +138,8 @@ contract UserManagerMock {
 
     function updateTotalFrozen(address, bool) external {}
 
+    function batchUpdateTotalFrozen(address[] calldata, bool[] calldata) external {}
+
     function repayLoanOverdue(
         address account,
         address token,

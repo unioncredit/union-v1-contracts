@@ -547,7 +547,7 @@ describe("User Manager Contract", () => {
         res.toString().should.eq("0");
 
         //isOverdue true
-        await userManager.updateTotalFrozen(MEMBER1.address, true);
+        await userManager.batchUpdateTotalFrozen([MEMBER1.address], [true]);
         res = await userManager.totalFrozen();
         res.toString().should.eq("0");
 
@@ -557,7 +557,7 @@ describe("User Manager Contract", () => {
         res.toString().should.eq("0");
 
         //isOverdue false totalFrozen > amount
-        await userManager.updateTotalFrozen(BOB.address, false);
+        await userManager.batchUpdateTotalFrozen([BOB.address], [false]);
         res = await userManager.totalFrozen();
         res.toString().should.eq("0");
     });

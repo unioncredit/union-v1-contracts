@@ -745,11 +745,15 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param accounts Borrowers address
      */
     function batchUpdateOverdueInfos(address[] calldata accounts) external whenNotPaused {
+        address[] memory overdueAccounts = new address[](accounts.length);
+        bool[] memory isOverdues = new bool[](accounts.length);
         for (uint256 i = 0; i < accounts.length; i++) {
             if (checkIsOverdue(accounts[i])) {
-                IUserManager(userManager).updateTotalFrozen(accounts[i], true);
+                overdueAccounts[i] = accounts[i];
+                isOverdues[i] = true;
             }
         }
+        IUserManager(userManager).batchUpdateTotalFrozen(overdueAccounts, isOverdues);
     }
 
     /**

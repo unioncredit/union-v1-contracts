@@ -737,15 +737,28 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
+        require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
+        uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         _updateTotalFrozen(account, isOverdue);
     }
 
-    function _updateTotalFrozen(address account, bool isOverdue) private {
+    function batchUpdateTotalFrozen(address[] calldata accounts, bool[] calldata isOverdues)
+        external
+        override
+        onlyMarketOrAdmin
+        whenNotPaused
+    {
+        require(accounts.length == isOverdues.length, "UserManager: params length error");
         require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
-
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
+        }
+    }
 
+    function _updateTotalFrozen(address account, bool isOverdue) private {
         if (isOverdue) {
             //isOverdue = true, user overdue needs to increase totalFrozen
 
