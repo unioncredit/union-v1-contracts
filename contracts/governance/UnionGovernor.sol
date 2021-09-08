@@ -140,8 +140,11 @@ contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, Governo
         uint256 latestProposalId = latestProposalIds[_msgSender()];
         if (latestProposalId != 0) {
             ProposalState proposersLatestProposalState = state(latestProposalId);
-            require(proposersLatestProposalState != ProposalState.Active, "Found an already active proposal");
-            require(proposersLatestProposalState != ProposalState.Pending, "Found an already pending proposal");
+            require(proposersLatestProposalState != ProposalState.Active, "Governor: found an already active proposal");
+            require(
+                proposersLatestProposalState != ProposalState.Pending,
+                "Governor: found an already pending proposal"
+            );
         }
     }
 }
