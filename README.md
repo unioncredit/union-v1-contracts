@@ -10,19 +10,19 @@ Union is an upgradeable system. Each deployed contract is actually a "Proxy" tha
 
 | Contract         | Address (proxy)                                                                                                             | Upgradeable |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| UserManager      | [0xAB4F10D1d4F69910CA78c8F6541Fb13e6f1F5827](https://kovan.etherscan.io/address/0xAB4F10D1d4F69910CA78c8F6541Fb13e6f1F5827) | ✅          |
-| MarketRegistry   | [0xF167De7457e4cfc86868EE54edada2071E45Cb1c](https://kovan.etherscan.io/address/0xF167De7457e4cfc86868EE54edada2071E45Cb1c) | ✅          |
-| Comptroller      | [0xC1C4f71F23D41D76E6154B81f72215F778f12Fd1](https://kovan.etherscan.io/address/0xC1C4f71F23D41D76E6154B81f72215F778f12Fd1) | ✅          |
-| UToken (uDAI)    | [0x47876400B82e57090C2CAe9f779F37e8c59430e9](https://kovan.etherscan.io/address/0x47876400B82e57090C2CAe9f779F37e8c59430e9) | ✅          |
-| AssetManager     | [0x92f6aF8f339062A04BF749B6582da4513aF54A5f](https://kovan.etherscan.io/address/0x92f6aF8f339062A04BF749B6582da4513aF54A5f) | ✅          |
-| CompoundAdapter  | [0x3aC736940B29e488fbFadeD45E3FF3FB2678BEe6](https://kovan.etherscan.io/address/0x3aC736940B29e488fbFadeD45E3FF3FB2678BEe6) | ✅          |
-| AaveAdapter      | [0x06D0cB250ADb246269e15f88B9fcD68A6e0f0900](https://kovan.etherscan.io/address/0x06D0cB250ADb246269e15f88B9fcD68A6e0f0900) | ✅          |
-| PureTokenAdapter | [0x2Ed947346420BA5A69934080e00292626fC99c09](https://kovan.etherscan.io/address/0x2Ed947346420BA5A69934080e00292626fC99c09) | ✅          |
-| UnionToken       | [0x8a3Cf336D8a027C5109166403f2226Ce610C2631](https://kovan.etherscan.io/address/0x8a3Cf336D8a027C5109166403f2226Ce610C2631) | ❌          |
-| Governor         | [0xB83d4274A5755702f535644BB22432B60ddB2f41](https://kovan.etherscan.io/address/0xB83d4274A5755702f535644BB22432B60ddB2f41) | ❌          |
-| Timelock         | [0xD5a9E38B3AEe371CFB1482dbCf622B6e3097366B](https://kovan.etherscan.io/address/0xD5a9E38B3AEe371CFB1482dbCf622B6e3097366B) | ❌          |
-| Treasury         | [0xD377755F8Ce2D022c88e15C40D5b7d649e2260F4](https://kovan.etherscan.io/address/0xD377755F8Ce2D022c88e15C40D5b7d649e2260F4) | ❌          |
-| Treasury Vester  | [0x0ABB912BFd6101C8325b89f5C61d27C931CCd516](https://kovan.etherscan.io/address/0x0ABB912BFd6101C8325b89f5C61d27C931CCd516) | ❌          |
+| UserManager      | [0x77aABF576fe07f06bdde95Ba25625d3a91A6190F](https://kovan.etherscan.io/address/0x77aABF576fe07f06bdde95Ba25625d3a91A6190F) | ✅          |
+| MarketRegistry   | [0xB0f8Be21E30ae291e002aD8A28A85e90266Ad099](https://kovan.etherscan.io/address/0xB0f8Be21E30ae291e002aD8A28A85e90266Ad099) | ✅          |
+| Comptroller      | [0x4cAc792Cdb49a9036E4f1dE8F60e86f485D0EB98](https://kovan.etherscan.io/address/0x4cAc792Cdb49a9036E4f1dE8F60e86f485D0EB98) | ✅          |
+| UToken (uDAI)    | [0xd9bAe3CF2E16E72A5a3896d11e46449E65Aa6F52](https://kovan.etherscan.io/address/0xd9bAe3CF2E16E72A5a3896d11e46449E65Aa6F52) | ✅          |
+| AssetManager     | [0x205365B5474D7488fcd862010B1FcA5Bd8c485C9](https://kovan.etherscan.io/address/0x205365B5474D7488fcd862010B1FcA5Bd8c485C9) | ✅          |
+| CompoundAdapter  | [0xf90a43Ed2e76f0635c0f2208D17BCf0C380D270C](https://kovan.etherscan.io/address/0xf90a43Ed2e76f0635c0f2208D17BCf0C380D270C) | ✅          |
+| AaveAdapter      | [0x205365B5474D7488fcd862010B1FcA5Bd8c485C9](https://kovan.etherscan.io/address/0x205365B5474D7488fcd862010B1FcA5Bd8c485C9) | ✅          |
+| PureTokenAdapter | [0x93AC44Eff25e0F055CA2B1d4bcCEF453A8541F96](https://kovan.etherscan.io/address/0x93AC44Eff25e0F055CA2B1d4bcCEF453A8541F96) | ✅          |
+| UnionToken       | [0x598C0657385A1a631dD71818485bD704CFa552aE](https://kovan.etherscan.io/address/0x598C0657385A1a631dD71818485bD704CFa552aE) | ❌          |
+| Governor         | [0xed1411eaCDaE26ACeAf0240cf4B4077dbB75d06a](https://kovan.etherscan.io/address/0xed1411eaCDaE26ACeAf0240cf4B4077dbB75d06a) | ❌          |
+| Timelock         | [0x5aAD7F7239c28Aa38c6BA6b62B3267D3a6Bb7F7a](https://kovan.etherscan.io/address/0x5aAD7F7239c28Aa38c6BA6b62B3267D3a6Bb7F7a) | ❌          |
+| Treasury         | [0x14bF0cb2dEb280e8FE68242F06206F970c2ef425](https://kovan.etherscan.io/address/0x14bF0cb2dEb280e8FE68242F06206F970c2ef425) | ❌          |
+| Treasury Vester  | [0x15dCc98027dC9a3E655A37bD36ED7F7483aBBEc8](https://kovan.etherscan.io/address/0x15dCc98027dC9a3E655A37bD36ED7F7483aBBEc8) | ❌          |
 | Kovan DAI        | [0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa](https://kovan.etherscan.io/address/0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa) | ❌          |
 | Kovan cDAI       | [0xf0d0eb522cfa50b716b3b1604c4f0fa6f04376ad](https://kovan.etherscan.io/address/0xf0d0eb522cfa50b716b3b1604c4f0fa6f04376ad) | ❌          |
 
