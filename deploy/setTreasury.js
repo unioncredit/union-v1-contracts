@@ -1,6 +1,6 @@
 const configs = require("../deployConfig.json");
 
-module.exports = async ({getNamedAccounts, getChainId}) => {
+module.exports = async ({ethers, getNamedAccounts, getChainId}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
 
@@ -12,10 +12,8 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
 
     console.log("setTreasury start");
     if (
-        !(
-            (await read("Treasury", {from: deployer}, "tokenSchedules", comptroller.address)).amount ===
-            params.dripAmount
-        )
+        (await read("Treasury", {from: deployer}, "tokenSchedules", comptroller.address)).target ===
+        ethers.constants.AddressZero
     ) {
         tx = await execute(
             "Treasury",

@@ -59,7 +59,7 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
         require(admin_ != address(0), "Controller: address zero");
         _paused = false;
         _admins[admin_] = admin_;
-        // _setupRole(DEFAULT_ADMIN_ROLE, admin_);
+        __UUPSUpgradeable_init();
         _setupRole(ROLE_ADMIN, admin_);
         pauseGuardian = admin_;
     }

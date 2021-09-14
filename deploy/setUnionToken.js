@@ -19,10 +19,7 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
         tx = await execute("UnionToken", {from: deployer}, "whitelist", comptroller.address);
         console.log("UnionToken whitelist, tx is:", tx.transactionHash);
     }
-    if (
-        !(await read("UnionToken", {from: deployer}, "balanceOf", comptroller.address)) ===
-        configs[chainId]["UnionToken"]["comptrollerAmount"]
-    ) {
+    if ((await read("UnionToken", {from: deployer}, "balanceOf", comptroller.address)) == "0") {
         tx = await execute(
             "UnionToken",
             {from: deployer},
@@ -32,10 +29,8 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
         );
         console.log("UnionToken transfer comptroller, tx is:", tx.transactionHash);
     }
-    if (
-        !(await read("UnionToken", {from: deployer}, "balanceOf", treasuryVester.address)) ===
-        configs[chainId]["UnionToken"]["amountForTreasuryVester"]
-    ) {
+
+    if ((await read("UnionToken", {from: deployer}, "balanceOf", treasuryVester.address)) == "0") {
         tx = await execute(
             "UnionToken",
             {from: deployer},

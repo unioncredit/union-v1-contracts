@@ -10,7 +10,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         from: deployer,
         args: [
             configs[chainId]["UnionToken"]["name"],
-            configs[chainId]["UErc20"]["symbol"],
+            configs[chainId]["UnionToken"]["symbol"],
             configs[chainId]["UnionToken"]["mintingAllowedAfter"]
         ],
         log: true

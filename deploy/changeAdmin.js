@@ -1,10 +1,16 @@
+const configs = require("../deployConfig.json");
+
 module.exports = async ({getNamedAccounts}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
+    const chainId = await getChainId();
     const timelock = await deployments.get("TimelockController");
 
     console.log("changeAdmin start");
-    if (!(await read("AaveAdapter", {from: deployer}, "isAdmin", timelock.address))) {
+    if (
+        configs[chainId]["AaveAdapter"] &&
+        !(await read("AaveAdapter", {from: deployer}, "isAdmin", timelock.address))
+    ) {
         tx = await execute("AaveAdapter", {from: deployer}, "addAdmin", timelock.address);
         console.log("AaveAdapter addAdmin, tx is:", tx.transactionHash);
     }
