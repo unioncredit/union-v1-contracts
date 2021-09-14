@@ -156,6 +156,8 @@ interface IUserManager {
      */
     function updateTotalFrozen(address account, bool isOverdue) external;
 
+    function batchUpdateTotalFrozen(address[] calldata account, bool[] calldata isOverdue) external;
+
     /**
      *  @dev Repay user's loan overdue, called only from the lending market
      *  @param account User address
