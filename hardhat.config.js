@@ -20,7 +20,8 @@ module.exports = {
                 url: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
                 blockNumber: 12542012
             },
-            hardfork: "berlin"
+            hardfork: "berlin",
+            allowUnlimitedContractSize: true
         },
         rinkeby: {
             url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID,
