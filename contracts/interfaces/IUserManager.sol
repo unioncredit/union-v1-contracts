@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 /**
@@ -154,6 +155,8 @@ interface IUserManager {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external;
+
+    function batchUpdateTotalFrozen(address[] calldata account, bool[] calldata isOverdue) external;
 
     /**
      *  @dev Repay user's loan overdue, called only from the lending market

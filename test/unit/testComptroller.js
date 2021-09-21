@@ -3,7 +3,7 @@ const {expect} = require("chai");
 require("chai").should();
 const {parseEther} = require("ethers").utils;
 
-const {waitNBlocks} = require("../utils");
+const {waitNBlocks} = require("../../utils");
 
 const INFLATION_TEST_DATA = [
     ["1", "1"],

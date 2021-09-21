@@ -3,10 +3,9 @@ const {ethers, upgrades} = require("hardhat");
 require("chai").should();
 
 describe("InterestRatemodel Contract", () => {
-    let ADMIN, interestRateModel;
+    let interestRateModel;
 
     before(async function () {
-        ADMIN = await ethers.getSigner();
         const FixedInterestRateModel = await ethers.getContractFactory("FixedInterestRateModel");
         interestRateModel = await FixedInterestRateModel.deploy(0);
     });

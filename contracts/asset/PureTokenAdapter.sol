@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 pragma abicoder v1;
 
@@ -44,7 +45,8 @@ contract PureTokenAdapter is Controller, IMoneyMarketAdapter {
         return 0;
     }
 
-    function deposit(address tokenAddress) external override checkTokenSupported(tokenAddress) {
+    // solhint-disable-next-line no-empty-blocks
+    function deposit(address tokenAddress) external view override checkTokenSupported(tokenAddress) {
         // Don't have to do anything because AssetManager already transfered tokens here
     }
 

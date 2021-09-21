@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -675,7 +676,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     function withdrawRewards() external whenNotPaused nonReentrant {
         uint256 rewards = comptroller.withdrawRewards(msg.sender, stakingToken);
-        require(rewards > 0, "UserManager: user rewards is zero or comptroller balance not enough");
+        require(rewards > 0, "UserManager: not enough rewards");
     }
 
     /**
@@ -709,14 +710,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         _updateTotalFrozen(borrower, true);
         require(totalFrozen >= amount, "UserManager: amount exceeds the totalFrozen");
         comptroller.withdrawRewards(msg.sender, stakingToken);
+
         //The borrower is still overdue, do not call comptroller.addFrozenCoinAge
-        // uint256 lastRepay = uToken.getLastRepay(borrower);
-        // comptroller.addFrozenCoinAge(
-        //     msg.sender,
-        //     stakingToken,
-        //     lockedAmount,
-        //     lastRepay
-        // );
 
         stakers[msg.sender] -= amount;
         totalStaked -= amount;
@@ -742,15 +737,28 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
+        require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
+        uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         _updateTotalFrozen(account, isOverdue);
     }
 
-    function _updateTotalFrozen(address account, bool isOverdue) private {
+    function batchUpdateTotalFrozen(address[] calldata accounts, bool[] calldata isOverdues)
+        external
+        override
+        onlyMarketOrAdmin
+        whenNotPaused
+    {
+        require(accounts.length == isOverdues.length, "UserManager: params length error");
         require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
-
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
+        }
+    }
 
+    function _updateTotalFrozen(address account, bool isOverdue) private {
         if (isOverdue) {
             //isOverdue = true, user overdue needs to increase totalFrozen
 

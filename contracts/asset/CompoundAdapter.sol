@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 pragma abicoder v1;
 
@@ -32,12 +33,12 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     mapping(address => uint256) public override ceilingMap;
 
     modifier checkTokenSupported(address tokenAddress) {
-        require(_supportsToken(tokenAddress), "CompoundAdapter: Token not supported");
+        require(_supportsToken(tokenAddress), "Token not supported");
         _;
     }
 
     modifier onlyAssetManager() {
-        require(msg.sender == assetManager, "CompoundAdapter: only asset manager can call");
+        require(msg.sender == assetManager, "Only asset manager can call");
         _;
     }
 
@@ -79,7 +80,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         token.safeApprove(cTokenAddress, 0);
         token.safeApprove(cTokenAddress, amount);
         uint256 result = cToken.mint(amount);
-        require(result == 0, "CompoundAdapter.deposit: There was an error minting the cToken");
+        require(result == 0, "Error minting the cToken");
     }
 
     function withdraw(
@@ -92,7 +93,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         CToken cToken = CToken(cTokenAddress);
 
         uint256 result = cToken.redeemUnderlying(tokenAmount);
-        require(result == 0, "CompoundAdapter.withdraw: There was an error redeeming the cToken");
+        require(result == 0, "Error redeeming the cToken");
         token.safeTransfer(recipient, tokenAmount);
     }
 
@@ -107,7 +108,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         CToken cToken = CToken(cTokenAddress);
 
         uint256 result = cToken.redeemUnderlying(cToken.balanceOfUnderlying(address(this)));
-        require(result == 0, "CompoundAdapter.withdrawAll: There was an error redeeming the cToken");
+        require(result == 0, "Error redeeming the cToken");
         token.safeTransfer(recipient, token.balanceOf(address(this)));
     }
 
@@ -152,7 +153,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function _claimTokens(address tokenAddress, address recipient) private {
-        require(recipient != address(0), "CompoundAdapter: Recipient can not be zero");
+        require(recipient != address(0), "Recipient can not be zero");
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
         token.safeTransfer(recipient, balance);

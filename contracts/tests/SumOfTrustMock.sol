@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 contract SumOfTrustMock {
@@ -33,7 +34,7 @@ contract SumOfTrustMock {
         address account,
         uint256 amount,
         bool isIncrease
-    ) public view returns (uint256) {
+    ) public pure returns (uint256) {
         if (array.length == 0) return 0;
 
         uint256 remaining = amount;
@@ -43,26 +44,26 @@ contract SumOfTrustMock {
             for (uint256 i = 0; i < array.length; i++) {
                 uint256 remainingVouchingAmount;
                 if (array[i].vouchingAmount > array[i].lockedAmount) {
-                    remainingVouchingAmount = array[i].vouchingAmount - (array[i].lockedAmount);
+                    remainingVouchingAmount = array[i].vouchingAmount - array[i].lockedAmount;
                 } else {
                     remainingVouchingAmount = 0;
                 }
 
                 if (remainingVouchingAmount > array[i].availableStakingAmount) {
                     if (array[i].availableStakingAmount > remaining) {
-                        newLockedAmount = array[i].lockedAmount + (remaining);
+                        newLockedAmount = array[i].lockedAmount + remaining;
                         remaining = 0;
                     } else {
-                        newLockedAmount = array[i].lockedAmount + (array[i].availableStakingAmount);
-                        remaining = remaining - (array[i].availableStakingAmount);
+                        newLockedAmount = array[i].lockedAmount + array[i].availableStakingAmount;
+                        remaining = remaining - array[i].availableStakingAmount;
                     }
                 } else {
                     if (remainingVouchingAmount > remaining) {
-                        newLockedAmount = array[i].lockedAmount + (remaining);
+                        newLockedAmount = array[i].lockedAmount + remaining;
                         remaining = 0;
                     } else {
-                        newLockedAmount = array[i].lockedAmount + (remainingVouchingAmount);
-                        remaining = remaining - (remainingVouchingAmount);
+                        newLockedAmount = array[i].lockedAmount + remainingVouchingAmount;
+                        remaining -= remainingVouchingAmount;
                     }
                 }
 
@@ -74,11 +75,11 @@ contract SumOfTrustMock {
             array = _sortArray(array, false);
             for (uint256 i = 0; i < array.length; i++) {
                 if (array[i].lockedAmount > remaining) {
-                    newLockedAmount = array[i].lockedAmount - (remaining);
+                    newLockedAmount = array[i].lockedAmount - remaining;
                     remaining = 0;
                 } else {
                     newLockedAmount = 0;
-                    remaining = remaining - (array[i].lockedAmount);
+                    remaining -= array[i].lockedAmount;
                 }
 
                 if (account == array[i].staker) {
@@ -86,6 +87,8 @@ contract SumOfTrustMock {
                 }
             }
         }
+
+        return 0;
     }
 
     function setEffectNumber(uint256 number) external {

@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -10,12 +11,12 @@ contract ComptrollerMock {
 
     function getRewardsMultiplier(address account, address token) public view returns (uint256) {}
 
-    function setRewardsInfo(address _unionToken, uint256 _rewardAmount) external returns (uint256) {
+    function setRewardsInfo(address _unionToken, uint256 _rewardAmount) external {
         unionToken = _unionToken;
         rewardAmount = _rewardAmount;
     }
 
-    function withdrawRewards(address sender, address token) external returns (uint256) {
+    function withdrawRewards(address sender, address) external returns (uint256) {
         IERC20Upgradeable(unionToken).transfer(sender, rewardAmount);
         return rewardAmount;
     }
@@ -30,9 +31,9 @@ contract ComptrollerMock {
         return calculateRewardsByBlocks(account, token, 0);
     }
 
-    function inflationPerBlock(uint256 effectiveTotalStake) public view returns (uint256) {}
+    function inflationPerBlock(uint256) public view returns (uint256) {}
 
-    function updateTotalStaked(address token, uint256 totalStaked) external returns (bool) {
+    function updateTotalStaked(address, uint256) external pure returns (bool) {
         return true;
     }
 }

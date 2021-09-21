@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -44,27 +45,27 @@ contract UTokenMock is ERC20Upgradeable {
         return isOverdue = _isOverdue;
     }
 
-    function checkIsOverdue(address account) public view returns (bool) {
+    function checkIsOverdue(address) public view returns (bool) {
         return isOverdue;
     }
 
-    function getRemainingLoanSize() public view returns (uint256) {
+    function getRemainingLoanSize() public pure returns (uint256) {
         return 0;
     }
 
-    function getLastRepay(address account) public view returns (uint256 lastRepay) {
+    function getLastRepay(address) public pure returns (uint256 lastRepay) {
         lastRepay = 0;
     }
 
-    function getInterestIndex(address account) public view returns (uint256 interestIndex) {
+    function getInterestIndex(address) public pure returns (uint256 interestIndex) {
         interestIndex = 0;
     }
 
-    function calculatingFee(uint256 amount) public view returns (uint256) {
+    function calculatingFee(uint256) public pure returns (uint256) {
         return 0;
     }
 
-    function getLoan(address member)
+    function getLoan(address)
         public
         view
         returns (
@@ -78,48 +79,43 @@ contract UTokenMock is ERC20Upgradeable {
         )
     {}
 
-    function getBorrowed(address account) public view returns (uint256 borrowed) {}
+    function getBorrowed(address) public view returns (uint256) {}
 
-    function borrowBalanceView(address account) public view returns (uint256) {
+    function borrowBalanceView(address) public pure returns (uint256) {
         return 0;
     }
 
     function borrowRatePerBlock() public view returns (uint256) {}
 
-    function supplyRatePerBlock() public view returns (uint256) {
+    function supplyRatePerBlock() public pure returns (uint256) {
         return 0;
     }
 
-    function exchangeRateCurrent() public returns (uint256) {
+    function exchangeRateCurrent() public view returns (uint256) {
         return exchangeRateStored();
     }
 
     function exchangeRateStored() public view returns (uint256) {}
 
-    /**
-     *  @dev Calculating member's borrowed interest
-     *  @param account Member address
-     *  @return Interest amount
-     */
-    function calculatingInterest(address account) public view returns (uint256) {
+    function calculatingInterest(address) public pure returns (uint256) {
         return 0;
     }
 
     function repayBorrowWithPermit(
-        address borrower,
-        uint256 amount,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        address,
+        uint256,
+        uint256,
+        uint256,
+        uint8,
+        bytes32,
+        bytes32
     ) public {}
 
-    function accrueInterest() public returns (bool) {
+    function accrueInterest() public pure returns (bool) {
         return true;
     }
 
-    function balanceOfUnderlying(address owner) external returns (uint256) {
+    function balanceOfUnderlying(address owner) external view returns (uint256) {
         return balanceOf(owner);
     }
 
@@ -127,15 +123,15 @@ contract UTokenMock is ERC20Upgradeable {
         _mint(msg.sender, mintAmount);
     }
 
-    function redeem(uint256 redeemTokens) external {}
+    function redeem(uint256) external {}
 
-    function redeemUnderlying(uint256 redeemAmount) external {}
+    function redeemUnderlying(uint256) external {}
 
-    function addReserves(uint256 addAmount) external {}
+    function addReserves(uint256) external {}
 
-    function removeReserves(address receiver, uint256 reduceAmount) external {}
+    function removeReserves(address, uint256) external {}
 
-    function debtWriteOff(address borrower, uint256 amount) external {}
+    function debtWriteOff(address, uint256) external {}
 
     function getBlockNumber() internal view returns (uint256) {
         return block.number;
@@ -152,12 +148,12 @@ contract UTokenMock is ERC20Upgradeable {
     }
 
     function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        address,
+        address,
+        uint256,
+        uint256,
+        uint8,
+        bytes32,
+        bytes32
     ) external {}
 }

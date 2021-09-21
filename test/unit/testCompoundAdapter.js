@@ -85,7 +85,7 @@ describe("CompoundAdapter Contract", async () => {
     it("Claim tokens: recipient can not be zero", async () => {
         await expect(
             compoundAdapter.connect(ASSET_MANAGER).claimTokens(erc20.address, ethers.constants.AddressZero)
-        ).to.be.revertedWith("CompoundAdapter: Recipient can not be zero");
+        ).to.be.revertedWith("Recipient can not be zero");
     });
 
     it("Withdraw all", async () => {
@@ -93,9 +93,7 @@ describe("CompoundAdapter Contract", async () => {
     });
 
     it("Token not supported", async () => {
-        await expect(compoundAdapter.deposit(ethers.constants.AddressZero)).to.be.revertedWith(
-            "CompoundAdapter: Token not supported"
-        );
+        await expect(compoundAdapter.deposit(ethers.constants.AddressZero)).to.be.revertedWith("Token not supported");
     });
 
     it("Set new assetManager", async () => {

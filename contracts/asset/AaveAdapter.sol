@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 pragma abicoder v1;
 
@@ -57,7 +58,7 @@ abstract contract LendingPool {
 contract AaveAdapter is Controller, IMoneyMarketAdapter {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    uint256 constant UINT256_MAX = type(uint256).max;
+    uint256 private constant UINT256_MAX = type(uint256).max;
     mapping(address => address) public tokenToAToken;
     address public assetManager;
     mapping(address => uint256) public override floorMap;

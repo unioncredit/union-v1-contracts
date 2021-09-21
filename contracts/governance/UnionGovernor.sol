@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
@@ -14,7 +14,10 @@ contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, Governo
         Governor("Union Governor")
         GovernorVotesComp(_token)
         GovernorTimelockControl(_timelock)
-    {}
+    // solhint-disable-next-line no-empty-blocks
+    {
+
+    }
 
     function votingDelay() public pure virtual override returns (uint256) {
         return 6575; // 1 day
@@ -133,17 +136,14 @@ contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, Governo
         return super.supportsInterface(interfaceId);
     }
 
-    function _checkUserLatestProposal() private {
+    function _checkUserLatestProposal() private view {
         uint256 latestProposalId = latestProposalIds[_msgSender()];
         if (latestProposalId != 0) {
             ProposalState proposersLatestProposalState = state(latestProposalId);
-            require(
-                proposersLatestProposalState != ProposalState.Active,
-                "Governor::propose: one live proposal per proposer, found an already active proposal"
-            );
+            require(proposersLatestProposalState != ProposalState.Active, "Governor: found an already active proposal");
             require(
                 proposersLatestProposalState != ProposalState.Pending,
-                "Governor::propose: one live proposal per proposer, found an already pending proposal"
+                "Governor: found an already pending proposal"
             );
         }
     }

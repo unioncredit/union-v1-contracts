@@ -4,7 +4,7 @@ const {expect} = require("chai");
 require("chai").should();
 const {signDaiPermit, signERC2612Permit} = require("eth-permit");
 const {parseEther} = require("ethers").utils;
-const {waitNBlocks} = require("../utils");
+const {waitNBlocks} = require("../../utils");
 
 const AddressZero = ethers.constants.AddressZero;
 
@@ -440,7 +440,7 @@ describe("User Manager Contract", () => {
         await erc20.connect(MEMBER1).approve(userManager.address, amount);
         await userManager.connect(MEMBER1).stake(amount);
         await expect(userManager.connect(MEMBER1).withdrawRewards()).to.be.revertedWith(
-            "UserManager: user rewards is zero or comptroller balance not enough"
+            "UserManager: not enough rewards"
         );
         await unionToken.transfer(comptroller.address, amount);
         //mock transfer reward
@@ -547,7 +547,7 @@ describe("User Manager Contract", () => {
         res.toString().should.eq("0");
 
         //isOverdue true
-        await userManager.updateTotalFrozen(MEMBER1.address, true);
+        await userManager.batchUpdateTotalFrozen([MEMBER1.address], [true]);
         res = await userManager.totalFrozen();
         res.toString().should.eq("0");
 
@@ -557,7 +557,7 @@ describe("User Manager Contract", () => {
         res.toString().should.eq("0");
 
         //isOverdue false totalFrozen > amount
-        await userManager.updateTotalFrozen(BOB.address, false);
+        await userManager.batchUpdateTotalFrozen([BOB.address], [false]);
         res = await userManager.totalFrozen();
         res.toString().should.eq("0");
     });
