@@ -9,6 +9,7 @@ require("hardhat-gas-reporter");
 require("hardhat-deploy");
 require("solidity-coverage");
 require("dotenv").config();
+require("hardhat-docgen");
 
 module.exports = {
     networks: {
@@ -69,5 +70,11 @@ module.exports = {
     },
     mocha: {
         timeout: 0
+    },
+    docgen: {
+        path: "./docs",
+        clear: true,
+        runOnCompile: true,
+        except: ["tests", "interfaces"]
     }
 };
