@@ -1,6 +1,6 @@
 const configs = require("../deployConfig.json");
 
-module.exports = async ({getNamedAccounts, deployments, network}) => {
+module.exports = async ({getNamedAccounts, deployments, getChainId, network}) => {
     const {deploy} = deployments;
     const {deployer} = await getNamedAccounts();
     const chainId = await getChainId();
