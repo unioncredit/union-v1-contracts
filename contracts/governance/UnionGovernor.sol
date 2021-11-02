@@ -24,7 +24,7 @@ contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, Governo
     }
 
     function votingPeriod() public pure virtual override returns (uint256) {
-        return 46027; // 1 week
+        return 19725; // 3 day
     }
 
     function proposalThreshold() public pure virtual override returns (uint256) {
