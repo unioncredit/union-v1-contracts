@@ -135,10 +135,12 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function setAssetManager(address assetManager_) external onlyAdmin {
+        require(assetManager_ != address(0), "UToken: assetManager can not be zero");
         assetManager = assetManager_;
     }
 
     function setUserManager(address userManager_) external onlyAdmin {
+        require(userManager_ != address(0), "UToken: userManager can not be zero");
         userManager = userManager_;
     }
 
@@ -719,6 +721,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function _setInterestRateModelFresh(address newInterestRateModel_) private {
+        require(newInterestRateModel_ != address(0), "UToken: newInterestRateModel can not be zero");
         address oldInterestRateModel = address(interestRateModel);
         address newInterestRateModel = newInterestRateModel_;
         require(

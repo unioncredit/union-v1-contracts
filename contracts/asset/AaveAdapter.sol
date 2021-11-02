@@ -86,10 +86,12 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function setFloor(address tokenAddress, uint256 floor) external onlyAdmin {
+        require(tokenAddress != address(0), "AaveAdapter: tokenAddress can not be zero");
         floorMap[tokenAddress] = floor;
     }
 
     function setCeiling(address tokenAddress, uint256 ceiling) external onlyAdmin {
+        require(tokenAddress != address(0), "AaveAdapter: tokenAddress can not be zero");
         ceilingMap[tokenAddress] = ceiling;
     }
 

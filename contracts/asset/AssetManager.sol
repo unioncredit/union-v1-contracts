@@ -69,12 +69,14 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     event LogRebalance(address tokenAddress, uint256[] percentages);
 
     function __AssetManager_init(address _marketRegistry) public initializer {
+        require(_marketRegistry != address(0), "AssetManager: marketRegistry can not be zero");
         Controller.__Controller_init(msg.sender);
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
         marketRegistry = _marketRegistry;
     }
 
     function setMarketRegistry(address _marketRegistry) external onlyAdmin {
+        require(_marketRegistry != address(0), "AssetManager: marketRegistry can not be zero");
         marketRegistry = _marketRegistry;
     }
 
