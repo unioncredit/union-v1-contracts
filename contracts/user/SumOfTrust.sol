@@ -97,23 +97,24 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
 
     function _sortArray(LockedInfo[] memory arr, bool isPositive) private pure returns (LockedInfo[] memory) {
         uint256 length = arr.length;
-
-        for (uint256 i = 0; i < length; i++) {
-            for (uint256 j = i + 1; j < length; j++) {
+        LockedInfo memory temp;
+        for (uint256 i = 1; i < length; i++) {
+            temp = arr[i];
+            uint256 j = i;
+            for (; j > 0; j--) {
                 if (isPositive) {
-                    if (arr[i].vouchingAmount < arr[j].vouchingAmount) {
-                        LockedInfo memory temp = arr[j];
-                        arr[j] = arr[i];
-                        arr[i] = temp;
+                    if (temp.vouchingAmount <= arr[j - 1].vouchingAmount) {
+                        break;
                     }
                 } else {
-                    if (arr[i].vouchingAmount > arr[j].vouchingAmount) {
-                        LockedInfo memory temp = arr[j];
-                        arr[j] = arr[i];
-                        arr[i] = temp;
+                    if (temp.vouchingAmount >= arr[j - 1].vouchingAmount) {
+                        break;
                     }
                 }
+
+                arr[j] = arr[j - 1];
             }
+            arr[j] = temp;
         }
 
         return arr;
