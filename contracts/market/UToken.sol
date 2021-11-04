@@ -394,6 +394,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param amount Borrow amount
      */
     function borrow(uint256 amount) external onlyMember(msg.sender) whenNotPaused nonReentrant {
+        require(accrueInterest(), "UToken: accrue interest failed");
         IAssetManager assetManagerContract = IAssetManager(assetManager);
         require(amount >= minBorrow, "UToken: amount less than loan size min");
 
