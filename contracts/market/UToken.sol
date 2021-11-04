@@ -9,13 +9,14 @@ import "../Controller.sol";
 import "../interfaces/IUserManager.sol";
 import "../interfaces/IAssetManager.sol";
 import "../interfaces/IUErc20.sol";
+import "../interfaces/IUToken.sol";
 import "../interfaces/IInterestRateModel.sol";
 
 /**
  *  @title UToken Contract
  *  @dev Union accountBorrows can borrow and repay thru this component.
  */
-contract UToken is Controller, ReentrancyGuardUpgradeable {
+contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IUErc20;
 
     bool public constant IS_UTOKEN = true;
@@ -147,7 +148,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Accept claims only from the admin
      *  @param originationFee_ Fees deducted for each loan transaction
      */
-    function setOriginationFee(uint256 originationFee_) external onlyAdmin {
+    function setOriginationFee(uint256 originationFee_) external override onlyAdmin {
         originationFee = originationFee_;
     }
 
@@ -156,7 +157,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Accept claims only from the admin
      *  @param debtCeiling_ The debt limit for the whole system
      */
-    function setDebtCeiling(uint256 debtCeiling_) external onlyAdmin {
+    function setDebtCeiling(uint256 debtCeiling_) external override onlyAdmin {
         debtCeiling = debtCeiling_;
     }
 
@@ -165,7 +166,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Accept claims only from the admin
      *  @param minBorrow_ Minimum loan amount per user
      */
-    function setMinBorrow(uint256 minBorrow_) external onlyAdmin {
+    function setMinBorrow(uint256 minBorrow_) external override onlyAdmin {
         minBorrow = minBorrow_;
     }
 
@@ -174,7 +175,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Accept claims only from the admin
      *  @param maxBorrow_ Max loan amount per user
      */
-    function setMaxBorrow(uint256 maxBorrow_) external onlyAdmin {
+    function setMaxBorrow(uint256 maxBorrow_) external override onlyAdmin {
         maxBorrow = maxBorrow_;
     }
 
@@ -183,7 +184,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Accept claims only from the admin
      *  @param overdueBlocks_ Maximum late repayment block. The number of arrivals is a default
      */
-    function setOverdueBlocks(uint256 overdueBlocks_) external onlyAdmin {
+    function setOverdueBlocks(uint256 overdueBlocks_) external override onlyAdmin {
         overdueBlocks = overdueBlocks_;
     }
 
@@ -192,11 +193,11 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Accept claims only from the admin
      *  @param newInterestRateModel New interest rate model address
      */
-    function setInterestRateModel(address newInterestRateModel) external onlyAdmin {
+    function setInterestRateModel(address newInterestRateModel) external override onlyAdmin {
         _setInterestRateModelFresh(newInterestRateModel);
     }
 
-    function setReserveFactor(uint256 reserveFactorMantissa_) external onlyAdmin {
+    function setReserveFactor(uint256 reserveFactorMantissa_) external override onlyAdmin {
         require(
             reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
             "reserveFactorMantissa error"
@@ -208,7 +209,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @dev Returns the remaining amount that can be borrowed from the market.
      *  @return Remaining total amount
      */
-    function getRemainingLoanSize() public view returns (uint256) {
+    function getRemainingLoanSize() public view override returns (uint256) {
         if (debtCeiling >= totalBorrows) {
             return debtCeiling - totalBorrows;
         } else {
@@ -221,7 +222,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Member address
      *  @return lastRepay
      */
-    function getLastRepay(address account) public view returns (uint256 lastRepay) {
+    function getLastRepay(address account) public view override returns (uint256 lastRepay) {
         lastRepay = accountBorrows[account].lastRepay;
     }
 
@@ -230,7 +231,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Member address
      *  @return interestIndex
      */
-    function getInterestIndex(address account) public view returns (uint256 interestIndex) {
+    function getInterestIndex(address account) public view override returns (uint256 interestIndex) {
         interestIndex = accountBorrows[account].interestIndex;
     }
 
@@ -239,7 +240,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Member address
      *  @return isOverdue
      */
-    function checkIsOverdue(address account) public view returns (bool isOverdue) {
+    function checkIsOverdue(address account) public view override returns (bool isOverdue) {
         if (getBorrowed(account) == 0) {
             isOverdue = false;
         } else {
@@ -254,7 +255,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param amount Amount to be calculated
      *  @return Handling fee
      */
-    function calculatingFee(uint256 amount) public view returns (uint256) {
+    function calculatingFee(uint256 amount) public view override returns (uint256) {
         return (originationFee * amount) / WAD;
     }
 
@@ -266,6 +267,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     function getLoan(address member)
         public
         view
+        override
         returns (
             uint256 principal,
             uint256 totalBorrowed,
@@ -290,7 +292,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Member address
      *  @return borrowed
      */
-    function getBorrowed(address account) public view returns (uint256 borrowed) {
+    function getBorrowed(address account) public view override returns (uint256 borrowed) {
         borrowed = accountBorrows[account].principal;
     }
 
@@ -299,7 +301,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Member address
      *  @return Borrowed amount
      */
-    function borrowBalanceView(address account) public view returns (uint256) {
+    function borrowBalanceView(address account) public view override returns (uint256) {
         return accountBorrows[account].principal + calculatingInterest(account);
     }
 
@@ -326,7 +328,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @dev Get the borrowing interest rate per block
      *  @return Borrow rate
      */
-    function borrowRatePerBlock() public view returns (uint256) {
+    function borrowRatePerBlock() public view override returns (uint256) {
         uint256 borrowRateMantissa = interestRateModel.getBorrowRate();
         require(borrowRateMantissa <= BORROW_RATE_MAX_MANTISSA, "borrow rate is absurdly high");
         return borrowRateMantissa;
@@ -336,7 +338,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      * @notice Returns the current per-block supply interest rate for this UToken
      * @return The supply interest rate per block, scaled by 1e18
      */
-    function supplyRatePerBlock() public view returns (uint256) {
+    function supplyRatePerBlock() public view override returns (uint256) {
         return interestRateModel.getSupplyRate(reserveFactorMantissa);
     }
 
@@ -368,7 +370,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Member address
      *  @return Interest amount
      */
-    function calculatingInterest(address account) public view returns (uint256) {
+    function calculatingInterest(address account) public view override returns (uint256) {
         BorrowSnapshot memory loan = accountBorrows[account];
 
         if (loan.principal == 0) {
@@ -393,7 +395,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  Borrow amount must in the range of creditLimit, minBorrow, maxBorrow, debtCeiling and not overdue
      *  @param amount Borrow amount
      */
-    function borrow(uint256 amount) external onlyMember(msg.sender) whenNotPaused nonReentrant {
+    function borrow(uint256 amount) external override onlyMember(msg.sender) whenNotPaused nonReentrant {
         IAssetManager assetManagerContract = IAssetManager(assetManager);
         require(amount >= minBorrow, "UToken: amount less than loan size min");
 
@@ -437,11 +439,11 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         emit LogBorrow(msg.sender, amount, fee);
     }
 
-    function repayBorrow(uint256 repayAmount) external whenNotPaused nonReentrant {
+    function repayBorrow(uint256 repayAmount) external override whenNotPaused nonReentrant {
         _repayBorrowFresh(msg.sender, msg.sender, repayAmount);
     }
 
-    function repayBorrowBehalf(address borrower, uint256 repayAmount) external whenNotPaused nonReentrant {
+    function repayBorrowBehalf(address borrower, uint256 repayAmount) external override whenNotPaused nonReentrant {
         _repayBorrowFresh(msg.sender, borrower, repayAmount);
     }
 
@@ -531,7 +533,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public whenNotPaused {
+    ) public override whenNotPaused {
         IUErc20 erc20Token = IUErc20(underlying);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
 
@@ -542,7 +544,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @dev Accrue interest
      *  @return Accrue interest finished
      */
-    function accrueInterest() public returns (bool) {
+    function accrueInterest() public override returns (bool) {
         uint256 borrowRate = borrowRatePerBlock();
         uint256 currentBlockNumber = getBlockNumber();
         uint256 blockDelta = currentBlockNumber - accrualBlockNumber;
@@ -565,11 +567,11 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      * @param owner The address of the account to query
      * @return The amount of underlying owned by `owner`
      */
-    function balanceOfUnderlying(address owner) external returns (uint256) {
+    function balanceOfUnderlying(address owner) external override returns (uint256) {
         return exchangeRateCurrent() * uErc20.balanceOf(owner);
     }
 
-    function mint(uint256 mintAmount) external whenNotPaused nonReentrant {
+    function mint(uint256 mintAmount) external override whenNotPaused nonReentrant {
         require(accrueInterest(), "UToken: accrue interest failed");
         uint256 exchangeRate = exchangeRateStored();
         IUErc20 assetToken = IUErc20(underlying);
@@ -595,7 +597,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      * @dev Accrues interest whether or not the operation succeeds, unless reverted
      * @param redeemTokens The number of uTokens to redeem into underlying
      */
-    function redeem(uint256 redeemTokens) external whenNotPaused nonReentrant {
+    function redeem(uint256 redeemTokens) external override whenNotPaused nonReentrant {
         require(accrueInterest(), "UToken: accrue interest failed");
         _redeemFresh(payable(msg.sender), redeemTokens, 0);
     }
@@ -605,7 +607,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      * @dev Accrues interest whether or not the operation succeeds, unless reverted
      * @param redeemAmount The amount of underlying to receive from redeeming uTokens
      */
-    function redeemUnderlying(uint256 redeemAmount) external whenNotPaused nonReentrant {
+    function redeemUnderlying(uint256 redeemAmount) external override whenNotPaused nonReentrant {
         require(accrueInterest(), "UToken: accrue interest failed");
         _redeemFresh(payable(msg.sender), 0, redeemAmount);
     }
@@ -658,7 +660,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         emit LogRedeem(redeemer, redeemTokensIn, redeemAmountIn, redeemAmount);
     }
 
-    function addReserves(uint256 addAmount) external whenNotPaused nonReentrant {
+    function addReserves(uint256 addAmount) external override whenNotPaused nonReentrant {
         require(accrueInterest(), "UToken: accrue interest failed");
         IUErc20 assetToken = IUErc20(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
@@ -680,7 +682,13 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         emit LogReservesAdded(msg.sender, actualAddAmount, totalReservesNew);
     }
 
-    function removeReserves(address receiver, uint256 reduceAmount) external whenNotPaused nonReentrant onlyAdmin {
+    function removeReserves(address receiver, uint256 reduceAmount)
+        external
+        override
+        whenNotPaused
+        nonReentrant
+        onlyAdmin
+    {
         require(accrueInterest(), "UToken: accrue interest failed");
         require(reduceAmount <= totalReserves, "amount is large than totalReserves");
 
@@ -697,7 +705,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         emit LogReservesReduced(receiver, reduceAmount, totalReservesNew);
     }
 
-    function debtWriteOff(address borrower, uint256 amount) external whenNotPaused onlyUserManager {
+    function debtWriteOff(address borrower, uint256 amount) external override whenNotPaused onlyUserManager {
         uint256 oldPrincipal = accountBorrows[borrower].principal;
         uint256 repayAmount;
         if (amount > oldPrincipal) {
@@ -734,7 +742,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @dev Update borrower overdue info
      *  @param account Borrower address
      */
-    function updateOverdueInfo(address account) external whenNotPaused {
+    function updateOverdueInfo(address account) external override whenNotPaused {
         if (checkIsOverdue(account)) {
             IUserManager(userManager).updateTotalFrozen(account, true);
         }
