@@ -135,19 +135,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      */
     event LogDebtWriteOff(address indexed staker, address indexed borrower, uint256 amount);
 
-    /**
-     *  @dev set utoken address
-     *  @param uToken new uToken address
-     */
-    event LogSetUToken(address uToken);
-
-    /**
-     *  @dev set new member fee
-     *  @param oldMemberFee old member fee
-     *  @param newMemberFee new member fee
-     */
-    event LogSetNewMemberFee(uint256 oldMemberFee, uint256 newMemberFee);
-
     function __UserManager_init(
         address assetManager_,
         address unionToken_,
@@ -168,13 +155,10 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     function setUToken(address uToken_) public onlyAdmin {
         uToken = IUToken(uToken_);
-        emit LogSetUToken(uToken_);
     }
 
     function setNewMemberFee(uint256 amount) public onlyAdmin {
-        uint256 oldMemberFee = newMemberFee;
         newMemberFee = amount;
-        emit LogSetNewMemberFee(oldMemberFee, newMemberFee);
     }
 
     /**
