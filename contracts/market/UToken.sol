@@ -444,6 +444,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function repayBorrowBehalf(address borrower, uint256 repayAmount) external whenNotPaused nonReentrant {
+        require(borrower != address(0), "UToken: borrower can not be zero");
         _repayBorrowFresh(msg.sender, borrower, repayAmount);
     }
 
@@ -534,6 +535,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         bytes32 r,
         bytes32 s
     ) public whenNotPaused {
+        require(borrower != address(0), "UToken: borrower can not be zero");
         IUErc20 erc20Token = IUErc20(underlying);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
 
@@ -683,6 +685,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function removeReserves(address receiver, uint256 reduceAmount) external whenNotPaused nonReentrant onlyAdmin {
+        require(receiver != address(0), "UToken: receiver can not be zero");
         require(accrueInterest(), "UToken: accrue interest failed");
         require(reduceAmount <= totalReserves, "amount is large than totalReserves");
 
@@ -700,6 +703,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function debtWriteOff(address borrower, uint256 amount) external whenNotPaused onlyUserManager {
+        require(borrower != address(0), "UToken: borrower can not be zero");
         uint256 oldPrincipal = accountBorrows[borrower].principal;
         uint256 repayAmount;
         if (amount > oldPrincipal) {
@@ -738,6 +742,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Borrower address
      */
     function updateOverdueInfo(address account) external whenNotPaused {
+        require(account != address(0), "UToken: account can not be zero");
         if (checkIsOverdue(account)) {
             IUserManager(userManager).updateTotalFrozen(account, true);
         }
