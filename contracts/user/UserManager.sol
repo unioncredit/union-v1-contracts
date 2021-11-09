@@ -812,26 +812,4 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         return totalFrozenCoinAge;
     }
-
-    function _getFrozenCoinAge(address staker, uint256 pastBlocks) private view returns (uint256) {
-        uint256 totalFrozenCoinAge = 0;
-
-        address[] memory borrowerAddresses = getBorrowerAddresses(staker);
-
-        for (uint256 i = 0; i < borrowerAddresses.length; i++) {
-            address borrower = borrowerAddresses[i];
-            uint256 blocks = block.number - uToken.getLastRepay(borrower);
-            if (uToken.checkIsOverdue(borrower)) {
-                (, , uint256 lockedStake) = getStakerAsset(borrower, staker);
-
-                if (pastBlocks >= blocks) {
-                    totalFrozenCoinAge += lockedStake * blocks;
-                } else {
-                    totalFrozenCoinAge += lockedStake * pastBlocks;
-                }
-            }
-        }
-
-        return totalFrozenCoinAge;
-    }
 }
