@@ -826,5 +826,38 @@ describe("UserManager Contract", async () => {
             staker_a_defaulted_stake = await userManagerProxy.getTotalFrozenAmount(STAKER_A.address);
             staker_a_defaulted_stake.toString().should.eq("0");
         });
+
+        //Stakers A,B,C stake 100, 65, 20, approve it for borrower Z, then staker B stakes an additional 0.07 DAI, and borrower Z borrows 185.
+        it("rewards calculation", async () => {
+            await uTokenProxy.setOriginationFee("0");
+            await userManagerProxy.setCreditLimitModel(sumOfTrust.address);
+            await userManagerProxy.addMember(STAKER_A.address);
+            await userManagerProxy.addMember(STAKER_B.address);
+            await userManagerProxy.addMember(STAKER_C.address);
+            await userManagerProxy.addMember(BORROWER_Z.address);
+
+            await userManagerProxy.connect(STAKER_A).stake(parseEther("100"));
+            await userManagerProxy.connect(STAKER_B).stake(parseEther("65"));
+            await userManagerProxy.connect(STAKER_C).stake(parseEther("20"));
+
+            //A, B, C set trust for Z(100,60,25) and the "vouch" is the same.
+            await userManagerProxy.connect(STAKER_A).updateTrust(BORROWER_Z.address, parseEther("100"));
+            await userManagerProxy.connect(STAKER_B).updateTrust(BORROWER_Z.address, parseEther("65"));
+            await userManagerProxy.connect(STAKER_C).updateTrust(BORROWER_Z.address, parseEther("20"));
+
+            await userManagerProxy.connect(STAKER_B).stake(parseEther("0.07"));
+            await uTokenProxy.connect(BORROWER_Z).borrow(parseEther("185"));
+
+            await waitNBlocks(11);
+
+            await uTokenProxy.connect(BORROWER_Y).updateOverdueInfo(BORROWER_Z.address);
+
+            const aRewards = await comptroller.calculateRewards(STAKER_A.address, erc20Proxy.address);
+            console.log("STAKER_A: ", aRewards.toString());
+            const bRewards = await comptroller.calculateRewards(STAKER_B.address, erc20Proxy.address);
+            console.log("STAKER_B: ", bRewards.toString());
+            const cRewards = await comptroller.calculateRewards(STAKER_C.address, erc20Proxy.address);
+            console.log("STAKER_C: ", cRewards.toString());
+        });
     });
 });
