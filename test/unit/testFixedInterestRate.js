@@ -1,4 +1,5 @@
-const {ethers, upgrades} = require("hardhat");
+const {ethers} = require("hardhat");
+const {expect} = require("chai");
 
 require("chai").should();
 
@@ -16,8 +17,12 @@ describe("InterestRatemodel Contract", () => {
     });
 
     it("Test borrow rate", async () => {
-        await interestRateModel.setInterestRate("100000000000000000");
+        const maxRate = await interestRateModel.BORROW_RATE_MAX_MANTISSA();
+        await expect(interestRateModel.setInterestRate(maxRate.add(1))).to.be.revertedWith(
+            "borrow rate is absurdly high"
+        );
+        await interestRateModel.setInterestRate(maxRate);
         const rate = await interestRateModel.getBorrowRate();
-        rate.toString().should.eq("100000000000000000");
+        rate.toString().should.eq(maxRate);
     });
 });
