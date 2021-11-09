@@ -391,7 +391,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         }
 
         //In order to prevent dust from being stored in the market
-        require(token.balanceOf(address(this)) < 1e10, "AssetManager: there are remaining funds in the fund pool");
+        require(token.balanceOf(address(this)) < 10000, "AssetManager: there are remaining funds in the fund pool");
 
         emit LogRebalance(tokenAddress, percentages);
     }
