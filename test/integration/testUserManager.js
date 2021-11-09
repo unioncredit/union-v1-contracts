@@ -831,10 +831,6 @@ describe("UserManager Contract", async () => {
         it("rewards calculation", async () => {
             await uTokenProxy.setOriginationFee("0");
             await userManagerProxy.setCreditLimitModel(sumOfTrust.address);
-            await userManagerProxy.addMember(STAKER_A.address);
-            await userManagerProxy.addMember(STAKER_B.address);
-            await userManagerProxy.addMember(STAKER_C.address);
-            await userManagerProxy.addMember(BORROWER_Z.address);
 
             await userManagerProxy.connect(STAKER_A).stake(parseEther("100"));
             await userManagerProxy.connect(STAKER_B).stake(parseEther("65"));
