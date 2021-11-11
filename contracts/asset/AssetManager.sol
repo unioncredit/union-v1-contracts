@@ -20,7 +20,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     using AddressUpgradeable for address;
 
     IMoneyMarketAdapter[] public moneyMarkets;
-    mapping(address => Market) public supportedMarkets;
+    mapping(address => bool) public supportedMarkets;
     address[] public supportedTokensList;
     //record admin or userManager balance
     mapping(address => mapping(address => uint256)) public balances; //1 user 2 token
@@ -28,10 +28,6 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     address public marketRegistry;
     // slither-disable-next-line uninitialized-state
     uint256[] public withdrawSeq; // Priority sequence of money market indices for processing withdraws
-
-    struct Market {
-        bool isSupported;
-    }
 
     modifier checkMarketSupported(address token) {
         require(isMarketSupported(token), "AssetManager: token not support");
@@ -152,7 +148,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @return Whether is supported
      */
     function isMarketSupported(address tokenAddress) public view override returns (bool) {
-        return supportedMarkets[tokenAddress].isSupported;
+        return supportedMarkets[tokenAddress];
     }
 
     /**
@@ -281,11 +277,33 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param tokenAddress ERC20 token address
      */
     function addToken(address tokenAddress) external override onlyAdmin {
-        require(!supportedMarkets[tokenAddress].isSupported, "AssetManager: token is exist");
+        require(!supportedMarkets[tokenAddress], "AssetManager: token is exist");
         supportedTokensList.push(tokenAddress);
-        supportedMarkets[tokenAddress].isSupported = true;
+        supportedMarkets[tokenAddress] = true;
 
         approveAllMarketsMax(tokenAddress);
+    }
+
+    /**
+     *  @dev Remove a ERC20 token to support in AssetManager
+     *  @param tokenAddress ERC20 token address
+     */
+    function removeToken(address tokenAddress) external override onlyAdmin {
+        bool isExist = false;
+        uint256 index;
+        for (uint256 i = 0; i < supportedTokensList.length; i++) {
+            if (tokenAddress == address(supportedTokensList[i])) {
+                isExist = true;
+                index = i;
+                break;
+            }
+        }
+
+        if (isExist) {
+            supportedTokensList[index] = supportedTokensList[supportedTokensList.length - 1];
+            supportedTokensList.pop();
+            supportedMarkets[tokenAddress] = false;
+        }
     }
 
     /**
@@ -313,6 +331,27 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         if (!isExist) moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
 
         approveAllTokensMax(adapterAddress);
+    }
+
+    /**
+     *  @dev Remove a adapter for the underlying lending protocol
+     *  @param adapterAddress adapter address
+     */
+    function removeAdapter(address adapterAddress) external override onlyAdmin {
+        bool isExist = false;
+        uint256 index;
+        for (uint256 i = 0; i < moneyMarkets.length; i++) {
+            if (adapterAddress == address(moneyMarkets[i])) {
+                isExist = true;
+                index = i;
+                break;
+            }
+        }
+
+        if (isExist) {
+            moneyMarkets[index] = moneyMarkets[moneyMarkets.length - 1];
+            moneyMarkets.pop();
+        }
     }
 
     function overwriteAdapters(address[] calldata adapters) external onlyAdmin {
