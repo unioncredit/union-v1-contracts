@@ -10,6 +10,7 @@ contract Treasury {
 
     /// @notice Reference to token to drip (immutable)
     IERC20 public immutable token;
+    address public newAdmin;
     address public admin;
 
     struct Schedule {
@@ -27,13 +28,25 @@ contract Treasury {
         _;
     }
 
+    event LogChangeAdmin(address indexed oldAdmin, address newAdmin);
+
     constructor(IERC20 token_) {
         admin = msg.sender;
         token = token_;
     }
 
-    function setAdmin(address admin_) public onlyAdmin {
-        admin = admin_;
+    function changeAdmin(address newAdmin_) external onlyAdmin {
+        require(newAdmin_ != address(0), "New admin cannot be zero");
+        newAdmin = newAdmin_;
+    }
+
+    function acceptAdmin() external {
+        require(newAdmin == msg.sender, "Must be called from new admin");
+
+        emit LogChangeAdmin(admin, newAdmin);
+
+        admin = newAdmin;
+        newAdmin = address(0);
     }
 
     /**
