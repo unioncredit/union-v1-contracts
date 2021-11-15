@@ -411,8 +411,6 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
             "UToken: The loan amount plus fee is greater than credit limit"
         );
 
-        require(accrueInterest(), "UToken: accrue interest failed");
-
         uint256 borrowedAmount = borrowBalanceStoredInternal(msg.sender);
 
         //Set lastRepay init data
