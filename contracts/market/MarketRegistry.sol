@@ -55,19 +55,17 @@ contract MarketRegistry is Controller {
     }
 
     function addUToken(address token, address uToken) public newToken(token) onlyAdmin {
-        if (tokens[token].uToken == address(0)) {
-            uTokenList.add(uToken);
-            tokens[token].uToken = uToken;
-            emit LogAddUToken(token, uToken);
-        }
+        require(tokens[token].uToken == address(0), "MarketRegistry: uToken has set");
+        uTokenList.add(uToken);
+        tokens[token].uToken = uToken;
+        emit LogAddUToken(token, uToken);
     }
 
     function addUserManager(address token, address userManager) public newUserManager(token) onlyAdmin {
-        if (tokens[token].userManager == address(0)) {
-            userManagerList.add(userManager);
-            tokens[token].userManager = userManager;
-            emit LogAddUserManager(token, userManager);
-        }
+        require(tokens[token].userManager == address(0), "MarketRegistry: userManager has set");
+        userManagerList.add(userManager);
+        tokens[token].userManager = userManager;
+        emit LogAddUserManager(token, userManager);
     }
 
     function deleteMarket(address token) public onlyAdmin {
