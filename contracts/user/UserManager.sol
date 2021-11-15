@@ -439,6 +439,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         for (uint256 i = 0; i < borrowerCount; i++) {
             if (trustInfo.borrowerAddresses[i] == borrower) {
                 borrowerExist = true;
+                break;
             }
         }
 
@@ -447,6 +448,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         for (uint256 i = 0; i < stakerCount; i++) {
             if (trustInfo.stakerAddresses[i] == trustInfo.staker) {
                 stakerExist = true;
+                break;
             }
         }
 
@@ -483,6 +485,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             if (members[borrower].creditLine.stakerAddresses[i] == staker) {
                 stakerExist = true;
                 stakerIndex = i;
+                break;
             }
         }
 
@@ -493,6 +496,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             if (members[staker].creditLine.borrowerAddresses[i] == borrower) {
                 borrowerExist = true;
                 borrowerIndex = i;
+                break;
             }
         }
 
