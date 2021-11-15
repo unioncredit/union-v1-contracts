@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -135,10 +135,12 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function setAssetManager(address assetManager_) external onlyAdmin {
+        require(assetManager_ != address(0), "UToken: assetManager can not be zero");
         assetManager = assetManager_;
     }
 
     function setUserManager(address userManager_) external onlyAdmin {
+        require(userManager_ != address(0), "UToken: userManager can not be zero");
         userManager = userManager_;
     }
 
@@ -442,6 +444,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function repayBorrowBehalf(address borrower, uint256 repayAmount) external whenNotPaused nonReentrant {
+        require(borrower != address(0), "UToken: borrower can not be zero");
         _repayBorrowFresh(msg.sender, borrower, repayAmount);
     }
 
@@ -532,6 +535,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
         bytes32 r,
         bytes32 s
     ) public whenNotPaused {
+        require(borrower != address(0), "UToken: borrower can not be zero");
         IUErc20 erc20Token = IUErc20(underlying);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
 
@@ -681,6 +685,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function removeReserves(address receiver, uint256 reduceAmount) external whenNotPaused nonReentrant onlyAdmin {
+        require(receiver != address(0), "UToken: receiver can not be zero");
         require(accrueInterest(), "UToken: accrue interest failed");
         require(reduceAmount <= totalReserves, "amount is large than totalReserves");
 
@@ -698,6 +703,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function debtWriteOff(address borrower, uint256 amount) external whenNotPaused onlyUserManager {
+        require(borrower != address(0), "UToken: borrower can not be zero");
         uint256 oldPrincipal = accountBorrows[borrower].principal;
         uint256 repayAmount;
         if (amount > oldPrincipal) {
@@ -719,6 +725,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
     }
 
     function _setInterestRateModelFresh(address newInterestRateModel_) private {
+        require(newInterestRateModel_ != address(0), "UToken: newInterestRateModel can not be zero");
         address oldInterestRateModel = address(interestRateModel);
         address newInterestRateModel = newInterestRateModel_;
         require(
@@ -735,6 +742,7 @@ contract UToken is Controller, ReentrancyGuardUpgradeable {
      *  @param account Borrower address
      */
     function updateOverdueInfo(address account) external whenNotPaused {
+        require(account != address(0), "UToken: account can not be zero");
         if (checkIsOverdue(account)) {
             IUserManager(userManager).updateTotalFrozen(account, true);
         }

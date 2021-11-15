@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IInterestRateModel.sol";
 
 contract FixedInterestRateModel is Ownable, IInterestRateModel {
+    uint256 public constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
     bool public constant override isInterestRateModel = true;
     uint256 public interestRatePerBlock;
 
@@ -33,6 +34,7 @@ contract FixedInterestRateModel is Ownable, IInterestRateModel {
     }
 
     function setInterestRate(uint256 interestRatePerBlock_) external override onlyOwner {
+        require(interestRatePerBlock_ <= BORROW_RATE_MAX_MANTISSA, "borrow rate is absurdly high");
         interestRatePerBlock = interestRatePerBlock_;
         emit LogNewInterestParams(interestRatePerBlock_);
     }
