@@ -65,6 +65,7 @@ contract Comptroller is Controller, IComptroller {
     }
 
     function setHalfDecayPoint(uint256 point) public onlyAdmin {
+        require(point != 0, "Comptroller: halfDecayPoint can not be zero");
         halfDecayPoint = point;
     }
 
