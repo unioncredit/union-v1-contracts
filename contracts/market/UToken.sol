@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -136,10 +136,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function setAssetManager(address assetManager_) external onlyAdmin {
+        require(assetManager_ != address(0), "UToken: assetManager can not be zero");
         assetManager = assetManager_;
     }
 
     function setUserManager(address userManager_) external onlyAdmin {
+        require(userManager_ != address(0), "UToken: userManager can not be zero");
         userManager = userManager_;
     }
 
@@ -727,6 +729,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function _setInterestRateModelFresh(address newInterestRateModel_) private {
+        require(newInterestRateModel_ != address(0), "UToken: newInterestRateModel can not be zero");
         address oldInterestRateModel = address(interestRateModel);
         address newInterestRateModel = newInterestRateModel_;
         require(
@@ -743,6 +746,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @param account Borrower address
      */
     function updateOverdueInfo(address account) external override whenNotPaused {
+        require(account != address(0), "UToken: account can not be zero");
         if (checkIsOverdue(account)) {
             IUserManager(userManager).updateTotalFrozen(account, true);
         }
