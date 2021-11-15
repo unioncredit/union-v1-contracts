@@ -24,6 +24,8 @@ contract TreasuryVester {
         uint256 vestingCliff_,
         uint256 vestingEnd_
     ) {
+        require(unionToken_ != address(0), "TreasuryVester: unionToken can not be zero");
+        require(recipient_ != address(0), "TreasuryVester: recipient can not be zero");
         require(vestingBegin_ >= block.timestamp, "vesting begin too early");
         require(vestingCliff_ >= vestingBegin_, "cliff is too early");
         require(vestingEnd_ > vestingCliff_, "end is too early");

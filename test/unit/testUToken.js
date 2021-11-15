@@ -96,22 +96,22 @@ describe("UToken Contract", async () => {
     it("Get and set params", async () => {
         let assetManagerNew = await uToken.assetManager();
         assetManagerNew.should.eq(assetManager.address);
-        await expect(uToken.connect(alice).setAssetManager(ethers.constants.AddressZero)).to.be.revertedWith(
+        await expect(uToken.connect(alice).setAssetManager(assetManager.address)).to.be.revertedWith(
             "Controller: not admin"
         );
-        await uToken.setAssetManager(ethers.constants.AddressZero);
+        await uToken.setAssetManager(assetManager.address);
         assetManagerNew = await uToken.assetManager();
-        assetManagerNew.should.eq(ethers.constants.AddressZero);
+        assetManagerNew.should.eq(assetManager.address);
 
         let userManagerNew = await uToken.userManager();
         userManagerNew.should.eq(userManager.address);
-        await expect(uToken.connect(alice).setUserManager(ethers.constants.AddressZero)).to.be.revertedWith(
+        await expect(uToken.connect(alice).setUserManager(userManager.address)).to.be.revertedWith(
             "Controller: not admin"
         );
 
-        await uToken.setUserManager(ethers.constants.AddressZero);
+        await uToken.setUserManager(userManager.address);
         userManagerNew = await uToken.userManager();
-        userManagerNew.should.eq(ethers.constants.AddressZero);
+        userManagerNew.should.eq(userManager.address);
 
         let originationFeeNew = await uToken.originationFee();
         originationFeeNew.toString().should.eq(originationFee.toString());

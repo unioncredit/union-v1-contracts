@@ -52,6 +52,7 @@ abstract contract Whitelistable is Ownable {
      * @param _account The address to whitelist
      */
     function whitelist(address _account) public onlyOwner {
+        require(_account != address(0), "Whitelistable: account can not be zero");
         _whitelisted[_account] = true;
         emit Whitelisted(_account);
     }
@@ -61,6 +62,7 @@ abstract contract Whitelistable is Ownable {
      * @param _account The address to remove from the whitelist
      */
     function unwhitelist(address _account) external onlyOwner {
+        require(_account != address(0), "Whitelistable: account can not be zero");
         _whitelisted[_account] = false;
         emit Unwhitelisted(_account);
     }

@@ -33,6 +33,7 @@ contract Treasury {
     }
 
     function setAdmin(address admin_) public onlyAdmin {
+        require(admin_ != address(0), "Treasury: admin can not be zero");
         admin = admin_;
     }
 
@@ -102,6 +103,7 @@ contract Treasury {
     }
 
     function grantToken(address account, uint256 amount) public onlyAdmin {
+        require(account != address(0), "Treasury: account can not be zero");
         IERC20 token_ = token;
         uint256 treasuryBalance_ = token_.balanceOf(address(this));
         require(amount <= treasuryBalance_, "amount larger than balance");

@@ -154,6 +154,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     function setUToken(address uToken_) public onlyAdmin {
+        require(uToken_ != address(0), "UserManager: uToken can not be zero");
         uToken = IUToken(uToken_);
     }
 
@@ -167,6 +168,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param newCreditLimitModel New credit limit model address
      */
     function setCreditLimitModel(address newCreditLimitModel) public override onlyAdmin {
+        require(newCreditLimitModel != address(0), "UserManager: newCreditLimitModel can not be zero");
         _setCreditLimitModel(newCreditLimitModel);
     }
 
