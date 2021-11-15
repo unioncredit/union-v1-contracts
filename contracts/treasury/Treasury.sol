@@ -54,7 +54,7 @@ contract Treasury {
         uint256 blockNumber_ = block.number;
 
         require(blockNumber_ >= dripStart_, "not yet started");
-        uint256 treasuryBalance_ = token_.balanceOf(address(this)); // TODO: Verify this is a static call
+        uint256 treasuryBalance_ = token_.balanceOf(address(this));
 
         // Next, calculate intermediate values
         uint256 dripTotal_ = _min((blockNumber_ - dripStart_) * dripRate_, totalAmount_);
