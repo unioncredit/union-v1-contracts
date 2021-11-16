@@ -280,7 +280,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
             uint256 lastRepay
         )
     {
-        principal = accountBorrows[msg.sender].principal;
+        principal = getBorrowed(msg.sender);
         totalBorrowed = borrowBalanceStoredInternal(member);
         asset = underlying;
         apr = borrowRatePerBlock();
@@ -304,7 +304,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return Borrowed amount
      */
     function borrowBalanceView(address account) public view override returns (uint256) {
-        return accountBorrows[account].principal + calculatingInterest(account);
+        return getBorrowed(account) + calculatingInterest(account);
     }
 
     /**
@@ -388,7 +388,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint256 principalTimesIndex = (loan.principal + loan.interest) * borrowIndexNew;
         uint256 balance = principalTimesIndex / loan.interestIndex;
 
-        return balance - accountBorrows[account].principal;
+        return balance - getBorrowed(account);
     }
 
     /**
@@ -419,18 +419,18 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint256 borrowedAmount = borrowBalanceStoredInternal(msg.sender);
 
         //Set lastRepay init data
-        if (accountBorrows[msg.sender].lastRepay == 0) {
+        if (getLastRepay(msg.sender) == 0) {
             accountBorrows[msg.sender].lastRepay = getBlockNumber();
         }
 
         uint256 accountBorrowsNew = borrowedAmount + amount + fee;
         uint256 totalBorrowsNew = totalBorrows + amount + fee;
-        uint256 oldPrincipal = accountBorrows[msg.sender].principal;
+        uint256 oldPrincipal = getBorrowed(msg.sender);
 
         accountBorrows[msg.sender].principal += amount + fee;
-        uint256 newPrincipal = accountBorrows[msg.sender].principal;
+        uint256 newPrincipal = getBorrowed(msg.sender);
         IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
-        accountBorrows[msg.sender].interest = accountBorrowsNew - accountBorrows[msg.sender].principal;
+        accountBorrows[msg.sender].interest = accountBorrowsNew - newPrincipal;
         accountBorrows[msg.sender].interestIndex = borrowIndex;
         totalBorrows = totalBorrowsNew;
         // The origination fees contribute to the reserve
@@ -465,7 +465,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         IUErc20 assetToken = IUErc20(underlying);
         //In order to prevent the state from being changed, put the value at the top
         bool isOverdue = checkIsOverdue(borrower);
-        uint256 oldPrincipal = accountBorrows[borrower].principal;
+        uint256 oldPrincipal = getBorrowed(borrower);
         require(accrueInterest(), "UToken: accrue interest failed");
         require(accrualBlockNumber == getBlockNumber(), "UToken: market not fresh");
 
@@ -491,12 +491,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
             if (isOverdue) {
                 IUserManager(userManager).updateTotalFrozen(borrower, false);
-                IUserManager(userManager).repayLoanOverdue(borrower, underlying, accountBorrows[borrower].lastRepay);
+                IUserManager(userManager).repayLoanOverdue(borrower, underlying, getLastRepay(borrower));
             }
             accountBorrows[borrower].principal = borrowedAmount - repayAmount;
             accountBorrows[borrower].interest = 0;
 
-            if (accountBorrows[borrower].principal == 0) {
+            if (getBorrowed(borrower) == 0) {
                 //LastRepay is cleared when the arrears are paid off, and reinitialized the next time the loan is borrowed
                 accountBorrows[borrower].lastRepay = 0;
             } else {
@@ -511,7 +511,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         totalReserves += toReserveAmount;
         totalRedeemable += toRedeemableAmount;
 
-        uint256 newPrincipal = accountBorrows[borrower].principal;
+        uint256 newPrincipal = getBorrowed(borrower);
         accountBorrows[borrower].interestIndex = borrowIndex;
         totalBorrows -= repayAmount;
 
@@ -708,7 +708,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function debtWriteOff(address borrower, uint256 amount) external override whenNotPaused onlyUserManager {
-        uint256 oldPrincipal = accountBorrows[borrower].principal;
+        uint256 oldPrincipal = getBorrowed(borrower);
         uint256 repayAmount;
         if (amount > oldPrincipal) {
             repayAmount = oldPrincipal;
