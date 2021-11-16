@@ -41,7 +41,7 @@ contract Treasury {
     }
 
     function acceptAdmin() external {
-        require(newAdmin == msg.sender, "Must be called from new admin");
+        require(newAdmin != address(0) && newAdmin == msg.sender, "Must be called from new admin");
 
         emit LogChangeAdmin(admin, newAdmin);
 
