@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
@@ -24,7 +24,7 @@ contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, Governo
     }
 
     function votingPeriod() public pure virtual override returns (uint256) {
-        return 46027; // 1 week
+        return 19725; // 3 day
     }
 
     function proposalThreshold() public pure virtual override returns (uint256) {

@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -65,6 +65,7 @@ contract Comptroller is Controller, IComptroller {
     }
 
     function setHalfDecayPoint(uint256 point) public onlyAdmin {
+        require(point != 0, "Comptroller: halfDecayPoint can not be zero");
         halfDecayPoint = point;
     }
 
