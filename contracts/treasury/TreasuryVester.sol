@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -24,6 +24,8 @@ contract TreasuryVester {
         uint256 vestingCliff_,
         uint256 vestingEnd_
     ) {
+        require(unionToken_ != address(0), "TreasuryVester: unionToken can not be zero");
+        require(recipient_ != address(0), "TreasuryVester: recipient can not be zero");
         require(vestingBegin_ >= block.timestamp, "vesting begin too early");
         require(vestingCliff_ >= vestingBegin_, "cliff is too early");
         require(vestingEnd_ > vestingCliff_, "end is too early");
