@@ -224,9 +224,9 @@ describe("User Manager Contract", () => {
     });
 
     it("Credit limit", async () => {
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        await userManager.setCreditLimitModel(creditLimitByMedian.address);
+        const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
+        sumOfTrust = await SumOfTrust.deploy(3);
+        await userManager.setCreditLimitModel(sumOfTrust.address);
         const vouchAmount1 = parseEther("1");
         const vouchAmount2 = parseEther("100");
         const vouchAmount3 = parseEther("200");
@@ -245,22 +245,22 @@ describe("User Manager Contract", () => {
 
         //MEMBER1 1, MEMBER2 100, MEMBER3 200
         let creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(vouchAmount2.toString());
+        creditLimit.toString().should.eq(vouchAmount1.add(vouchAmount2).add(vouchAmount3).toString());
 
         //MEMBER1 1 MEMBER2 100, MEMBER3 200, MEMBER4 200
         await userManager.connect(MEMBER4).updateTrust(BOB.address, vouchAmount3);
         creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(vouchAmount2.toString()); //because MEMBER4 stake amount is 0
+        creditLimit.toString().should.eq(parseEther("301").toString()); //because MEMBER4 stake amount is 0, so = 1 + 100 + 200
         await erc20.connect(MEMBER4).approve(userManager.address, parseEther("1000"));
         await userManager.connect(MEMBER4).stake(parseEther("1000"));
         creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(parseEther("150").toString()); //(100+200)/2*10**18
+        creditLimit.toString().should.eq(parseEther("501").toString());
 
         //MEMBER1 100, MEMBER2 100, MEMBER3 200
         await userManager.connect(MEMBER1).updateTrust(BOB.address, vouchAmount2);
         await userManager.connect(BOB).cancelVouch(MEMBER4.address, BOB.address);
         creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(vouchAmount2.toString());
+        creditLimit.toString().should.eq(parseEther("400").toString());
 
         let locked = await userManager.getLockedStake(MEMBER1.address, BOB.address);
         locked.toString().should.eq("0");
@@ -271,7 +271,7 @@ describe("User Manager Contract", () => {
 
         await userManager.updateLockedData(BOB.address, parseEther("100000"), true);
 
-        //creditLimitByMedian, limit is 100, max locked is vouching
+        //sumOfTrust, limit is 100, max locked is vouching
         locked = await userManager.getLockedStake(MEMBER1.address, BOB.address);
         locked.toString().should.eq(parseEther("100").toString());
         locked2 = await userManager.getLockedStake(MEMBER2.address, BOB.address);
@@ -281,10 +281,6 @@ describe("User Manager Contract", () => {
     });
 
     it("Test member cancel connection", async () => {
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        await userManager.setCreditLimitModel(creditLimitByMedian.address);
-
         const vouchAmount1 = parseEther("1");
         const vouchAmount2 = parseEther("100");
         const vouchAmount3 = parseEther("200");
@@ -304,20 +300,10 @@ describe("User Manager Contract", () => {
             "UserManager: Accept claims only from the staker or borrower"
         );
 
-        //mock borrow 1
-        await userManager.updateLockedData(BOB.address, 1, true);
-
-        await expect(userManager.connect(BOB).cancelVouch(MEMBER1.address, BOB.address)).to.be.revertedWith(
-            "UserManager: LockedStake is not zero"
-        );
-
-        //mock repay 1
-        await userManager.updateLockedData(BOB.address, 1, false);
-
         //in order to members[staker].creditLines[token].borrowerAddresses length > 1
         await userManager.connect(MEMBER1).updateTrust(ALICE.address, 1);
 
-        await creditLimitByMedian.setEffectNumber(0);
+        await sumOfTrust.setEffectNumber(0);
 
         await userManager.connect(BOB).cancelVouch(MEMBER1.address, BOB.address);
 

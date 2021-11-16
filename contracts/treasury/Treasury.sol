@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -33,6 +33,7 @@ contract Treasury {
     }
 
     function setAdmin(address admin_) public onlyAdmin {
+        require(admin_ != address(0), "Treasury: admin can not be zero");
         admin = admin_;
     }
 
@@ -53,7 +54,7 @@ contract Treasury {
         uint256 blockNumber_ = block.number;
 
         require(blockNumber_ >= dripStart_, "not yet started");
-        uint256 treasuryBalance_ = token_.balanceOf(address(this)); // TODO: Verify this is a static call
+        uint256 treasuryBalance_ = token_.balanceOf(address(this));
 
         // Next, calculate intermediate values
         uint256 dripTotal_ = _min((blockNumber_ - dripStart_) * dripRate_, totalAmount_);
@@ -102,6 +103,7 @@ contract Treasury {
     }
 
     function grantToken(address account, uint256 amount) public onlyAdmin {
+        require(account != address(0), "Treasury: account can not be zero");
         IERC20 token_ = token;
         uint256 treasuryBalance_ = token_.balanceOf(address(this));
         require(amount <= treasuryBalance_, "amount larger than balance");
