@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -10,6 +10,7 @@ contract Treasury {
 
     /// @notice Reference to token to drip (immutable)
     IERC20 public immutable token;
+    address public newAdmin;
     address public admin;
 
     struct Schedule {
@@ -27,13 +28,25 @@ contract Treasury {
         _;
     }
 
+    event LogChangeAdmin(address indexed oldAdmin, address newAdmin);
+
     constructor(IERC20 token_) {
         admin = msg.sender;
         token = token_;
     }
 
-    function setAdmin(address admin_) public onlyAdmin {
-        admin = admin_;
+    function changeAdmin(address newAdmin_) external onlyAdmin {
+        require(newAdmin_ != address(0), "New admin cannot be zero");
+        newAdmin = newAdmin_;
+    }
+
+    function acceptAdmin() external {
+        require(newAdmin != address(0) && newAdmin == msg.sender, "Must be called from new admin");
+
+        emit LogChangeAdmin(admin, newAdmin);
+
+        admin = newAdmin;
+        newAdmin = address(0);
     }
 
     /**
@@ -53,7 +66,7 @@ contract Treasury {
         uint256 blockNumber_ = block.number;
 
         require(blockNumber_ >= dripStart_, "not yet started");
-        uint256 treasuryBalance_ = token_.balanceOf(address(this)); // TODO: Verify this is a static call
+        uint256 treasuryBalance_ = token_.balanceOf(address(this));
 
         // Next, calculate intermediate values
         uint256 dripTotal_ = _min((blockNumber_ - dripStart_) * dripRate_, totalAmount_);
@@ -102,6 +115,7 @@ contract Treasury {
     }
 
     function grantToken(address account, uint256 amount) public onlyAdmin {
+        require(account != address(0), "Treasury: account can not be zero");
         IERC20 token_ = token;
         uint256 treasuryBalance_ = token_.balanceOf(address(this));
         require(amount <= treasuryBalance_, "amount larger than balance");

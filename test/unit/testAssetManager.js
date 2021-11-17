@@ -47,6 +47,15 @@ describe("AssetManager Contract", async () => {
         await erc20.mint(BOB.address, ethers.utils.parseEther("1000"));
     });
 
+    it("Remove token", async () => {
+        await assetManager.addToken(erc20.address);
+        let supportedMarket = await assetManager.supportedMarkets(erc20.address);
+        supportedMarket.should.eq(true);
+        await assetManager.removeToken(erc20.address);
+        supportedMarket = await assetManager.supportedMarkets(erc20.address);
+        supportedMarket.should.eq(false);
+    });
+
     it("Token is exist", async () => {
         await assetManager.addToken(erc20.address);
         await expect(assetManager.addToken(erc20.address)).to.be.revertedWith("AssetManager: token is exist");
@@ -123,8 +132,16 @@ describe("AssetManager Contract", async () => {
         );
     });
 
+    it("Remove adapter", async () => {
+        await assetManager.addAdapter(compoundAdapter2.address);
+        let adapterAddress = await assetManager.moneyMarkets(1);
+        adapterAddress.should.eq(compoundAdapter2.address);
+        await assetManager.removeAdapter(compoundAdapter2.address);
+        await expect(assetManager.moneyMarkets(1)).to.be.reverted;
+    });
+
     it("Rebalance: remaining funds in the fund pool", async () => {
-        await erc20.transfer(assetManager.address, "10000");
+        await erc20.transfer(assetManager.address, ethers.utils.parseEther("1"));
         await assetManager.addAdapter(compoundAdapter2.address);
         await expect(assetManager.rebalance(erc20.address, [5000])).to.be.revertedWith(
             "AssetManager: there are remaining funds in the fund pool"
@@ -165,7 +182,7 @@ describe("AssetManager Contract", async () => {
 
     it("Get pool balance", async () => {
         let balance = await assetManager.getPoolBalance(erc20.address);
-        balance.toString().should.eq("10000");
+        balance.toString().should.eq(ethers.utils.parseEther("1"));
 
         balance = await assetManager.getPoolBalance(testToken.address);
         balance.toString().should.eq("0");
@@ -174,13 +191,13 @@ describe("AssetManager Contract", async () => {
     it("Get loanable amount", async () => {
         const depositAmount = ethers.utils.parseEther("1");
         let balance = await assetManager.getLoanableAmount(erc20.address);
-        balance.toString().should.eq("10000");
+        balance.toString().should.eq(ethers.utils.parseEther("1"));
 
         await erc20.connect(CONTRACT).approve(assetManager.address, depositAmount);
         await assetManager.connect(CONTRACT).deposit(erc20.address, depositAmount);
         balance = await assetManager.getLoanableAmount(erc20.address);
-        //ether("1") + 10000
-        balance.toString().should.eq("1000000000000010000");
+        //ether("1") + ether("1")
+        balance.toString().should.eq(ethers.utils.parseEther("2"));
     });
 
     it("Approve all markets max", async () => {
@@ -221,7 +238,6 @@ describe("AssetManager Contract", async () => {
 
     it("Set new marketRegistry", async () => {
         await assetManager.setMarketRegistry(MARKET_REGISTRY.address);
-
         let res = await assetManager.marketRegistry();
         res.should.eq(MARKET_REGISTRY.address);
     });

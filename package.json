@@ -5,7 +5,8 @@
     "scripts": {
         "compile": "yarn hardhat compile",
         "test": "yarn hardhat test",
-        "deploy": "hardhat deploy --network",
+        "deploy": "yarn hardhat deploy --network",
+        "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "coverage": "yarn hardhat coverage",
         "lint": "yarn solhint contracts/**/*.sol",
         "prettier:solidity": "npx prettier --write contracts/**/*.sol",

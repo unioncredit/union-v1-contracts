@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
@@ -55,12 +55,17 @@ contract MarketRegistry is Controller {
     }
 
     function addUToken(address token, address uToken) public newToken(token) onlyAdmin {
+        require(token != address(0) && uToken != address(0), "MarketRegistry: token and uToken can not be zero");
         uTokenList.add(uToken);
         tokens[token].uToken = uToken;
         emit LogAddUToken(token, uToken);
     }
 
     function addUserManager(address token, address userManager) public newUserManager(token) onlyAdmin {
+        require(
+            token != address(0) && userManager != address(0),
+            "MarketRegistry: token and userManager can not be zero"
+        );
         userManagerList.add(userManager);
         tokens[token].userManager = userManager;
         emit LogAddUserManager(token, userManager);

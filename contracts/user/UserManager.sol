@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -135,6 +135,19 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      */
     event LogDebtWriteOff(address indexed staker, address indexed borrower, uint256 amount);
 
+    /**
+     *  @dev set utoken address
+     *  @param uToken new uToken address
+     */
+    event LogSetUToken(address uToken);
+
+    /**
+     *  @dev set new member fee
+     *  @param oldMemberFee old member fee
+     *  @param newMemberFee new member fee
+     */
+    event LogSetNewMemberFee(uint256 oldMemberFee, uint256 newMemberFee);
+
     function __UserManager_init(
         address assetManager_,
         address unionToken_,
@@ -154,11 +167,15 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     function setUToken(address uToken_) public onlyAdmin {
+        require(uToken_ != address(0), "UserManager: uToken can not be zero");
         uToken = IUToken(uToken_);
+        emit LogSetUToken(uToken_);
     }
 
     function setNewMemberFee(uint256 amount) public onlyAdmin {
+        uint256 oldMemberFee = newMemberFee;
         newMemberFee = amount;
+        emit LogSetNewMemberFee(oldMemberFee, newMemberFee);
     }
 
     /**
@@ -167,6 +184,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param newCreditLimitModel New credit limit model address
      */
     function setCreditLimitModel(address newCreditLimitModel) public override onlyAdmin {
+        require(newCreditLimitModel != address(0), "UserManager: newCreditLimitModel can not be zero");
         _setCreditLimitModel(newCreditLimitModel);
     }
 
@@ -437,6 +455,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         for (uint256 i = 0; i < borrowerCount; i++) {
             if (trustInfo.borrowerAddresses[i] == borrower) {
                 borrowerExist = true;
+                break;
             }
         }
 
@@ -445,6 +464,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         for (uint256 i = 0; i < stakerCount; i++) {
             if (trustInfo.stakerAddresses[i] == trustInfo.staker) {
                 stakerExist = true;
+                break;
             }
         }
 
@@ -481,6 +501,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             if (members[borrower].creditLine.stakerAddresses[i] == staker) {
                 stakerExist = true;
                 stakerIndex = i;
+                break;
             }
         }
 
@@ -491,6 +512,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             if (members[staker].creditLine.borrowerAddresses[i] == borrower) {
                 borrowerExist = true;
                 borrowerIndex = i;
+                break;
             }
         }
 
@@ -806,28 +828,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
                     totalFrozenCoinAge = totalFrozenCoinAge + (lockedStake * blocks);
                 } else {
                     totalFrozenCoinAge = totalFrozenCoinAge + (lockedStake * pastBlocks);
-                }
-            }
-        }
-
-        return totalFrozenCoinAge;
-    }
-
-    function _getFrozenCoinAge(address staker, uint256 pastBlocks) private view returns (uint256) {
-        uint256 totalFrozenCoinAge = 0;
-
-        address[] memory borrowerAddresses = getBorrowerAddresses(staker);
-
-        for (uint256 i = 0; i < borrowerAddresses.length; i++) {
-            address borrower = borrowerAddresses[i];
-            uint256 blocks = block.number - uToken.getLastRepay(borrower);
-            if (uToken.checkIsOverdue(borrower)) {
-                (, , uint256 lockedStake) = getStakerAsset(borrower, staker);
-
-                if (pastBlocks >= blocks) {
-                    totalFrozenCoinAge += lockedStake * blocks;
-                } else {
-                    totalFrozenCoinAge += lockedStake * pastBlocks;
                 }
             }
         }
