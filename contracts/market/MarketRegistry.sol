@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+
 import "../Controller.sol";
 
 /**
@@ -8,13 +10,15 @@ import "../Controller.sol";
  * @dev Registering and managing all the lending markets.
  */
 contract MarketRegistry is Controller {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
     struct Market {
         address uToken;
         address userManager;
     }
 
-    address[] public uTokenList;
-    address[] public userManagerList;
+    EnumerableSet.AddressSet private uTokenList;
+    EnumerableSet.AddressSet private userManagerList;
     mapping(address => Market) public tokens;
 
     event LogAddUToken(address indexed tokenAddress, address contractAddress);
@@ -43,16 +47,16 @@ contract MarketRegistry is Controller {
      *  @return Stored uToken address
      */
     function getUTokens() public view returns (address[] memory) {
-        return uTokenList;
+        return uTokenList.values();
     }
 
     function getUserManagers() public view returns (address[] memory) {
-        return userManagerList;
+        return userManagerList.values();
     }
 
     function addUToken(address token, address uToken) public newToken(token) onlyAdmin {
         require(token != address(0) && uToken != address(0), "MarketRegistry: token and uToken can not be zero");
-        uTokenList.push(uToken);
+        uTokenList.add(uToken);
         tokens[token].uToken = uToken;
         emit LogAddUToken(token, uToken);
     }
@@ -62,46 +66,15 @@ contract MarketRegistry is Controller {
             token != address(0) && userManager != address(0),
             "MarketRegistry: token and userManager can not be zero"
         );
-        userManagerList.push(userManager);
+        userManagerList.add(userManager);
         tokens[token].userManager = userManager;
         emit LogAddUserManager(token, userManager);
     }
 
     function deleteMarket(address token) public onlyAdmin {
-        address oldUToken = tokens[token].uToken;
-        bool uTokenExist = false;
-        uint256 uTokenIndex = 0;
-
-        for (uint256 i = 0; i < uTokenList.length; i++) {
-            if (oldUToken == uTokenList[i]) {
-                uTokenExist = true;
-                uTokenIndex = i;
-            }
-        }
-
-        if (uTokenExist) {
-            uTokenList[uTokenIndex] = uTokenList[uTokenList.length - 1];
-            uTokenList.pop();
-        }
-
+        uTokenList.remove(tokens[token].uToken);
+        userManagerList.remove(tokens[token].userManager);
         delete tokens[token].uToken;
-
-        address oldUserManager = tokens[token].userManager;
-        bool userManagerExist = false;
-        uint256 userManagerIndex = 0;
-
-        for (uint256 i = 0; i < userManagerList.length; i++) {
-            if (oldUserManager == userManagerList[i]) {
-                userManagerExist = true;
-                userManagerIndex = i;
-            }
-        }
-
-        if (userManagerExist) {
-            userManagerList[userManagerIndex] = userManagerList[userManagerList.length - 1];
-            userManagerList.pop();
-        }
-
         delete tokens[token].userManager;
     }
 }
