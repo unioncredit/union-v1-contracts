@@ -12,7 +12,6 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
     const unionToken = await deployments.get("UnionToken");
     const creditLimitModel = await deployments.get("SumOfTrust");
     const comptroller = await deployments.get("Comptroller");
-
     await deploy("UserManager", {
         from: deployer,
         proxy: {

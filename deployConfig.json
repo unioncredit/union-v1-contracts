@@ -154,18 +154,18 @@
         "UnionToken": {
             "name": "Union Token",
             "symbol": "UNION",
-            "mintingAllowedAfter": "1633061850",
+            "mintingAllowedAfter": "1637153321200",
             "comptrollerAmount": "1000000000000000000000000",
             "amountForTreasuryVester": "14000000000000000000000000"
         },
         "TreasuryVester": {
             "vestingAmount": "20000000000000000000000000",
-            "vestingBegin": "1630478173718",
-            "vestingCliff": "1630478173718",
-            "vestingEnd": "1630488714518"
+            "vestingBegin": "1637153278000",
+            "vestingCliff": "1637153278000",
+            "vestingEnd": "1637161162000"
         },
         "Treasury": {
-            "dripStart": "1630478703907",
+            "dripStart": "1637153278000",
             "dripRate": "1000000000000000000",
             "dripAmount": "20000000000000000000000000"
         },
