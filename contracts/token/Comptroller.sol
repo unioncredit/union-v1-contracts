@@ -139,6 +139,9 @@ contract Comptroller is Controller, IComptroller {
         userManagerData.userStaked = userManagerContract.getStakerBalance(account);
         userManagerData.userFrozen = userManagerContract.getTotalFrozenAmount(account);
         userManagerData.totalStaked = userManagerContract.totalStaked() - userManagerData.totalFrozen;
+        if (userManagerData.totalStaked < 1e18) {
+            userManagerData.totalStaked = 1e18;
+        }
 
         uint256 lastUpdatedBlock = userInfo.updatedBlock;
         if (block.number < lastUpdatedBlock) {
