@@ -108,10 +108,11 @@ contract Treasury {
         address target_,
         uint256 amount_
     ) public onlyAdmin {
-        require(tokenSchedules[target_].target != address(0), "Target schedule doesn't exist");
-        tokenSchedules[target_].dripStart = dripStart_;
-        tokenSchedules[target_].dripRate = dripRate_;
-        tokenSchedules[target_].amount = amount_;
+        Schedule memory tokenSchedule = tokenSchedules[target_];
+        require(tokenSchedule.target != address(0), "Target schedule doesn't exist");
+        tokenSchedule.dripStart = dripStart_;
+        tokenSchedule.dripRate = dripRate_;
+        tokenSchedule.amount = amount_;
     }
 
     function grantToken(address account, uint256 amount) public onlyAdmin {
