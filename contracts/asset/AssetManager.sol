@@ -108,19 +108,17 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @return Total market balance
      */
     function totalSupply(address tokenAddress) public override returns (uint256) {
+        uint256 tokenSupply;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
             for (uint256 i = 0; i < moneyMarkets.length; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+                IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+                if (!moneyMarket.supportsToken(tokenAddress)) {
                     continue;
                 }
-                tokenSupply += moneyMarkets[i].getSupply(tokenAddress);
+                tokenSupply += moneyMarket.getSupply(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
+        return tokenSupply;
     }
 
     /**
@@ -129,19 +127,17 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @return Total market balance
      */
     function totalSupplyView(address tokenAddress) public view override returns (uint256) {
+        uint256 tokenSupply;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
             for (uint256 i = 0; i < moneyMarkets.length; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+                IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+                if (!moneyMarket.supportsToken(tokenAddress)) {
                     continue;
                 }
-                tokenSupply += moneyMarkets[i].getSupplyView(tokenAddress);
+                tokenSupply += moneyMarket.getSupplyView(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
+        return tokenSupply;
     }
 
     /**
