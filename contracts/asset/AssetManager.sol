@@ -111,10 +111,11 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         if (isMarketSupported(tokenAddress)) {
             uint256 tokenSupply = 0;
             for (uint256 i = 0; i < moneyMarkets.length; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+                IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+                if (!moneyMarket.supportsToken(tokenAddress)) {
                     continue;
                 }
-                tokenSupply += moneyMarkets[i].getSupply(tokenAddress);
+                tokenSupply += moneyMarket.getSupply(tokenAddress);
             }
 
             return tokenSupply;
@@ -132,10 +133,11 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         if (isMarketSupported(tokenAddress)) {
             uint256 tokenSupply = 0;
             for (uint256 i = 0; i < moneyMarkets.length; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+                IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+                if (!moneyMarket.supportsToken(tokenAddress)) {
                     continue;
                 }
-                tokenSupply += moneyMarkets[i].getSupplyView(tokenAddress);
+                tokenSupply += moneyMarket.getSupplyView(tokenAddress);
             }
 
             return tokenSupply;
@@ -315,8 +317,9 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     function approveAllMarketsMax(address tokenAddress) public override onlyAdmin {
         IERC20Upgradeable poolToken = IERC20Upgradeable(tokenAddress);
         for (uint256 i = 0; i < moneyMarkets.length; i++) {
-            poolToken.safeApprove(address(moneyMarkets[i]), 0);
-            poolToken.safeApprove(address(moneyMarkets[i]), type(uint256).max);
+            address moneyMarketAddress = address(moneyMarkets[i]);
+            poolToken.safeApprove(moneyMarketAddress, 0);
+            poolToken.safeApprove(moneyMarketAddress, type(uint256).max);
         }
     }
 
@@ -405,30 +408,33 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         require(percentages.length + 1 == moneyMarkets.length, "AssetManager: percentages error");
 
         for (uint256 i = 0; i < moneyMarkets.length; i++) {
-            if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+            IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+            if (!moneyMarket.supportsToken(tokenAddress)) {
                 continue;
             }
-            moneyMarkets[i].withdrawAll(tokenAddress, address(this));
+            moneyMarket.withdrawAll(tokenAddress, address(this));
         }
 
         uint256 tokenSupply = token.balanceOf(address(this));
 
         for (uint256 i = 0; i < percentages.length; i++) {
-            if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+            IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+            if (!moneyMarket.supportsToken(tokenAddress)) {
                 continue;
             }
             uint256 amountToDeposit = (tokenSupply * percentages[i]) / 10000;
             if (amountToDeposit == 0) {
                 continue;
             }
-            token.safeTransfer(address(moneyMarkets[i]), amountToDeposit);
-            moneyMarkets[i].deposit(tokenAddress);
+            token.safeTransfer(address(moneyMarket), amountToDeposit);
+            moneyMarket.deposit(tokenAddress);
         }
 
         uint256 remainingTokens = token.balanceOf(address(this));
-        if (moneyMarkets[moneyMarkets.length - 1].supportsToken(tokenAddress) && remainingTokens > 0) {
-            token.safeTransfer(address(moneyMarkets[moneyMarkets.length - 1]), remainingTokens);
-            moneyMarkets[moneyMarkets.length - 1].deposit(tokenAddress);
+        IMoneyMarketAdapter lastMoneyMarket = moneyMarkets[moneyMarkets.length - 1];
+        if (lastMoneyMarket.supportsToken(tokenAddress) && remainingTokens > 0) {
+            token.safeTransfer(address(lastMoneyMarket), remainingTokens);
+            lastMoneyMarket.deposit(tokenAddress);
         }
 
         //In order to prevent dust from being stored in the market
