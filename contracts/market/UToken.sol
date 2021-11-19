@@ -757,9 +757,10 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @param accounts Borrowers address
      */
     function batchUpdateOverdueInfos(address[] calldata accounts) external whenNotPaused {
-        address[] memory overdueAccounts = new address[](accounts.length);
-        bool[] memory isOverdues = new bool[](accounts.length);
-        for (uint256 i = 0; i < accounts.length; i++) {
+        uint256 accountsLength = accounts.length;
+        address[] memory overdueAccounts = new address[](accountsLength);
+        bool[] memory isOverdues = new bool[](accountsLength);
+        for (uint256 i = 0; i < accountsLength; i++) {
             if (checkIsOverdue(accounts[i])) {
                 overdueAccounts[i] = accounts[i];
                 isOverdues[i] = true;
