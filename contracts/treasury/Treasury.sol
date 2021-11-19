@@ -113,6 +113,7 @@ contract Treasury {
         tokenSchedule.dripStart = dripStart_;
         tokenSchedule.dripRate = dripRate_;
         tokenSchedule.amount = amount_;
+        tokenSchedules[target_] = tokenSchedule;
     }
 
     function grantToken(address account, uint256 amount) public onlyAdmin {
