@@ -163,9 +163,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
-        address aTokenAddress = tokenToAToken[tokenAddress];
-
-        return aTokenAddress != address(0);
+        return tokenToAToken[tokenAddress] != address(0);
     }
 
     function _claimTokens(address tokenAddress, address recipient) private {
