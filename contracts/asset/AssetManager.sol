@@ -417,30 +417,33 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         require(percentagesLength + 1 == moneyMarketsLength, "AssetManager: percentages error");
 
         for (uint256 i = 0; i < moneyMarketsLength; i++) {
-            if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+            IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+            if (!moneyMarket.supportsToken(tokenAddress)) {
                 continue;
             }
-            moneyMarkets[i].withdrawAll(tokenAddress, address(this));
+            moneyMarket.withdrawAll(tokenAddress, address(this));
         }
 
         uint256 tokenSupply = token.balanceOf(address(this));
 
         for (uint256 i = 0; i < percentagesLength; i++) {
-            if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+            IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+            if (!moneyMarket.supportsToken(tokenAddress)) {
                 continue;
             }
             uint256 amountToDeposit = (tokenSupply * percentages[i]) / 10000;
             if (amountToDeposit == 0) {
                 continue;
             }
-            token.safeTransfer(address(moneyMarkets[i]), amountToDeposit);
-            moneyMarkets[i].deposit(tokenAddress);
+            token.safeTransfer(address(moneyMarket), amountToDeposit);
+            moneyMarket.deposit(tokenAddress);
         }
 
         uint256 remainingTokens = token.balanceOf(address(this));
-        if (moneyMarkets[moneyMarketsLength - 1].supportsToken(tokenAddress) && remainingTokens > 0) {
-            token.safeTransfer(address(moneyMarkets[moneyMarketsLength - 1]), remainingTokens);
-            moneyMarkets[moneyMarketsLength - 1].deposit(tokenAddress);
+        IMoneyMarketAdapter lastMoneyMarket = moneyMarkets[moneyMarketsLength - 1];
+        if (lastMoneyMarket.supportsToken(tokenAddress) && remainingTokens > 0) {
+            token.safeTransfer(address(lastMoneyMarket), remainingTokens);
+            lastMoneyMarket.deposit(tokenAddress);
         }
 
         //In order to prevent dust from being stored in the market
