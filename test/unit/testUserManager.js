@@ -481,7 +481,7 @@ describe("User Manager Contract", () => {
         const stakeAmount = parseEther("1");
         await erc20.connect(BOB).approve(userManager.address, 0);
         await expect(userManager.connect(BOB).stake(stakeAmount)).to.be.revertedWith(
-            "UserManager: not enough allowance to stake"
+            "ERC20: transfer amount exceeds balance"
         );
     });
 
