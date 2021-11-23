@@ -625,7 +625,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         address payable redeemer,
         uint256 redeemTokensIn,
         uint256 redeemAmountIn
-    ) internal {
+    ) private {
         require(redeemTokensIn == 0 || redeemAmountIn == 0, "one of redeemTokensIn or redeemAmountIn must be zero");
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
