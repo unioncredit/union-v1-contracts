@@ -1,14 +1,17 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("@openzeppelin/hardhat-upgrades");
 require("hardhat-gas-reporter");
+require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("solidity-coverage");
 require("dotenv").config();
+
+// tasks
+require("./tasks/gasDelta");
 
 module.exports = {
     networks: {
@@ -60,6 +63,9 @@ module.exports = {
         currency: "USD",
         gasPrice: 100,
         coinmarketcap: process.env.COINMARKETCAP_API_KEY
+    },
+    contractSizer: {
+        runOnCompile: true
     },
     namedAccounts: {
         deployer: {

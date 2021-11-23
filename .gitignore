@@ -1,3 +1,5 @@
+.DS_*
+.openzeppelin/
 # Logs
 logs
 *.log
