@@ -114,12 +114,9 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint256 overdueBlocks_,
         address admin_
     ) public initializer {
-        require(initialExchangeRateMantissa_ > 0, "initial exchange rate must be greater than zero.");
+        require(initialExchangeRateMantissa_ != 0, "initial exchange rate must be greater than zero.");
         require(address(underlying_) != address(0), "underlying token is zero");
-        require(
-            reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
-            "reserveFactorMantissa error"
-        );
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
         uErc20 = uErc20_;
         Controller.__Controller_init(admin_);
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
@@ -200,10 +197,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function setReserveFactor(uint256 reserveFactorMantissa_) external override onlyAdmin {
-        require(
-            reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
-            "reserveFactorMantissa error"
-        );
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
         reserveFactorMantissa = reserveFactorMantissa_;
     }
 
