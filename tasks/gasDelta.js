@@ -40,7 +40,7 @@ task("gasDelta", "get gas delta from gas files").setAction(async () => {
     for (const method in results) {
         const methodResults = Object.values(results[method]);
         const delta = methodResults[0] - methodResults[1];
-        const colorFn = delta < 0 ? colors.red : delta > 0 ? colors.green : colors.grey;
+        const colorFn = delta < 0 ? colors.green : delta > 0 ? colors.red : colors.grey;
 
         if (delta !== 0) {
             table.push([method, ...methodResults, colorFn(delta)]);
