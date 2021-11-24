@@ -12,7 +12,7 @@ const sum = arr => arr.reduce((acc, n) => acc + n, 0);
 task("gasDelta", "get gas delta from gas files").setAction(async () => {
     colors.enable();
     const files = fs.readdirSync(gasReportsPath);
-    const filteredFiles = files.filter(name => name.match(regex)).slice(0, 2);
+    const filteredFiles = files.filter(name => name.match(regex));
     const orderedFiles = filteredFiles
         .map(file => {
             return {
@@ -21,7 +21,8 @@ task("gasDelta", "get gas delta from gas files").setAction(async () => {
             };
         })
         .sort((a, b) => a.time - b.time)
-        .map(f => f.name);
+        .map(f => f.name)
+    .slice(-2);
 
     const results = {};
 
@@ -48,7 +49,7 @@ task("gasDelta", "get gas delta from gas files").setAction(async () => {
 
     for (const method in results) {
         const methodResults = Object.values(results[method]);
-      const delta = methodResults[1] - methodResults[0];
+        const delta = methodResults[1] - methodResults[0];
         const colorFn = delta < 0 ? colors.green : delta > 0 ? colors.red : colors.grey;
 
         if (delta !== 0) {
