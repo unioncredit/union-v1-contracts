@@ -638,10 +638,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         stakers[msg.sender] = balance + amount;
         totalStaked += amount;
 
-        require(
-            erc20Token.allowance(msg.sender, address(this)) >= amount,
-            "UserManager: not enough allowance to stake"
-        );
         erc20Token.safeTransferFrom(msg.sender, address(this), amount);
         erc20Token.safeApprove(assetManager, 0);
         erc20Token.safeApprove(assetManager, amount);
