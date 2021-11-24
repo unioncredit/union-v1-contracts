@@ -179,7 +179,7 @@ describe("UToken Contract", async () => {
         await userManager.setCreditLimit(ethers.utils.parseEther("10"));
 
         await expect(uToken.connect(alice).borrow(minBorrow.sub(ethers.utils.parseEther("0.01")))).to.be.revertedWith(
-            "UToken: amount less than loan size min"
+            "UToken: amount below loan min"
         );
 
         const remainingLoanSize = await uToken.getRemainingLoanSize();

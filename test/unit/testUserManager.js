@@ -297,7 +297,7 @@ describe("User Manager Contract", () => {
         await userManager.connect(MEMBER3).updateTrust(BOB.address, vouchAmount3);
 
         await expect(userManager.connect(BOB).cancelVouch(MEMBER1.address, ALICE.address)).to.be.revertedWith(
-            "UserManager: Accept claims only from the staker or borrower"
+            "UserManager: only staker or borrower can cancel"
         );
 
         //in order to members[staker].creditLines[token].borrowerAddresses length > 1
@@ -375,18 +375,18 @@ describe("User Manager Contract", () => {
     it("UpdateLockedData call auth", async () => {
         await expect(
             userManager.connect(MEMBER1).updateLockedData(BOB.address, parseEther("100000"), true)
-        ).to.be.revertedWith("UserManager: caller does not the market or admin");
+        ).to.be.revertedWith("UserManager: not market or admin");
     });
 
     it("Trust self", async () => {
         await expect(userManager.connect(MEMBER1).updateTrust(MEMBER1.address, 1)).to.be.revertedWith(
-            "UserManager: Can't vouch for self"
+            "UserManager: Cant vouch for self"
         );
     });
 
     it("Trust only member", async () => {
         await expect(userManager.connect(ALICE).updateTrust(MEMBER1.address, 1)).to.be.revertedWith(
-            "UserManager: caller does not have the Member role"
+            "UserManager: caller aint Member"
         );
     });
 
@@ -398,9 +398,7 @@ describe("User Manager Contract", () => {
 
         await userManager.updateLockedData(BOB.address, 10, true);
 
-        await expect(userManager.updateTrust(BOB.address, 1)).to.be.revertedWith(
-            "UserManager: trust amount cannot be less than the locked amount "
-        );
+        await expect(userManager.updateTrust(BOB.address, 1)).to.be.revertedWith("UserManager: trust shy of locked");
     });
 
     it("Cannot add member repeatedly", async () => {
@@ -495,7 +493,7 @@ describe("User Manager Contract", () => {
         await userManager.updateLockedData(BOB.address, stakeAmount, true);
 
         await expect(userManager.connect(MEMBER1).unstake(parseEther("2000"))).to.be.revertedWith(
-            "UserManager: unstake balance is insufficient"
+            "UserManager: unstake bal too low"
         );
     });
 
@@ -524,7 +522,7 @@ describe("User Manager Contract", () => {
         await userManager.connect(MEMBER1).stake(1000);
 
         await expect(userManager.connect(BOB).updateTotalFrozen(MEMBER1.address, false)).to.be.revertedWith(
-            "UserManager: caller does not the market or admin"
+            "UserManager: not market or admin"
         );
 
         //isOverdue false totalFrozen <= amount
