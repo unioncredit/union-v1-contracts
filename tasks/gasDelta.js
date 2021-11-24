@@ -13,10 +13,19 @@ task("gasDelta", "get gas delta from gas files").setAction(async () => {
     colors.enable();
     const files = fs.readdirSync(gasReportsPath);
     const filteredFiles = files.filter(name => name.match(regex)).slice(0, 2);
+    const orderedFiles = filteredFiles
+        .map(file => {
+            return {
+                name: file,
+                time: fs.statSync(path.resolve(gasReportsPath, file)).mtime.getTime()
+            };
+        })
+        .sort((a, b) => a.time - b.time)
+        .map(f => f.name);
 
     const results = {};
 
-    for (const fileName of filteredFiles) {
+    for (const fileName of orderedFiles) {
         const content = fs.readFileSync(path.resolve(gasReportsPath, fileName));
         const json = JSON.parse(content);
         const methods = json.info.methods;
@@ -34,12 +43,12 @@ task("gasDelta", "get gas delta from gas files").setAction(async () => {
         }
     }
 
-    const tableHeader = ["method", ...filteredFiles.map(name => name.replace(/\.json/g, "")), "delta"];
+    const tableHeader = ["method", ...orderedFiles.map(name => name.replace(/\.json/g, "")), "delta"];
     const table = new Table({head: tableHeader.map(text => colors.white(text))});
 
     for (const method in results) {
         const methodResults = Object.values(results[method]);
-        const delta = methodResults[0] - methodResults[1];
+      const delta = methodResults[1] - methodResults[0];
         const colorFn = delta < 0 ? colors.green : delta > 0 ? colors.red : colors.grey;
 
         if (delta !== 0) {
