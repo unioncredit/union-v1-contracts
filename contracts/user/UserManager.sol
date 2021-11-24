@@ -72,10 +72,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     modifier onlyMarketOrAdmin() {
-        require(
-            address(uToken) == msg.sender || isAdmin(msg.sender),
-            "UserManager: not market or admin"
-        );
+        require(address(uToken) == msg.sender || isAdmin(msg.sender), "UserManager: not market or admin");
         _;
     }
 
@@ -189,10 +186,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     function _setCreditLimitModel(address newCreditLimitModel) private {
-        require(
-            ICreditLimitModel(newCreditLimitModel).isCreditLimitModel(),
-            "UserManager: new isnt creditLM"
-        );
+        require(ICreditLimitModel(newCreditLimitModel).isCreditLimitModel(), "UserManager: new isnt creditLM");
         creditLimitModel = ICreditLimitModel(newCreditLimitModel);
 
         emit LogNewCreditLimitModel(newCreditLimitModel);
@@ -359,10 +353,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
                 trustInfo.lockedStake = getLockedStake(trustInfo.staker, borrower);
 
-                require(
-                    trustInfo.vouchingAmount >= trustInfo.lockedStake,
-                    "UserManager: trustInfo data err"
-                );
+                require(trustInfo.vouchingAmount >= trustInfo.lockedStake, "UserManager: trustInfo data err");
 
                 //The actual effective guarantee amount cannot exceed availableStakingAmount,
                 if (trustInfo.vouchingAmount >= trustInfo.availableStakingAmount + trustInfo.lockedStake) {
@@ -446,10 +437,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.borrowerAddresses = members[trustInfo.staker].creditLine.borrowerAddresses;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
         trustInfo.lockedStake = getLockedStake(trustInfo.staker, borrower);
-        require(
-            trustAmount >= trustInfo.lockedStake,
-            "UserManager: trust shy of locked"
-        );
+        require(trustAmount >= trustInfo.lockedStake, "UserManager: trust shy of locked");
         uint256 borrowerCount = members[trustInfo.staker].creditLine.borrowerAddresses.length;
         bool borrowerExist = false;
         for (uint256 i = 0; i < borrowerCount; i++) {
@@ -487,10 +475,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param borrower borrower address
      */
     function cancelVouch(address staker, address borrower) external override onlyMember(msg.sender) whenNotPaused {
-        require(
-            msg.sender == staker || msg.sender == borrower,
-            "UserManager: only staker or borrower can cancel"
-        );
+        require(msg.sender == staker || msg.sender == borrower, "UserManager: only staker or borrower can cancel");
 
         require(getLockedStake(staker, borrower) == 0, "UserManager: LockedStake isnt 0");
 
@@ -672,10 +657,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function unstake(uint256 amount) external override whenNotPaused nonReentrant {
         IERC20Upgradeable erc20Token = IERC20Upgradeable(stakingToken);
         uint256 stakingAmount = stakers[msg.sender];
-        require(
-            stakingAmount - getTotalLockedStake(msg.sender) >= amount,
-            "UserManager: unstake bal too low"
-        );
+        require(stakingAmount - getTotalLockedStake(msg.sender) >= amount, "UserManager: unstake bal too low");
 
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
