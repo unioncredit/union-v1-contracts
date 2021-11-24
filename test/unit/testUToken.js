@@ -185,10 +185,10 @@ describe("UToken Contract", async () => {
         const remainingLoanSize = await uToken.getRemainingLoanSize();
         await expect(
             uToken.connect(alice).borrow(remainingLoanSize.add(ethers.utils.parseEther("1")))
-        ).to.be.revertedWith("UToken: amount more than loan global size max");
+        ).to.be.revertedWith("UToken: amount above DebtCeiling");
 
         await expect(uToken.connect(alice).borrow(maxBorrow.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: amount large than borrow size max"
+            "UToken: amount above maxBorrow"
         );
 
         const loanableAmount = await assetManager.getLoanableAmount(erc20.address);

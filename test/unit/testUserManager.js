@@ -149,7 +149,7 @@ describe("User Manager Contract", () => {
 
         //Cannot register twice
         await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith(
-            "UserManager: address is already member"
+            "UserManager: address is member"
         );
     });
 
