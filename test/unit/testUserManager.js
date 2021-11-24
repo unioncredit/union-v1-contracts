@@ -138,7 +138,7 @@ describe("User Manager Contract", () => {
         await userManager.connect(MEMBER3).updateTrust(BOB.address, trustAmount);
         await userManager.setNewMemberFee(parseEther("1000000000000"));
         await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith(
-            "UserManager: balance not enough"
+            "ERC20: burn amount exceeds allowance"
         );
 
         //register member

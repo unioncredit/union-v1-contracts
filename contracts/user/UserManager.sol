@@ -557,11 +557,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function registerMember(address newMember) public override whenNotPaused {
         IUnionToken unionTokenContract = IUnionToken(unionToken);
         require(!checkIsMember(newMember), "UserManager: address is already member");
-        require(unionTokenContract.balanceOf(msg.sender) >= newMemberFee, "UserManager: balance not enough");
 
         uint256 effectiveStakerNumber = 0;
+        address stakerAddress;
         for (uint256 i = 0; i < members[newMember].creditLine.stakerAddresses.length; i++) {
-            address stakerAddress = members[newMember].creditLine.stakerAddresses[i];
+            stakerAddress = members[newMember].creditLine.stakerAddresses[i];
             if (checkIsMember(stakerAddress) && getVouchingAmount(stakerAddress, newMember) > 0)
                 effectiveStakerNumber += 1;
         }
