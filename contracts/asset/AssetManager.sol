@@ -94,7 +94,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     /**
      *  @dev Returns the amount of the lending pool balance minus the amount of total staked.
      *  @param tokenAddress ERC20 token address
-     *  @return Amount can be borrowed
+     *  @return loanAmount Amount can be borrowed
      */
     function getLoanableAmount(address tokenAddress) public view override returns (uint256 loanAmount) {
         uint256 poolBalance = getPoolBalance(tokenAddress);
