@@ -461,21 +461,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         bool isOverdue = checkIsOverdue(borrower);
         uint256 oldPrincipal = getBorrowed(borrower);
         require(accrueInterest(), "UToken: accrue interest failed");
-        require(accrualBlockNumber == getBlockNumber(), "UToken: market not fresh");
 
         uint256 interest = calculatingInterest(borrower);
         uint256 borrowedAmount = borrowBalanceStoredInternal(borrower);
 
-        uint256 repayAmount;
-        if (amount > borrowedAmount) {
-            repayAmount = borrowedAmount;
-        } else {
-            repayAmount = amount;
-        }
-
+        uint256 repayAmount = amount > borrowedAmount ? borrowedAmount : amount;
         require(repayAmount > 0, "UToken: repay amount or owed amount is zero");
-
-        require(assetToken.allowance(payer, address(this)) >= repayAmount, "UToken: Not enough allowance to repay");
 
         uint256 toReserveAmount;
         uint256 toRedeemableAmount;
