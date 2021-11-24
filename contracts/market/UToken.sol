@@ -93,12 +93,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     modifier onlyAssetManager() {
-        require(msg.sender == assetManager, "UToken: caller is not assetManager");
+        require(msg.sender == assetManager, "UToken: caller isnt assetManager");
         _;
     }
 
     modifier onlyUserManager() {
-        require(msg.sender == userManager, "UToken: caller is not userManager");
+        require(msg.sender == userManager, "UToken: caller isnt userManager");
         _;
     }
 
@@ -133,12 +133,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function setAssetManager(address assetManager_) external onlyAdmin {
-        require(assetManager_ != address(0), "UToken: assetManager can not be zero");
+        require(assetManager_ != address(0), "UToken: assetManager cant be 0");
         assetManager = assetManager_;
     }
 
     function setUserManager(address userManager_) external onlyAdmin {
-        require(userManager_ != address(0), "UToken: userManager can not be zero");
+        require(userManager_ != address(0), "UToken: userManager cant be 0");
         userManager = userManager_;
     }
 
@@ -393,12 +393,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      */
     function borrow(uint256 amount) external override onlyMember(msg.sender) whenNotPaused nonReentrant {
         IAssetManager assetManagerContract = IAssetManager(assetManager);
-        require(amount >= minBorrow, "UToken: amount less than loan size min");
+        require(amount >= minBorrow, "UToken: amount below loan min");
 
-        require(amount <= getRemainingLoanSize(), "UToken: amount more than loan global size max");
+        require(amount <= getRemainingLoanSize(), "UToken: amount above DebtCeiling");
 
         uint256 fee = calculatingFee(amount);
-        require(borrowBalanceView(msg.sender) + amount + fee <= maxBorrow, "UToken: amount large than borrow size max");
+        require(borrowBalanceView(msg.sender) + amount + fee <= maxBorrow, "UToken: amount above maxBorrow");
 
         require(!checkIsOverdue(msg.sender), "UToken: Member has loans overdue");
 
@@ -473,9 +473,9 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
             repayAmount = amount;
         }
 
-        require(repayAmount > 0, "UToken: repay amount or owed amount is zero");
+        require(repayAmount > 0, "UToken: repay amount is zero");
 
-        require(assetToken.allowance(payer, address(this)) >= repayAmount, "UToken: Not enough allowance to repay");
+        require(assetToken.allowance(payer, address(this)) >= repayAmount, "UToken: Not enough allowance");
 
         uint256 toReserveAmount;
         uint256 toRedeemableAmount;
