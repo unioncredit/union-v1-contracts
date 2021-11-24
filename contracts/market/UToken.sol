@@ -243,7 +243,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return isOverdue
      */
     function checkIsOverdue(address account) public view override returns (bool isOverdue) {
-        if (!(getBorrowed(account) == 0)) {
+        if (getBorrowed(account) != 0) {
             uint256 lastRepay = getLastRepay(account);
             uint256 diff = getBlockNumber() - lastRepay;
             isOverdue = (overdueBlocks < diff);
