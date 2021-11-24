@@ -203,7 +203,6 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
 
                 uint256 supply = moneyMarket.getSupply(token);
                 uint256 ceiling = moneyMarket.ceilingMap(token);
-                if (ceiling <= supply) continue;
                 if (supply + amount > ceiling) continue;
 
                 poolToken.safeTransferFrom(msg.sender, address(moneyMarket), amount);
