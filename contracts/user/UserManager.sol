@@ -48,7 +48,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     uint256 public constant MAX_TRUST_LIMIT = 100;
-    uint256 public constant MAX_STAKE_AMOUNT = 1000e18;
+    uint256 public constant MAX_STAKE_AMOUNT = 10000e18;
     address public stakingToken;
     address public unionToken;
     address public assetManager;
@@ -67,14 +67,14 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     mapping(address => uint256) public memberFrozen; //1 user address 2 frozen amount
 
     modifier onlyMember(address account) {
-        require(checkIsMember(account), "UserManager: caller does not have the Member role");
+        require(checkIsMember(account), "UserManager: caller aint Member");
         _;
     }
 
     modifier onlyMarketOrAdmin() {
         require(
             address(uToken) == msg.sender || isAdmin(msg.sender),
-            "UserManager: caller does not the market or admin"
+            "UserManager: not market or admin"
         );
         _;
     }
@@ -167,7 +167,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     function setUToken(address uToken_) public onlyAdmin {
-        require(uToken_ != address(0), "UserManager: uToken can not be zero");
+        require(uToken_ != address(0), "UserManager: uToken cant be zero");
         uToken = IUToken(uToken_);
         emit LogSetUToken(uToken_);
     }
@@ -184,14 +184,14 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param newCreditLimitModel New credit limit model address
      */
     function setCreditLimitModel(address newCreditLimitModel) public override onlyAdmin {
-        require(newCreditLimitModel != address(0), "UserManager: newCreditLimitModel can not be zero");
+        require(newCreditLimitModel != address(0), "UserManager: newCLM cant be 0");
         _setCreditLimitModel(newCreditLimitModel);
     }
 
     function _setCreditLimitModel(address newCreditLimitModel) private {
         require(
             ICreditLimitModel(newCreditLimitModel).isCreditLimitModel(),
-            "MemberMnager: new model is not a creditLimitModel"
+            "UserManager: new isnt creditLM"
         );
         creditLimitModel = ICreditLimitModel(newCreditLimitModel);
 
@@ -361,7 +361,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
                 require(
                     trustInfo.vouchingAmount >= trustInfo.lockedStake,
-                    "UserManager: vouchingAmount or lockedStake data error"
+                    "UserManager: trustInfo data err"
                 );
 
                 //The actual effective guarantee amount cannot exceed availableStakingAmount,
@@ -437,18 +437,18 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         TrustInfo memory trustInfo;
         trustInfo.staker = msg.sender;
-        require(trustInfo.staker != borrower, "UserManager: Can't vouch for self");
+        require(trustInfo.staker != borrower, "UserManager: Cant vouch for self");
         require(
             members[borrower].creditLine.stakerAddresses.length < MAX_TRUST_LIMIT &&
                 members[trustInfo.staker].creditLine.borrowerAddresses.length < MAX_TRUST_LIMIT,
-            "UserManager: trust reach limit"
+            "UserManager: trust limit hit"
         );
         trustInfo.borrowerAddresses = members[trustInfo.staker].creditLine.borrowerAddresses;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
         trustInfo.lockedStake = getLockedStake(trustInfo.staker, borrower);
         require(
             trustAmount >= trustInfo.lockedStake,
-            "UserManager: trust amount cannot be less than the locked amount "
+            "UserManager: trust shy of locked"
         );
         uint256 borrowerCount = members[trustInfo.staker].creditLine.borrowerAddresses.length;
         bool borrowerExist = false;
@@ -489,10 +489,10 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function cancelVouch(address staker, address borrower) external override onlyMember(msg.sender) whenNotPaused {
         require(
             msg.sender == staker || msg.sender == borrower,
-            "UserManager: Accept claims only from the staker or borrower"
+            "UserManager: only staker or borrower can cancel"
         );
 
-        require(getLockedStake(staker, borrower) == 0, "UserManager: LockedStake is not zero");
+        require(getLockedStake(staker, borrower) == 0, "UserManager: LockedStake isnt 0");
 
         uint256 stakerCount = members[borrower].creditLine.stakerAddresses.length;
         bool stakerExist = false;
@@ -556,7 +556,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      */
     function registerMember(address newMember) public override whenNotPaused {
         IUnionToken unionTokenContract = IUnionToken(unionToken);
-        require(!checkIsMember(newMember), "UserManager: address is already member");
+        require(!checkIsMember(newMember), "UserManager: address is member");
 
         uint256 effectiveStakerNumber = 0;
         address stakerAddress;
@@ -674,7 +674,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 stakingAmount = stakers[msg.sender];
         require(
             stakingAmount - getTotalLockedStake(msg.sender) >= amount,
-            "UserManager: unstake balance is insufficient"
+            "UserManager: unstake bal too low"
         );
 
         comptroller.withdrawRewards(msg.sender, stakingToken);
@@ -719,14 +719,14 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     //Only supports sumOfTrust
     function debtWriteOff(address borrower, uint256 amount) public {
-        require(amount > 0, "UserManager: amount can not be zero");
-        require(totalStaked >= amount, "UserManager: amount exceeds the totalStaked");
-        require(uToken.checkIsOverdue(borrower), "UserManager: only call when borrower is overdue");
+        require(amount > 0, "UserManager: amount can not be 0");
+        require(totalStaked >= amount, "UserManager: exceeds totalStaked");
+        require(uToken.checkIsOverdue(borrower), "UserManager: loan isnt overdue");
         uint256 lockedAmount = getLockedStake(msg.sender, borrower);
-        require(lockedAmount >= amount, "UserManager: amount exceeds the locked amount");
+        require(lockedAmount >= amount, "UserManager: exceeds lockedAmnt");
 
         _updateTotalFrozen(borrower, true);
-        require(totalFrozen >= amount, "UserManager: amount exceeds the totalFrozen");
+        require(totalFrozen >= amount, "UserManager: exceeds totalFrozen");
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         //The borrower is still overdue, do not call comptroller.addFrozenCoinAge
@@ -755,7 +755,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
-        require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
+        require(totalStaked >= totalFrozen, "UserManager: totalStake data err");
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         _updateTotalFrozen(account, isOverdue);
@@ -768,7 +768,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         whenNotPaused
     {
         require(accounts.length == isOverdues.length, "UserManager: params length error");
-        require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
+        require(totalStaked >= totalFrozen, "UserManager: totalStake data err");
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         for (uint256 i = 0; i < accounts.length; i++) {
