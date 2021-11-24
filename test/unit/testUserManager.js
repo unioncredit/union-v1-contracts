@@ -403,11 +403,6 @@ describe("User Manager Contract", () => {
         );
     });
 
-    it("Cannot add member repeatedly", async () => {
-        await userManager.addMember(BOB.address);
-        await expect(userManager.addMember(BOB.address)).to.be.revertedWith("UserManager: address is already member");
-    });
-
     it("Get locked stake when totalLockedStake > stakingAmount", async () => {
         await userManager.addMember(ALICE.address);
         await userManager.addMember(BOB.address);
