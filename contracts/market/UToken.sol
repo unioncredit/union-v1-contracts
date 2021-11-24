@@ -114,12 +114,9 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint256 overdueBlocks_,
         address admin_
     ) public initializer {
-        require(initialExchangeRateMantissa_ > 0, "initial exchange rate must be greater than zero.");
+        require(initialExchangeRateMantissa_ != 0, "initial exchange rate must be greater than zero.");
         require(address(underlying_) != address(0), "underlying token is zero");
-        require(
-            reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
-            "reserveFactorMantissa error"
-        );
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
         uErc20 = uErc20_;
         Controller.__Controller_init(admin_);
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
@@ -200,10 +197,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function setReserveFactor(uint256 reserveFactorMantissa_) external override onlyAdmin {
-        require(
-            reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
-            "reserveFactorMantissa error"
-        );
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
         reserveFactorMantissa = reserveFactorMantissa_;
     }
 
@@ -666,14 +660,11 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         require(accrueInterest(), "UToken: accrue interest failed");
         IUErc20 assetToken = IUErc20(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
-        require(assetToken.allowance(msg.sender, address(this)) >= addAmount, "UToken: Not enough allowance");
         assetToken.safeTransferFrom(msg.sender, address(this), addAmount);
         uint256 balanceAfter = assetToken.balanceOf(address(this));
         uint256 actualAddAmount = balanceAfter - balanceBefore;
 
         uint256 totalReservesNew = totalReserves + actualAddAmount;
-        /* Revert on overflow */
-        require(totalReservesNew >= totalReserves, "add reserves unexpected overflow");
         totalReserves = totalReservesNew;
 
         assetToken.safeApprove(assetManager, 0);
@@ -692,13 +683,10 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         onlyAdmin
     {
         require(accrueInterest(), "UToken: accrue interest failed");
-        require(reduceAmount <= totalReserves, "amount is large than totalReserves");
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
 
         uint256 totalReservesNew = totalReserves - reduceAmount;
-        // We checked reduceAmount <= totalReserves above, so this should never revert.
-        require(totalReservesNew <= totalReserves, "reduce reserves unexpected underflow");
 
         totalReserves = totalReservesNew;
 
