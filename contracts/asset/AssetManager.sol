@@ -333,7 +333,10 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
             if (adapterAddress == address(moneyMarkets[i])) isExist = true;
         }
 
-        if (!isExist) moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
+        if (!isExist) {
+            moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
+            withdrawSeq.push(moneyMarkets.length - 1);
+        }
 
         approveAllTokensMax(adapterAddress);
     }
