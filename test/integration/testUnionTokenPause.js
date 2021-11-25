@@ -37,6 +37,17 @@ describe("Test Union token transfer pause", () => {
     };
 
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [ADMIN, ALICE, BOB, CHARLIE, DAVID, ETHAN] = await ethers.getSigners();
     });
 

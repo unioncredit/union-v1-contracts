@@ -5,12 +5,15 @@
     "scripts": {
         "compile": "yarn hardhat compile",
         "test": "yarn hardhat test",
+        "unitTest": "yarn hardhat test test/unit/*",
         "deploy": "yarn hardhat deploy --network",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "coverage": "yarn hardhat coverage",
         "lint": "yarn solhint contracts/**/*.sol",
         "prettier:solidity": "npx prettier --write contracts/**/*.sol",
-        "slither": "slither ."
+        "slither": "slither .",
+        "gasReport": "CI=true yarn unitTest && mv gasReporterOutput.json gasReports/$(git rev-parse --short HEAD).json",
+        "gasDelta": "yarn hardhat gasDelta"
     },
     "repository": {
         "type": "git",
@@ -36,8 +39,11 @@
         "@openzeppelin/contracts-upgradeable": "^4.3.2",
         "@openzeppelin/test-helpers": "0.5.4",
         "@openzeppelin/upgrades": "2.8.0",
+        "cli-table3": "^0.6.0",
+        "colors": "^1.4.0",
         "commander": "^6.0.0",
         "dotenv": "^6.2.0",
+        "hardhat-contract-sizer": "^2.1.1",
         "husky": "^4.2.5"
     },
     "devDependencies": {
