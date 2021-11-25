@@ -287,9 +287,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 stakingAmount = stakers[staker];
         address[] memory borrowerAddresses = members[staker].creditLine.borrowerAddresses;
         address borrower;
-        for (uint256 i = 0; i < borrowerAddresses.length; i++) {
+        for (uint256 i = 0; i < borrowerAddresses.length; ) {
             borrower = borrowerAddresses[i];
             totalLockedStake += getLockedStake(staker, borrower);
+            unchecked {
+                ++i;
+            }
         }
 
         if (stakingAmount >= totalLockedStake) {
@@ -311,10 +314,13 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.stakingAmount = stakers[staker];
 
         address borrower;
-        for (uint256 i = 0; i < trustInfo.borrowerAddresses.length; i++) {
+        for (uint256 i = 0; i < trustInfo.borrowerAddresses.length; ) {
             borrower = trustInfo.borrowerAddresses[i];
             if (uToken.checkIsOverdue(borrower)) {
                 totalFrozenAmount += getLockedStake(staker, borrower);
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -337,7 +343,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.effectiveCount = 0;
         uint256[] memory limits = new uint256[](trustInfo.stakerAddresses.length);
 
-        for (uint256 i = 0; i < trustInfo.stakerAddresses.length; i++) {
+        for (uint256 i = 0; i < trustInfo.stakerAddresses.length; ) {
             trustInfo.staker = trustInfo.stakerAddresses[i];
 
             trustInfo.stakingAmount = stakers[trustInfo.staker];
@@ -376,11 +382,17 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
                 }
                 trustInfo.effectiveCount += 1;
             }
+            unchecked {
+                ++i;
+            }
         }
 
         uint256[] memory creditlimits = new uint256[](trustInfo.effectiveCount);
-        for (uint256 j = 0; j < trustInfo.effectiveCount; j++) {
+        for (uint256 j = 0; j < trustInfo.effectiveCount; ) {
             creditlimits[j] = limits[j];
+            unchecked {
+                ++j;
+            }
         }
 
         return int256(creditLimitModel.getCreditLimit(creditlimits)) - int256(uToken.calculatingInterest(borrower));
@@ -452,19 +464,25 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         );
         uint256 borrowerCount = members[trustInfo.staker].creditLine.borrowerAddresses.length;
         bool borrowerExist = false;
-        for (uint256 i = 0; i < borrowerCount; i++) {
+        for (uint256 i = 0; i < borrowerCount; ) {
             if (trustInfo.borrowerAddresses[i] == borrower) {
                 borrowerExist = true;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
 
         uint256 stakerCount = members[borrower].creditLine.stakerAddresses.length;
         bool stakerExist = false;
-        for (uint256 i = 0; i < stakerCount; i++) {
+        for (uint256 i = 0; i < stakerCount; ) {
             if (trustInfo.stakerAddresses[i] == trustInfo.staker) {
                 stakerExist = true;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -497,22 +515,28 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 stakerCount = members[borrower].creditLine.stakerAddresses.length;
         bool stakerExist = false;
         uint256 stakerIndex = 0;
-        for (uint256 i = 0; i < stakerCount; i++) {
+        for (uint256 i = 0; i < stakerCount; ) {
             if (members[borrower].creditLine.stakerAddresses[i] == staker) {
                 stakerExist = true;
                 stakerIndex = i;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
 
         uint256 borrowerCount = members[staker].creditLine.borrowerAddresses.length;
         bool borrowerExist = false;
         uint256 borrowerIndex = 0;
-        for (uint256 i = 0; i < borrowerCount; i++) {
+        for (uint256 i = 0; i < borrowerCount; ) {
             if (members[staker].creditLine.borrowerAddresses[i] == borrower) {
                 borrowerExist = true;
                 borrowerIndex = i;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -560,10 +584,14 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         uint256 effectiveStakerNumber = 0;
         address stakerAddress;
-        for (uint256 i = 0; i < members[newMember].creditLine.stakerAddresses.length; i++) {
+        for (uint256 i = 0; i < members[newMember].creditLine.stakerAddresses.length; ) {
             stakerAddress = members[newMember].creditLine.stakerAddresses[i];
             if (checkIsMember(stakerAddress) && getVouchingAmount(stakerAddress, newMember) > 0)
                 effectiveStakerNumber += 1;
+
+            unchecked {
+                ++i;
+            }
         }
 
         require(
@@ -590,7 +618,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             trustInfo.stakerAddresses.length
         );
 
-        for (uint256 i = 0; i < trustInfo.stakerAddresses.length; i++) {
+        for (uint256 i = 0; i < trustInfo.stakerAddresses.length; ) {
             ICreditLimitModel.LockedInfo memory lockedInfo;
 
             trustInfo.staker = trustInfo.stakerAddresses[i];
@@ -610,15 +638,23 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             lockedInfo.availableStakingAmount = trustInfo.availableStakingAmount;
 
             lockedInfoList[i] = lockedInfo;
+
+            unchecked {
+                ++i;
+            }
         }
 
-        for (uint256 i = 0; i < lockedInfoList.length; i++) {
+        for (uint256 i = 0; i < lockedInfoList.length; ) {
             members[lockedInfoList[i].staker].creditLine.lockedAmount[borrower] = creditLimitModel.getLockedAmount(
                 lockedInfoList,
                 lockedInfoList[i].staker,
                 amount,
                 isBorrow
             );
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -709,11 +745,15 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 lastRepay
     ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
-        for (uint256 i = 0; i < stakerAddresses.length; i++) {
+        for (uint256 i = 0; i < stakerAddresses.length; ) {
             address staker = stakerAddresses[i];
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
 
             comptroller.addFrozenCoinAge(staker, token, lockedStake, lastRepay);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -771,8 +811,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         require(totalStaked >= totalFrozen, "UserManager: total stake amount error");
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
-        for (uint256 i = 0; i < accounts.length; i++) {
+        for (uint256 i = 0; i < accounts.length; ) {
             if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -782,10 +826,14 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
             //The sum of the locked amount of all stakers on this borrower, which is the frozen amount that needs to be updated
             uint256 amount;
-            for (uint256 i = 0; i < members[account].creditLine.stakerAddresses.length; i++) {
+            for (uint256 i = 0; i < members[account].creditLine.stakerAddresses.length; ) {
                 address staker = members[account].creditLine.stakerAddresses[i];
                 uint256 lockedStake = getLockedStake(staker, account);
                 amount += lockedStake;
+
+                unchecked {
+                    ++i;
+                }
             }
 
             if (memberFrozen[account] == 0) {
@@ -814,7 +862,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         address[] memory borrowerAddresses = getBorrowerAddresses(staker);
 
-        for (uint256 i = 0; i < borrowerAddresses.length; i++) {
+        for (uint256 i = 0; i < borrowerAddresses.length; ) {
             address borrower = borrowerAddresses[i];
             uint256 blocks = block.number - uToken.getLastRepay(borrower);
             if (uToken.checkIsOverdue(borrower)) {
@@ -825,6 +873,10 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
                 } else {
                     totalFrozenCoinAge = totalFrozenCoinAge + (lockedStake * pastBlocks);
                 }
+            }
+
+            unchecked {
+                ++i;
             }
         }
 

@@ -295,11 +295,14 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     function removeToken(address tokenAddress) external override onlyAdmin {
         bool isExist = false;
         uint256 index;
-        for (uint256 i = 0; i < supportedTokensList.length; i++) {
+        for (uint256 i = 0; i < supportedTokensList.length; ) {
             if (tokenAddress == address(supportedTokensList[i])) {
                 isExist = true;
                 index = i;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -316,10 +319,13 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      */
     function approveAllMarketsMax(address tokenAddress) public override onlyAdmin {
         IERC20Upgradeable poolToken = IERC20Upgradeable(tokenAddress);
-        for (uint256 i = 0; i < moneyMarkets.length; i++) {
+        for (uint256 i = 0; i < moneyMarkets.length; ) {
             address moneyMarketAddress = address(moneyMarkets[i]);
             poolToken.safeApprove(moneyMarketAddress, 0);
             poolToken.safeApprove(moneyMarketAddress, type(uint256).max);
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -329,8 +335,11 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      */
     function addAdapter(address adapterAddress) external override onlyAdmin {
         bool isExist = false;
-        for (uint256 i = 0; i < moneyMarkets.length; i++) {
+        for (uint256 i = 0; i < moneyMarkets.length; ) {
             if (adapterAddress == address(moneyMarkets[i])) isExist = true;
+            unchecked {
+                ++i;
+            }
         }
 
         if (!isExist) moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
@@ -345,11 +354,14 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     function removeAdapter(address adapterAddress) external override onlyAdmin {
         bool isExist = false;
         uint256 index;
-        for (uint256 i = 0; i < moneyMarkets.length; i++) {
+        for (uint256 i = 0; i < moneyMarkets.length; ) {
             if (adapterAddress == address(moneyMarkets[i])) {
                 isExist = true;
                 index = i;
                 break;
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -361,8 +373,11 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
 
     function overwriteAdapters(address[] calldata adapters) external onlyAdmin {
         moneyMarkets = new IMoneyMarketAdapter[](adapters.length);
-        for (uint256 i = 0; i < adapters.length; i++) {
+        for (uint256 i = 0; i < adapters.length; ) {
             moneyMarkets[i] = IMoneyMarketAdapter(adapters[i]);
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -371,10 +386,13 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param adapterAddress Address of adaptor for money market
      */
     function approveAllTokensMax(address adapterAddress) public override onlyAdmin {
-        for (uint256 i = 0; i < supportedTokensList.length; i++) {
+        for (uint256 i = 0; i < supportedTokensList.length; ) {
             IERC20Upgradeable poolToken = IERC20Upgradeable(supportedTokensList[i]);
             poolToken.safeApprove(adapterAddress, 0);
             poolToken.safeApprove(adapterAddress, type(uint256).max);
+            unchecked {
+                ++i;
+            }
         }
     }
 

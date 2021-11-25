@@ -19,8 +19,11 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
     function getCreditLimit(uint256[] memory vouchs) public view override returns (uint256) {
         if (vouchs.length >= effectiveNumber) {
             uint256 limit;
-            for (uint256 i = 0; i < vouchs.length; i++) {
+            for (uint256 i = 0; i < vouchs.length; ) {
                 limit += vouchs[i];
+                unchecked {
+                    ++i;
+                }
             }
 
             return limit;
@@ -41,7 +44,7 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
         uint256 newLockedAmount;
         if (isIncrease) {
             array = _sortArray(array, true);
-            for (uint256 i = 0; i < array.length; i++) {
+            for (uint256 i = 0; i < array.length; ) {
                 uint256 remainingVouchingAmount;
                 if (array[i].vouchingAmount > array[i].lockedAmount) {
                     remainingVouchingAmount = array[i].vouchingAmount - array[i].lockedAmount;
@@ -70,10 +73,13 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
                 if (account == array[i].staker) {
                     return newLockedAmount;
                 }
+                unchecked {
+                    ++i;
+                }
             }
         } else {
             array = _sortArray(array, false);
-            for (uint256 i = 0; i < array.length; i++) {
+            for (uint256 i = 0; i < array.length; ) {
                 if (array[i].lockedAmount > remaining) {
                     newLockedAmount = array[i].lockedAmount - remaining;
                     remaining = 0;
@@ -84,6 +90,9 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
 
                 if (account == array[i].staker) {
                     return newLockedAmount;
+                }
+                unchecked {
+                    ++i;
                 }
             }
         }
@@ -98,8 +107,8 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
     function _sortArray(LockedInfo[] memory arr, bool isPositive) private pure returns (LockedInfo[] memory) {
         uint256 length = arr.length;
 
-        for (uint256 i = 0; i < length; i++) {
-            for (uint256 j = i + 1; j < length; j++) {
+        for (uint256 i = 0; i < length; ) {
+            for (uint256 j = i + 1; j < length; ) {
                 if (isPositive) {
                     if (arr[i].vouchingAmount < arr[j].vouchingAmount) {
                         LockedInfo memory temp = arr[j];
@@ -113,6 +122,12 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
                         arr[i] = temp;
                     }
                 }
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
             }
         }
 
