@@ -12,7 +12,8 @@
         "lint": "yarn solhint contracts/**/*.sol",
         "prettier:solidity": "npx prettier --write contracts/**/*.sol",
         "slither": "slither .",
-        "gasReport": "CI=true yarn unitTest && mv gasReporterOutput.json gasReports/$(git rev-parse --short HEAD).json"
+        "gasReport": "CI=true yarn unitTest && mv gasReporterOutput.json gasReports/$(git rev-parse --short HEAD).json",
+        "gasDelta": "yarn hardhat gasDelta"
     },
     "repository": {
         "type": "git",
