@@ -5,13 +5,14 @@
     "scripts": {
         "compile": "yarn hardhat compile",
         "test": "yarn hardhat test",
+        "unitTest": "yarn hardhat test test/unit/*",
         "deploy": "yarn hardhat deploy --network",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "coverage": "yarn hardhat coverage",
         "lint": "yarn solhint contracts/**/*.sol",
         "prettier:solidity": "npx prettier --write contracts/**/*.sol",
         "slither": "slither .",
-        "gasReport": "CI=true yarn hardhat test && mv gasReporterOutput.json gasReports/$(git rev-parse --short HEAD).json"
+        "gasReport": "CI=true yarn unitTest && mv gasReporterOutput.json gasReports/$(git rev-parse --short HEAD).json"
     },
     "repository": {
         "type": "git",
