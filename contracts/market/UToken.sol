@@ -21,7 +21,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
     bool public constant IS_UTOKEN = true;
     uint256 public constant WAD = 1e18;
-    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
+    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.005e16; //Maximum borrow rate that can ever be applied (.005% / block)
     uint256 internal constant RESERVE_FACTORY_MAX_MANTISSA = 1e18; //Maximum fraction of interest that can be set aside for reserves
 
     address public underlying;
