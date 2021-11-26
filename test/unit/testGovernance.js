@@ -410,7 +410,7 @@ describe("Governor Contract State", () => {
     });
 
     it("Active", async () => {
-        await waitNBlocks(2);
+        await waitNBlocks(10);
         const res = await governor.state(trivialProposal.id);
         res.toString().should.eq("1");
     });
