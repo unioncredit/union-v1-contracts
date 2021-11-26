@@ -144,7 +144,7 @@ describe("Governance Contract", async () => {
         const proposalId = await governanceProxy.latestProposalIds(ADMIN.address);
 
         const votingDelay = await governanceProxy.votingDelay();
-        await waitNBlocks(parseInt(votingDelay));
+        await waitNBlocks(parseInt(votingDelay) + 10);
 
         res = await governanceProxy.state(proposalId);
         res.toString().should.eq("1");
