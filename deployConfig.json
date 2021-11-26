@@ -1,5 +1,7 @@
 {
     "31337": {
+        "Guardian": "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
+        "Admin": "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         "DAI": "",
         "cDAI": "",
         "AssetManager": {
@@ -39,7 +41,7 @@
         "UnionToken": {
             "name": "Union Token",
             "symbol": "UNION",
-            "mintingAllowedAfter": "1633061850",
+            "mintingAllowedAfter": "1637923230",
             "comptrollerAmount": "1000000000000000000000000",
             "amountForTreasuryVester": "14000000000000000000000000"
         },
