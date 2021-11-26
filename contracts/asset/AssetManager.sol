@@ -35,10 +35,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     }
 
     modifier onlyAuth(address token) {
-        require(
-            _isUToken(msg.sender, token) || _isUserManager(msg.sender, token),
-            "AssetManager: unauthed sender"
-        );
+        require(_isUToken(msg.sender, token) || _isUserManager(msg.sender, token), "AssetManager: unauthed sender");
         _;
     }
 
