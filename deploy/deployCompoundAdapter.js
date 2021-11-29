@@ -1,4 +1,4 @@
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, getChainId, deployments}) => {
     const {deploy} = deployments;

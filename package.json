@@ -6,7 +6,7 @@
         "compile": "yarn hardhat compile",
         "test": "yarn hardhat test",
         "unitTest": "yarn hardhat test test/unit/*",
-        "deploy": "yarn hardhat deploy --network",
+        "deploy": "yarn hardhat deploy --write true --network",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "setAuth": "yarn hardhat run scripts/setAuth.js --network",
         "coverage": "yarn hardhat coverage",

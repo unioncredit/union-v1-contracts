@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const {ethers, getChainId} = hre;
 
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 const networks = {
     42: "kovan",

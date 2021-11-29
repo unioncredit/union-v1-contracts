@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 const {ethers, getChainId} = hre;
 
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 const networks = {
     42: "kovan",
@@ -37,7 +37,7 @@ const checkAssetManager = async chainId => {
 
     const marketRegistry = await assetManager.marketRegistry();
     const marketRegistryParams = checkFileExist(`../deployments/${networks[chainId]}/MarketRegistry.json`);
-    if (marketRegistry.toLowerCase() != marketRegistryParams.address?.toLowerCase()) {
+    if (marketRegistry.toLowerCase() != marketRegistryParams.address.toLowerCase()) {
         throw new Error("AssetManager set marketRegistry error");
     }
 
@@ -62,7 +62,7 @@ const checkPureTokenAdapter = async chainId => {
 
     const assetManager = await pureTokenAdapter.assetManager();
     const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
-    if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
+    if (assetManager.toLowerCase() != assetManagerParams.address.toLowerCase()) {
         throw new Error("PureTokenAdapter set assetManager error");
     }
 
@@ -86,13 +86,13 @@ const checkCompoundAdapter = async chainId => {
     }
 
     const cToken = await compoundAdapter.tokenToCToken(DAI);
-    if (cToken.toLowerCase() != configs[chainId]["cDAI"]?.toLowerCase()) {
+    if (cToken.toLowerCase() != configs[chainId]["cDAI"].toLowerCase()) {
         throw new Error("CompoundAdapter setCToken error");
     }
 
     const assetManager = await compoundAdapter.assetManager();
     const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
-    if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
+    if (assetManager.toLowerCase() != assetManagerParams.address.toLowerCase()) {
         throw new Error("CompoundAdapter set assetManager error");
     }
 
@@ -106,13 +106,13 @@ const checkComptroller = async chainId => {
 
     const unionToken = await comptroller.unionToken();
     const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
-    if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
+    if (unionToken.toLowerCase() != unionTokenParams.address.toLowerCase()) {
         throw new Error("Comptroller set unionToken error");
     }
 
     const marketRegistry = await comptroller.marketRegistry();
     const marketRegistryParams = checkFileExist(`../deployments/${networks[chainId]}/MarketRegistry.json`);
-    if (marketRegistry.toLowerCase() != marketRegistryParams.address?.toLowerCase()) {
+    if (marketRegistry.toLowerCase() != marketRegistryParams.address.toLowerCase()) {
         throw new Error("Comptroller set marketRegistry error");
     }
 
@@ -206,7 +206,7 @@ const checkTreasury = async chainId => {
     const treasury = await ethers.getContractAt("Treasury", params.address);
     const unionToken = await treasury.token();
     const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
-    if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
+    if (unionToken.toLowerCase() != unionTokenParams.address.toLowerCase()) {
         throw new Error("Treasury set unionToken error");
     }
 
@@ -236,10 +236,10 @@ const checkTreasuryVester = async chainId => {
     const data = configs[chainId]["TreasuryVester"];
     const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
     const treasuryParams = checkFileExist(`../deployments/${networks[chainId]}/Treasury.json`);
-    if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
+    if (unionToken.toLowerCase() != unionTokenParams.address.toLowerCase()) {
         throw new Error("TreasuryVester set unionToken error");
     }
-    if (recipient.toLowerCase() != treasuryParams.address?.toLowerCase()) {
+    if (recipient.toLowerCase() != treasuryParams.address.toLowerCase()) {
         throw new Error("TreasuryVester set treasury error");
     }
     if (parseFloat(vestingAmount) != parseFloat(data.vestingAmount)) {
@@ -272,7 +272,7 @@ const checkUErc20 = async chainId => {
     }
     const owner = await uErc20.owner();
     const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UToken.json`);
-    if (owner.toLowerCase() != uTokenParams.address?.toLowerCase()) {
+    if (owner.toLowerCase() != uTokenParams.address.toLowerCase()) {
         throw new Error("UErc20 set owner error");
     }
 
@@ -305,27 +305,27 @@ const checkUserManager = async chainId => {
     const userManager = await ethers.getContractAt("UserManager", params.address);
     const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
     const assetManager = await userManager.assetManager();
-    if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
+    if (assetManager.toLowerCase() != assetManagerParams.address.toLowerCase()) {
         throw new Error("UserManager set assetManager error");
     }
     const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
     const unionToken = await userManager.unionToken();
-    if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
+    if (unionToken.toLowerCase() != unionTokenParams.address.toLowerCase()) {
         throw new Error("UserManager set unionToken error");
     }
     const creditLimitModelParams = checkFileExist(`../deployments/${networks[chainId]}/SumOfTrust.json`);
     const creditLimitModel = await userManager.creditLimitModel();
-    if (creditLimitModel.toLowerCase() != creditLimitModelParams.address?.toLowerCase()) {
+    if (creditLimitModel.toLowerCase() != creditLimitModelParams.address.toLowerCase()) {
         throw new Error("UserManager set sumOfTrust error");
     }
     const comptrollerParams = checkFileExist(`../deployments/${networks[chainId]}/Comptroller.json`);
     const comptroller = await userManager.comptroller();
-    if (comptroller.toLowerCase() != comptrollerParams.address?.toLowerCase()) {
+    if (comptroller.toLowerCase() != comptrollerParams.address.toLowerCase()) {
         throw new Error("UserManager set comptroller error");
     }
     const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UToken.json`);
     const uToken = await userManager.uToken();
-    if (uToken.toLowerCase() != uTokenParams.address?.toLowerCase()) {
+    if (uToken.toLowerCase() != uTokenParams.address.toLowerCase()) {
         throw new Error("UserManager set uToken error");
     }
     console.log("UserManager success");
@@ -390,7 +390,7 @@ const checkUToken = async chainId => {
 
 (async () => {
     const chainId = await getChainId();
-    await checkAssetManage(chainId);
+    await checkAssetManager(chainId);
     await checkPureTokenAdapter(chainId);
     await checkCompoundAdapter(chainId);
     await checkComptroller(chainId);
