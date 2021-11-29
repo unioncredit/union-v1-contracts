@@ -1,14 +1,11 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "@openzeppelin/contracts/utils/math/Math.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "../interfaces/ICreditLimitModel.sol";
 
 contract SumOfTrust is Ownable, ICreditLimitModel {
-    using Math for uint256;
-
     bool public constant override isCreditLimitModel = true;
     uint256 public override effectiveNumber;
 
