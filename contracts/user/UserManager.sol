@@ -416,7 +416,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param account Member address
      */
     function addMember(address account) public override onlyAdmin {
-        require(!checkIsMember(account), "UserManager: address is already member");
         members[account].isMember = true;
         emit LogAddMember(account);
     }
