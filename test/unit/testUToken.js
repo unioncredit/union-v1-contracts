@@ -61,13 +61,18 @@ describe("UToken Contract", async () => {
     });
 
     beforeEach(async () => {
-        const UErc20 = await ethers.getContractFactory("UErc20");
-        uErc20 = await UErc20.deploy("uToken", "uToken");
-        const UToken = await ethers.getContractFactory("UToken");
+        const UTokenLib = await ethers.getContractFactory("UTokenLib");
+        const uTokenLib = await UTokenLib.deploy();
+        const UToken = await ethers.getContractFactory("UToken", {
+            libraries: {
+                UTokenLib: uTokenLib.address
+            }
+        });
         uToken = await upgrades.deployProxy(
             UToken,
             [
-                uErc20.address,
+                "uToken",
+                "uToken",
                 erc20.address,
                 initialExchangeRateMantissa,
                 reserveFactorMantissa,
@@ -80,10 +85,10 @@ describe("UToken Contract", async () => {
             ],
             {
                 initializer:
-                    "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                    "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)",
+                unsafeAllowLinkedLibraries: true
             }
         );
-        await uErc20.transferOwnership(uToken.address);
 
         await marketRegistry.deleteMarket(erc20.address);
         await marketRegistry.addUToken(erc20.address, uToken.address);
@@ -306,8 +311,8 @@ describe("UToken Contract", async () => {
 
         let totalRedeemable = await uToken.totalRedeemable();
         totalRedeemable.toString().should.eq(mintAmount.toString());
-        let balance = await uErc20.balanceOf(alice.address);
-        let totalSupply = await uErc20.totalSupply();
+        let balance = await uToken.balanceOf(alice.address);
+        let totalSupply = await uToken.totalSupply();
         totalSupply.toString().should.eq(balance.toString());
         exchangeRate = await uToken.exchangeRateStored();
         balance.toString().should.eq(mintAmount.mul(WAD).div(exchangeRate).toString());
@@ -342,11 +347,11 @@ describe("UToken Contract", async () => {
         await erc20.connect(alice).approve(uToken.address, mintAmount);
         await uToken.connect(alice).mint(mintAmount);
 
-        let uBalance = await uErc20.balanceOf(alice.address);
+        let uBalance = await uToken.balanceOf(alice.address);
         let erc20Balance = await erc20.balanceOf(alice.address);
         uBalance.toString().should.eq(mintAmount.toString());
         await uToken.connect(alice).redeem(uBalance);
-        uBalance = await uErc20.balanceOf(alice.address);
+        uBalance = await uToken.balanceOf(alice.address);
         let erc20BalanceAfter = await erc20.balanceOf(alice.address);
         uBalance.toString().should.eq("0");
         erc20BalanceAfter.toString().should.eq(erc20Balance.add(mintAmount).toString());
@@ -363,10 +368,10 @@ describe("UToken Contract", async () => {
         await erc20.connect(alice).approve(uToken.address, repayAmount);
         await uToken.connect(alice).repayBorrow(repayAmount);
 
-        uBalance = await uErc20.balanceOf(alice.address);
+        uBalance = await uToken.balanceOf(alice.address);
         erc20Balance = await erc20.balanceOf(alice.address);
         await uToken.connect(alice).redeemUnderlying(mintAmount);
-        uBalance = await uErc20.balanceOf(alice.address);
+        uBalance = await uToken.balanceOf(alice.address);
         uBalance.toString().should.not.eq("0");
         erc20BalanceAfter = await erc20.balanceOf(alice.address);
         erc20BalanceAfter.toString().should.eq(erc20Balance.add(mintAmount).toString());
@@ -500,15 +505,15 @@ describe("UToken Contract", async () => {
                 name,
                 version: "1",
                 chainId: 31337,
-                verifyingContract: uErc20.address
+                verifyingContract: uToken.address
             },
             bob.address,
             alice.address,
             amount.toString()
         );
 
-        await expect(uErc20.permit(bob.address, alice.address, amount, deadline, result.v, result.r, result.s))
-            .to.emit(uErc20, "Approval")
+        await expect(uToken.permit(bob.address, alice.address, amount, deadline, result.v, result.r, result.s))
+            .to.emit(uToken, "Approval")
             .withArgs(bob.address, alice.address, amount);
     });
 });
