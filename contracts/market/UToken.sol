@@ -206,11 +206,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return Remaining total amount
      */
     function getRemainingLoanSize() public view override returns (uint256) {
-        if (debtCeiling >= totalBorrows) {
-            return debtCeiling - totalBorrows;
-        } else {
-            return 0;
-        }
+        return debtCeiling >= totalBorrows ? debtCeiling - totalBorrows : 0;
     }
 
     /**
@@ -686,12 +682,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
     function debtWriteOff(address borrower, uint256 amount) external override whenNotPaused onlyUserManager {
         uint256 oldPrincipal = getBorrowed(borrower);
-        uint256 repayAmount;
-        if (amount > oldPrincipal) {
-            repayAmount = oldPrincipal;
-        } else {
-            repayAmount = amount;
-        }
+        uint256 repayAmount = amount > oldPrincipal ? oldPrincipal : amount;
 
         accountBorrows[borrower].principal = oldPrincipal - repayAmount;
         totalBorrows -= repayAmount;
