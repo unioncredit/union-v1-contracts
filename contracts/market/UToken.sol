@@ -1,91 +1,20 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
 
 import "../Controller.sol";
 import "../interfaces/IUserManager.sol";
 import "../interfaces/IAssetManager.sol";
-import "../interfaces/IUErc20.sol";
 import "../interfaces/IUToken.sol";
 import "../interfaces/IInterestRateModel.sol";
-
-library UTokenLib {
-    struct BorrowData {
-        uint256 amount;
-        uint256 principal;
-        uint256 remainingLoanSize;
-        uint256 minBorrow;
-        uint256 maxBorrow;
-        uint256 fee;
-        uint256 borrowBalanceView;
-        uint256 borrowedAmount;
-        uint256 loanableAmount;
-        uint256 lastRepay;
-        uint256 totalBorrows;
-        uint256 borrowed;
-        uint256 creditLimit;
-    }
-
-    /**
-     *  @dev Event borrow
-     *  @param account Member address
-     *  @param amount Borrow amount
-     *  @param fee Origination fee
-     */
-    event LogBorrow(address indexed account, uint256 amount, uint256 fee);
-
-    function borrow(BorrowData memory borrowData)
-        external
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
-        require(borrowData.amount >= borrowData.minBorrow, "UToken: amount less than loan size min");
-        require(borrowData.amount <= borrowData.remainingLoanSize, "UToken: amount more than loan global size max");
-        require(
-            borrowData.borrowBalanceView + borrowData.amount + borrowData.fee <= borrowData.maxBorrow,
-            "UToken: amount large than borrow size max"
-        );
-        require(borrowData.amount <= borrowData.loanableAmount, "UToken: Not enough to lend out");
-        require(
-            borrowData.creditLimit >= borrowData.amount + borrowData.fee,
-            "UToken: The loan amount plus fee is greater than credit limit"
-        );
-
-        uint256 lastRepay = borrowData.lastRepay;
-        uint256 diffPrincipal;
-        uint256 interest;
-        if (borrowData.lastRepay == 0) {
-            lastRepay = block.number;
-        }
-
-        uint256 accountBorrowsNew = borrowData.borrowedAmount + borrowData.amount + borrowData.fee;
-        uint256 totalBorrowsNew = borrowData.totalBorrows + borrowData.amount + borrowData.fee;
-        uint256 oldPrincipal = borrowData.principal;
-        uint256 newPrincipal = borrowData.principal + borrowData.amount + borrowData.fee;
-        diffPrincipal = newPrincipal - oldPrincipal;
-        interest = accountBorrowsNew - newPrincipal;
-
-        emit LogBorrow(msg.sender, borrowData.amount, borrowData.fee);
-
-        return (diffPrincipal, interest, totalBorrowsNew, lastRepay, newPrincipal);
-    }
-}
 
 /**
  *  @title UToken Contract
  *  @dev Union accountBorrows can borrow and repay thru this component.
  */
-contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardUpgradeable {
-    using SafeERC20Upgradeable for IUErc20;
-
+contract UToken is IUToken, ERC20PermitUpgradeable, Controller, ReentrancyGuardUpgradeable {
     bool public constant IS_UTOKEN = true;
     uint256 public constant WAD = 1e18;
     uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
@@ -115,22 +44,6 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 lastRepay; //Calculate if it is overdue
     }
 
-    struct BorrowData {
-        uint256 amount;
-        uint256 principal;
-        uint256 remainingLoanSize;
-        uint256 minBorrow;
-        uint256 maxBorrow;
-        uint256 fee;
-        uint256 borrowBalanceView;
-        uint256 borrowedAmount;
-        uint256 loanableAmount;
-        uint256 lastRepay;
-        uint256 totalBorrows;
-        uint256 borrowed;
-        uint256 creditLimit;
-    }
-
     /**
      * @notice Mapping of account addresses to outstanding borrow balances
      */
@@ -152,6 +65,14 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     event LogReservesReduced(address receiver, uint256 reduceAmount, uint256 totalReservesNew);
 
     /**
+     *  @dev Event borrow
+     *  @param account Member address
+     *  @param amount Borrow amount
+     *  @param fee Origination fee
+     */
+    event LogBorrow(address indexed account, uint256 amount, uint256 fee);
+
+    /**
      *  @dev Event repay
      *  @param account Member address
      *  @param amount Repay amount
@@ -162,23 +83,22 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @dev modifier limit member
      */
     modifier onlyMember(address account) {
-        require(IUserManager(userManager).checkIsMember(account), "UToken: caller is not a member");
+        require(IUserManager(userManager).checkIsMember(account));
         _;
     }
 
     modifier onlyAssetManager() {
-        require(msg.sender == assetManager, "UToken: caller is not assetManager");
+        require(msg.sender == assetManager);
         _;
     }
 
     modifier onlyUserManager() {
-        require(msg.sender == userManager, "UToken: caller is not userManager");
+        require(msg.sender == userManager);
         _;
     }
 
     function __UToken_init(
         string memory name_,
-        string memory symbol_,
         address underlying_,
         uint256 initialExchangeRateMantissa_,
         uint256 reserveFactorMantissa_,
@@ -189,12 +109,11 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 overdueBlocks_,
         address admin_
     ) public initializer {
-        require(initialExchangeRateMantissa_ != 0, "initial exchange rate must be greater than zero.");
-        require(address(underlying_) != address(0), "underlying token is zero");
-        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
-        Controller.__Controller_init(admin_);
-        ERC20Upgradeable.__ERC20_init(name_, symbol_);
+        require(initialExchangeRateMantissa_ != 0);
+        require(address(underlying_) != address(0));
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA);
         ERC20PermitUpgradeable.__ERC20Permit_init(name_);
+        Controller.__Controller_init(admin_);
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
         underlying = underlying_;
         originationFee = originationFee_;
@@ -209,12 +128,12 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     }
 
     function setAssetManager(address assetManager_) external onlyAdmin {
-        require(assetManager_ != address(0), "UToken: assetManager can not be zero");
+        require(assetManager_ != address(0));
         assetManager = assetManager_;
     }
 
     function setUserManager(address userManager_) external onlyAdmin {
-        require(userManager_ != address(0), "UToken: userManager can not be zero");
+        require(userManager_ != address(0));
         userManager = userManager_;
     }
 
@@ -273,7 +192,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     }
 
     function setReserveFactor(uint256 reserveFactorMantissa_) external override onlyAdmin {
-        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA);
         reserveFactorMantissa = reserveFactorMantissa_;
     }
 
@@ -329,33 +248,33 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         return (originationFee * amount) / WAD;
     }
 
-    // /**
-    //  *  @dev Get member loan data
-    //  *  @param member Member address
-    //  *  @return principal totalBorrowed asset apr limit isOverdue lastRepay
-    //  */
-    // function getLoan(address member)
-    //     public
-    //     view
-    //     override
-    //     returns (
-    //         uint256 principal,
-    //         uint256 totalBorrowed,
-    //         address asset,
-    //         uint256 apr,
-    //         int256 limit,
-    //         bool isOverdue,
-    //         uint256 lastRepay
-    //     )
-    // {
-    //     principal = getBorrowed(msg.sender);
-    //     totalBorrowed = borrowBalanceStoredInternal(member);
-    //     asset = underlying;
-    //     apr = borrowRatePerBlock();
-    //     lastRepay = getLastRepay(member);
-    //     limit = _getCreditLimit(member);
-    //     isOverdue = checkIsOverdue(member);
-    // }
+    /**
+     *  @dev Get member loan data
+     *  @param member Member address
+     *  @return principal totalBorrowed asset apr limit isOverdue lastRepay
+     */
+    function getLoan(address member)
+        public
+        view
+        override
+        returns (
+            uint256 principal,
+            uint256 totalBorrowed,
+            address asset,
+            uint256 apr,
+            int256 limit,
+            bool isOverdue,
+            uint256 lastRepay
+        )
+    {
+        principal = getBorrowed(msg.sender);
+        totalBorrowed = borrowBalanceStoredInternal(member);
+        asset = underlying;
+        apr = borrowRatePerBlock();
+        lastRepay = getLastRepay(member);
+        limit = _getCreditLimit(member);
+        isOverdue = checkIsOverdue(member);
+    }
 
     /**
      *  @dev Get the borrowed principle
@@ -400,7 +319,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     function borrowRatePerBlock() public view override returns (uint256) {
         uint256 borrowRateMantissa = interestRateModel.getBorrowRate();
-        require(borrowRateMantissa <= BORROW_RATE_MAX_MANTISSA, "borrow rate is absurdly high");
+        require(borrowRateMantissa <= BORROW_RATE_MAX_MANTISSA);
         return borrowRateMantissa;
     }
 
@@ -417,7 +336,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      * @return Calculated exchange rate scaled by 1e18
      */
     function exchangeRateCurrent() public nonReentrant returns (uint256) {
-        require(accrueInterest(), "UToken: accrue interest failed");
+        require(accrueInterest());
         return exchangeRateStored();
     }
 
@@ -466,42 +385,47 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @param amount Borrow amount
      */
     function borrow(uint256 amount) external override onlyMember(msg.sender) whenNotPaused nonReentrant {
-        require(!checkIsOverdue(msg.sender), "UToken: Member has loans overdue");
-        require(accrueInterest(), "UToken: accrue interest failed");
         IAssetManager assetManagerContract = IAssetManager(assetManager);
-        BorrowData memory borrowData;
-        borrowData.amount = amount;
-        borrowData.principal = accountBorrows[msg.sender].principal;
-        borrowData.remainingLoanSize = getRemainingLoanSize();
-        borrowData.maxBorrow = maxBorrow;
-        borrowData.minBorrow = minBorrow;
-        uint256 fee = calculatingFee(amount);
-        borrowData.fee = fee;
-        borrowData.borrowBalanceView = borrowBalanceView(msg.sender);
-        borrowData.loanableAmount = assetManagerContract.getLoanableAmount(underlying);
-        borrowData.creditLimit = uint256(IUserManager(userManager).getCreditLimit(msg.sender));
-        borrowData.borrowedAmount = borrowBalanceStoredInternal(msg.sender);
-        borrowData.lastRepay = getLastRepay(msg.sender);
-        borrowData.totalBorrows = totalBorrows;
-        borrowData.borrowed = getBorrowed(msg.sender);
-        (
-            uint256 diffPrincipal,
-            uint256 interest,
-            uint256 totalBorrowsNew,
-            uint256 lastRepay,
-            uint256 principal
-        ) = UTokenLib.borrow(borrowData);
+        require(amount >= minBorrow);
 
-        accountBorrows[msg.sender].principal = principal;
-        accountBorrows[msg.sender].lastRepay = lastRepay;
-        IUserManager(userManager).updateLockedData(msg.sender, diffPrincipal, true);
-        accountBorrows[msg.sender].interest = interest;
+        require(amount <= getRemainingLoanSize());
+
+        uint256 fee = calculatingFee(amount);
+        require(borrowBalanceView(msg.sender) + amount + fee <= maxBorrow);
+
+        require(!checkIsOverdue(msg.sender));
+
+        require(amount <= assetManagerContract.getLoanableAmount(underlying));
+        require(
+            uint256(_getCreditLimit(msg.sender)) >= amount + fee,
+            "UToken: The loan amount plus fee is greater than credit limit"
+        );
+
+        require(accrueInterest());
+
+        uint256 borrowedAmount = borrowBalanceStoredInternal(msg.sender);
+
+        //Set lastRepay init data
+        if (getLastRepay(msg.sender) == 0) {
+            accountBorrows[msg.sender].lastRepay = getBlockNumber();
+        }
+
+        uint256 accountBorrowsNew = borrowedAmount + amount + fee;
+        uint256 totalBorrowsNew = totalBorrows + amount + fee;
+        uint256 oldPrincipal = getBorrowed(msg.sender);
+
+        accountBorrows[msg.sender].principal += amount + fee;
+        uint256 newPrincipal = getBorrowed(msg.sender);
+        IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
+        accountBorrows[msg.sender].interest = accountBorrowsNew - newPrincipal;
         accountBorrows[msg.sender].interestIndex = borrowIndex;
         totalBorrows = totalBorrowsNew;
         // The origination fees contribute to the reserve
         totalReserves += fee;
 
-        require(assetManagerContract.withdraw(underlying, msg.sender, amount), "UToken: Failed to withdraw");
+        require(assetManagerContract.withdraw(underlying, msg.sender, amount));
+
+        emit LogBorrow(msg.sender, amount, fee);
     }
 
     function repayBorrow(uint256 repayAmount) external override whenNotPaused nonReentrant {
@@ -525,17 +449,16 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         address borrower,
         uint256 amount
     ) private {
-        IUErc20 assetToken = IUErc20(underlying);
         //In order to prevent the state from being changed, put the value at the top
         bool isOverdue = checkIsOverdue(borrower);
         uint256 oldPrincipal = getBorrowed(borrower);
-        require(accrueInterest(), "UToken: accrue interest failed");
+        require(accrueInterest());
 
         uint256 interest = calculatingInterest(borrower);
         uint256 borrowedAmount = borrowBalanceStoredInternal(borrower);
 
         uint256 repayAmount = amount > borrowedAmount ? borrowedAmount : amount;
-        require(repayAmount > 0, "UToken: repay amount or owed amount is zero");
+        require(repayAmount > 0);
 
         uint256 toReserveAmount;
         uint256 toRedeemableAmount;
@@ -571,12 +494,12 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         IUserManager(userManager).updateLockedData(borrower, oldPrincipal - newPrincipal, false);
 
-        assetToken.safeTransferFrom(payer, address(this), repayAmount);
+        transferFrom(payer, address(this), repayAmount);
 
-        assetToken.safeApprove(assetManager, 0);
-        assetToken.safeApprove(assetManager, repayAmount);
+        approve(assetManager, 0);
+        approve(assetManager, repayAmount);
 
-        require(IAssetManager(assetManager).deposit(underlying, repayAmount), "UToken: Deposit failed");
+        require(IAssetManager(assetManager).deposit(underlying, repayAmount));
 
         emit LogRepay(borrower, repayAmount);
     }
@@ -590,8 +513,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         bytes32 r,
         bytes32 s
     ) public override whenNotPaused {
-        IUErc20 erc20Token = IUErc20(underlying);
-        erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
+        permit(msg.sender, address(this), nonce, expiry, v, r, s);
 
         _repayBorrowFresh(msg.sender, borrower, amount);
     }
@@ -628,22 +550,21 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     }
 
     function mint(uint256 mintAmount) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), "UToken: accrue interest failed");
+        require(accrueInterest());
         uint256 exchangeRate = exchangeRateStored();
-        IUErc20 assetToken = IUErc20(underlying);
-        uint256 balanceBefore = assetToken.balanceOf(address(this));
-        require(assetToken.allowance(msg.sender, address(this)) >= mintAmount, "UToken: Not enough allowance");
-        assetToken.safeTransferFrom(msg.sender, address(this), mintAmount);
-        uint256 balanceAfter = assetToken.balanceOf(address(this));
+        uint256 balanceBefore = balanceOf(address(this));
+        require(allowance(msg.sender, address(this)) >= mintAmount);
+        transferFrom(msg.sender, address(this), mintAmount);
+        uint256 balanceAfter = balanceOf(address(this));
         uint256 actualMintAmount = balanceAfter - balanceBefore;
         totalRedeemable += actualMintAmount;
         uint256 mintTokens = (actualMintAmount * WAD) / exchangeRate;
         _mint(msg.sender, mintTokens);
 
-        assetToken.safeApprove(assetManager, 0);
-        assetToken.safeApprove(assetManager, actualMintAmount);
+        approve(assetManager, 0);
+        approve(assetManager, actualMintAmount);
 
-        require(IAssetManager(assetManager).deposit(underlying, actualMintAmount), "UToken: Deposit failed");
+        require(IAssetManager(assetManager).deposit(underlying, actualMintAmount));
 
         emit LogMint(msg.sender, actualMintAmount, mintTokens);
     }
@@ -654,7 +575,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      * @param redeemTokens The number of uTokens to redeem into underlying
      */
     function redeem(uint256 redeemTokens) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), "UToken: accrue interest failed");
+        require(accrueInterest());
         _redeemFresh(payable(msg.sender), redeemTokens, 0);
     }
 
@@ -664,7 +585,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      * @param redeemAmount The amount of underlying to receive from redeeming uTokens
      */
     function redeemUnderlying(uint256 redeemAmount) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), "UToken: accrue interest failed");
+        require(accrueInterest());
         _redeemFresh(payable(msg.sender), 0, redeemAmount);
     }
 
@@ -680,7 +601,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 redeemTokensIn,
         uint256 redeemAmountIn
     ) private {
-        require(redeemTokensIn == 0 || redeemAmountIn == 0, "one of redeemTokensIn or redeemAmountIn must be zero");
+        require(redeemTokensIn == 0 || redeemAmountIn == 0);
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
 
@@ -707,30 +628,29 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
             redeemAmount = redeemAmountIn;
         }
 
-        require(totalRedeemable >= redeemAmount, "redeem amount error");
+        require(totalRedeemable >= redeemAmount);
         totalRedeemable -= redeemAmount;
         _burn(redeemer, redeemTokens);
 
-        require(assetManagerContract.withdraw(underlying, redeemer, redeemAmount), "UToken: Failed to withdraw");
+        require(assetManagerContract.withdraw(underlying, redeemer, redeemAmount));
 
         emit LogRedeem(redeemer, redeemTokensIn, redeemAmountIn, redeemAmount);
     }
 
     function addReserves(uint256 addAmount) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), "UToken: accrue interest failed");
-        IUErc20 assetToken = IUErc20(underlying);
-        uint256 balanceBefore = assetToken.balanceOf(address(this));
-        assetToken.safeTransferFrom(msg.sender, address(this), addAmount);
-        uint256 balanceAfter = assetToken.balanceOf(address(this));
+        require(accrueInterest());
+        uint256 balanceBefore = balanceOf(address(this));
+        transferFrom(msg.sender, address(this), addAmount);
+        uint256 balanceAfter = balanceOf(address(this));
         uint256 actualAddAmount = balanceAfter - balanceBefore;
 
         uint256 totalReservesNew = totalReserves + actualAddAmount;
         totalReserves = totalReservesNew;
 
-        assetToken.safeApprove(assetManager, 0);
-        assetToken.safeApprove(assetManager, balanceAfter);
+        approve(assetManager, 0);
+        approve(assetManager, balanceAfter);
 
-        require(IAssetManager(assetManager).deposit(underlying, balanceAfter), "UToken: Deposit failed");
+        require(IAssetManager(assetManager).deposit(underlying, balanceAfter));
 
         emit LogReservesAdded(msg.sender, actualAddAmount, totalReservesNew);
     }
@@ -742,7 +662,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         nonReentrant
         onlyAdmin
     {
-        require(accrueInterest(), "UToken: accrue interest failed");
+        require(accrueInterest());
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
 
@@ -750,7 +670,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         totalReserves = totalReservesNew;
 
-        require(assetManagerContract.withdraw(underlying, receiver, reduceAmount), "UToken: Failed to withdraw");
+        require(assetManagerContract.withdraw(underlying, receiver, reduceAmount));
 
         emit LogReservesReduced(receiver, reduceAmount, totalReservesNew);
     }
@@ -777,7 +697,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     }
 
     function _setInterestRateModelFresh(address newInterestRateModel_) private {
-        require(newInterestRateModel_ != address(0), "UToken: newInterestRateModel can not be zero");
+        require(newInterestRateModel_ != address(0));
         address oldInterestRateModel = address(interestRateModel);
         address newInterestRateModel = newInterestRateModel_;
         require(
@@ -794,7 +714,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @param account Borrower address
      */
     function updateOverdueInfo(address account) external override whenNotPaused {
-        require(account != address(0), "UToken: account can not be zero");
+        require(account != address(0));
         if (checkIsOverdue(account)) {
             IUserManager(userManager).updateTotalFrozen(account, true);
         }
@@ -816,12 +736,12 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         IUserManager(userManager).batchUpdateTotalFrozen(overdueAccounts, isOverdues);
     }
 
-    // /**
-    //  *  @dev Get a member's available credit limit
-    //  *  @param account Member address
-    //  *  @return Member credit limit
-    //  */
-    // function _getCreditLimit(address account) private view returns (int256) {
-    //     return IUserManager(userManager).getCreditLimit(account);
-    // }
+    /**
+     *  @dev Get a member's available credit limit
+     *  @param account Member address
+     *  @return Member credit limit
+     */
+    function _getCreditLimit(address account) private view returns (int256) {
+        return IUserManager(userManager).getCreditLimit(account);
+    }
 }
