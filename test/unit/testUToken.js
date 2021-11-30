@@ -61,13 +61,7 @@ describe("UToken Contract", async () => {
     });
 
     beforeEach(async () => {
-        const UTokenLib = await ethers.getContractFactory("UTokenLib");
-        const uTokenLib = await UTokenLib.deploy();
-        const UToken = await ethers.getContractFactory("UToken", {
-            libraries: {
-                UTokenLib: uTokenLib.address
-            }
-        });
+        const UToken = await ethers.getContractFactory("UToken");
         uToken = await upgrades.deployProxy(
             UToken,
             [

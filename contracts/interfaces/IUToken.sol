@@ -53,24 +53,6 @@ interface IUToken {
      */
     function calculatingFee(uint256 amount) external view returns (uint256);
 
-    // /**
-    //  *  @dev Get member loan data
-    //  *  @param member Member address
-    //  *  @return Loan
-    //  */
-    // function getLoan(address member)
-    //     external
-    //     view
-    //     returns (
-    //         uint256,
-    //         uint256,
-    //         address,
-    //         uint256,
-    //         int256,
-    //         bool,
-    //         uint256
-    //     );
-
     /**
      *  @dev Calculating member's borrowed interest
      *  @param account Member address
