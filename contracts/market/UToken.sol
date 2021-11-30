@@ -11,19 +11,6 @@ import "../interfaces/IAssetManager.sol";
 import "../interfaces/IUToken.sol";
 import "../interfaces/IInterestRateModel.sol";
 
-interface IErc20 is IERC20Upgradeable {
-    function permit(
-        address holder,
-        address spender,
-        uint256 nonce,
-        uint256 expiry,
-        bool allowed,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-}
-
 /**
  *  @title UToken Contract
  *  @dev Union accountBorrows can borrow and repay thru this component.
@@ -398,7 +385,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         if (borrowBalanceView(msg.sender) + amount + fee > maxBorrow) revert AmountExceedMaxBorrow();
         if (checkIsOverdue(msg.sender)) revert MemberIsOverdue();
         if (amount > assetManagerContract.getLoanableAmount(underlying)) revert InsufficientFundsLeft();
-        if (uint256(IUserManager(userManager).getCreditLimit(msg.sender)) < amount + fee)
+        if (IUserManager(userManager).getCreditLimit(msg.sender) < int256(amount + fee))
             revert BorrowExceedCreditLimit();
         if (!accrueInterest()) revert AccrueInterestFailed();
 
@@ -447,8 +434,8 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         address payer,
         address borrower,
         uint256 amount
-    ) private {
-        IErc20 assetToken = IErc20(underlying);
+    ) internal {
+        IERC20Upgradeable assetToken = IERC20Upgradeable(underlying);
         //In order to prevent the state from being changed, put the value at the top
         bool isOverdue = checkIsOverdue(borrower);
         uint256 oldPrincipal = getBorrowed(borrower);
@@ -502,21 +489,6 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         emit LogRepay(borrower, repayAmount);
     }
 
-    function repayBorrowWithPermit(
-        address borrower,
-        uint256 amount,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public override whenNotPaused {
-        IErc20 erc20Token = IErc20(underlying);
-        erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
-
-        _repayBorrowFresh(msg.sender, borrower, amount);
-    }
-
     /**
      *  @dev Accrue interest
      *  @return Accrue interest finished
@@ -551,7 +523,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     function mint(uint256 mintAmount) external override whenNotPaused nonReentrant {
         if (!accrueInterest()) revert AccrueInterestFailed();
         uint256 exchangeRate = exchangeRateStored();
-        IErc20 assetToken = IErc20(underlying);
+        IERC20Upgradeable assetToken = IERC20Upgradeable(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
         assetToken.transferFrom(msg.sender, address(this), mintAmount);
         uint256 balanceAfter = assetToken.balanceOf(address(this));
@@ -634,7 +606,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
     function addReserves(uint256 addAmount) external override whenNotPaused nonReentrant {
         if (!accrueInterest()) revert AccrueInterestFailed();
-        IErc20 assetToken = IErc20(underlying);
+        IERC20Upgradeable assetToken = IERC20Upgradeable(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
         assetToken.transferFrom(msg.sender, address(this), addAmount);
         uint256 balanceAfter = assetToken.balanceOf(address(this));

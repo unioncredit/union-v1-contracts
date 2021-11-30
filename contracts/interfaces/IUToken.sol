@@ -152,16 +152,6 @@ interface IUToken {
      */
     function repayBorrowBehalf(address borrower, uint256 amount) external;
 
-    function repayBorrowWithPermit(
-        address borrower,
-        uint256 amount,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-
     /**
      *  @dev Update borrower overdue info
      *  @param account Borrower address

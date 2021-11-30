@@ -61,7 +61,7 @@ describe("UToken Contract", async () => {
     });
 
     beforeEach(async () => {
-        const UToken = await ethers.getContractFactory("UToken");
+        const UToken = await ethers.getContractFactory("UDai");
         uToken = await upgrades.deployProxy(
             UToken,
             [
