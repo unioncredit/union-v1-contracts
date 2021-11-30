@@ -6,8 +6,6 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const chainId = await getChainId();
 
-    const uErc20 = await deployments.get("UErc20");
-
     const params = configs[chainId]["UToken"];
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
@@ -19,7 +17,8 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
             execute: {
                 methodName: "__UToken_init",
                 args: [
-                    uErc20.address,
+                    configs[chainId]["UToken"]["name"],
+                    configs[chainId]["UToken"]["symbol"],
                     DAI,
                     params.initialExchangeRateMantissa,
                     params.reserveFactorMantissa,
@@ -36,4 +35,3 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
     });
 };
 module.exports.tags = ["UToken"];
-module.exports.dependencies = ["UErc20"];

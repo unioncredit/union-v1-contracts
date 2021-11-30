@@ -27,7 +27,6 @@ describe("UToken Contract", async () => {
             unionToken,
             userManager,
             uToken,
-            uErc20,
             marketRegistry,
             comptroller,
             assetManager
@@ -66,13 +65,13 @@ describe("UToken Contract", async () => {
 
         await erc20Proxy.approve(uToken.address, mintAmount);
         await uToken.mint(mintAmount);
-        balance = await uErc20.balanceOf(ADMIN.address);
+        balance = await uToken.balanceOf(ADMIN.address);
         balance.toString().should.eq(mintAmount.toString());
         await uToken.redeem(redeemAmount);
-        balance = await uErc20.balanceOf(ADMIN.address);
+        balance = await uToken.balanceOf(ADMIN.address);
         balance.toString().should.eq(mintAmount.sub(redeemAmount).toString());
 
-        totalSupply = await uErc20.totalSupply();
+        totalSupply = await uToken.totalSupply();
         await uToken.connect(BORROWER_Z).borrow(totalSupply.mul(exchangeRate).div(WAD));
 
         await waitNBlocks(10);
@@ -85,7 +84,7 @@ describe("UToken Contract", async () => {
         exchangeRate = await uToken.exchangeRateStored();
 
         await uToken.redeemUnderlying(mintAmount.sub(redeemAmount).mul(exchangeRate).div(WAD));
-        balance = await uErc20.balanceOf(ADMIN.address);
+        balance = await uToken.balanceOf(ADMIN.address);
         balance.toString().should.eq("0");
     });
 });

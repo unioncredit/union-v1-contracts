@@ -167,9 +167,7 @@ describe("UToken Contract", async () => {
     });
 
     it("Only member can borrow", async () => {
-        await expect(uToken.connect(bob).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
-            "UToken: caller is not a member"
-        );
+        await expect(uToken.connect(bob).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith("CallerNoMember()");
     });
 
     it("Verify various borrow restrictions", async () => {
@@ -178,32 +176,32 @@ describe("UToken Contract", async () => {
         await userManager.setCreditLimit(ethers.utils.parseEther("10"));
 
         await expect(uToken.connect(alice).borrow(minBorrow.sub(ethers.utils.parseEther("0.01")))).to.be.revertedWith(
-            "UToken: amount less than loan size min"
+            "AmountLessMinBorrow()"
         );
 
         const remainingLoanSize = await uToken.getRemainingLoanSize();
         await expect(
             uToken.connect(alice).borrow(remainingLoanSize.add(ethers.utils.parseEther("1")))
-        ).to.be.revertedWith("UToken: amount more than loan global size max");
+        ).to.be.revertedWith("AmountExceedGlobalMax()");
 
         await expect(uToken.connect(alice).borrow(maxBorrow.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: amount large than borrow size max"
+            "AmountExceedMaxBorrow()"
         );
 
         const loanableAmount = await assetManager.getLoanableAmount(erc20.address);
         await expect(uToken.connect(alice).borrow(loanableAmount.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: Not enough to lend out"
+            "InsufficientFundsLeft()"
         );
 
         const creditLimit = await userManager.getCreditLimit(alice.address);
         await expect(uToken.connect(alice).borrow(creditLimit.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: The loan amount plus fee is greater than credit limit"
+            "BorrowExceedCreditLimit()"
         );
 
         await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
         await waitNBlocks(overdueBlocks);
         await expect(uToken.connect(alice).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
-            "UToken: Member has loans overdue"
+            "MemberIsOverdue()"
         );
     });
 

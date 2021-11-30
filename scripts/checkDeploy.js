@@ -258,27 +258,6 @@ const checkTreasuryVester = async chainId => {
     console.log("TreasuryVester success");
 };
 
-const checkUErc20 = async chainId => {
-    const path = `../deployments/${networks[chainId]}/UErc20.json`;
-    const params = checkFileExist(path);
-    const uErc20 = await ethers.getContractAt("UErc20", params.address);
-    const name = await uErc20.name();
-    if (name != configs[chainId]["UErc20"]["name"]) {
-        throw new Error("UErc20 set name error");
-    }
-    const symbol = await uErc20.symbol();
-    if (symbol != configs[chainId]["UErc20"]["symbol"]) {
-        throw new Error("UErc20 set name error");
-    }
-    const owner = await uErc20.owner();
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UToken.json`);
-    if (owner.toLowerCase() != uTokenParams.address?.toLowerCase()) {
-        throw new Error("UErc20 set owner error");
-    }
-
-    console.log("UErc20 success");
-};
-
 const checkUnionToken = async chainId => {
     const path = `../deployments/${networks[chainId]}/UnionToken.json`;
     const params = checkFileExist(path);
@@ -336,10 +315,14 @@ const checkUToken = async chainId => {
     const params = checkFileExist(path);
     const uToken = await ethers.getContractAt("UToken", params.address);
     const data = configs[chainId]["UToken"];
-    const uErc20 = await uToken.uErc20();
-    const uErc20Params = checkFileExist(`../deployments/${networks[chainId]}/UErc20.json`);
-    if (uErc20.toLowerCase() != uErc20Params.address.toLowerCase()) {
-        throw new Error("UToken set uErc20 error");
+
+    const name = await uToken.name();
+    if (name != configs[chainId]["UToken"]["name"]) {
+        throw new Error("UToken set name error");
+    }
+    const symbol = await uToken.symbol();
+    if (symbol != configs[chainId]["UToken"]["symbol"]) {
+        throw new Error("UToken set name error");
     }
     const underlying = await uToken.underlying();
     if (underlying.toLowerCase() != configs[chainId]["DAI"].toLowerCase()) {
@@ -400,7 +383,6 @@ const checkUToken = async chainId => {
     await checkTimelock(chainId);
     await checkTreasury(chainId);
     await checkTreasuryVester(chainId);
-    await checkUErc20(chainId);
     await checkUnionToken(chainId);
     await checkUserManager(chainId);
     await checkUToken(chainId);

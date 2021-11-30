@@ -63,25 +63,23 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     mapping(address => BorrowSnapshot) internal accountBorrows;
 
-    enum UTokenError {
-        ACCRUE_INTEREST_FAILED,
-        ADDRESS_NOT_ZERO,
-        AMOUNT_EXCEED_GLOBAL_MAX,
-        AMOUNT_EXCEED_MAX_BORROW,
-        AMOUNT_LESS_MIN_BORROW,
-        AMOUNT_NOT_ZERO,
-        BORROW_EXCEED_CREDIT_LIMIT,
-        BORROW_RATE_EXCEED_LIMIT,
-        CALL_FAILED,
-        CALLER_NO_ASSETMANAGER,
-        CALLER_NO_MEMBER,
-        CALLER_NO_USERMANAGER,
-        CONTRACT_NOT_INTEREST_MODEL,
-        INIT_EXCHANGE_RATE_NOT_ZERO,
-        INSUFFICIENT_FUNDS_LEFT,
-        MEMBER_IS_OVERDUE,
-        RESERVE_FACTORY_EXCEED_LIMIT
-    }
+    error AccrueInterestFailed();
+    error AddressZero();
+    error AmountExceedGlobalMax();
+    error AmountExceedMaxBorrow();
+    error AmountLessMinBorrow();
+    error AmountZero();
+    error BorrowExceedCreditLimit();
+    error BorrowRateExceedLimit();
+    error CallFailed();
+    error CallerNoAssetManager();
+    error CallerNoMember();
+    error CallerNoUserManager();
+    error ContractNoInterestModel();
+    error InitExchangeRateNotZero();
+    error InsufficientFundsLeft();
+    error MemberIsOverdue();
+    error ReserveFactoryExceedLimit();
 
     /**
      *  @dev Change of the interest rate model
@@ -117,17 +115,17 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @dev modifier limit member
      */
     modifier onlyMember(address account) {
-        require(IUserManager(userManager).checkIsMember(account), UTokenError.CALLER_NO_MEMBER);
+        if (!IUserManager(userManager).checkIsMember(account)) revert CallerNoMember();
         _;
     }
 
     modifier onlyAssetManager() {
-        require(msg.sender == assetManager, UTokenError.CALLER_NO_ASSETMANAGER);
+        if (msg.sender != assetManager) revert CallerNoAssetManager();
         _;
     }
 
     modifier onlyUserManager() {
-        require(msg.sender == userManager, UTokenError.CALLER_NO_USERMANAGER);
+        if (msg.sender != userManager) revert CallerNoUserManager();
         _;
     }
 
@@ -144,9 +142,9 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 overdueBlocks_,
         address admin_
     ) public initializer {
-        require(initialExchangeRateMantissa_ != 0, UTokenError.INIT_EXCHANGE_RATE_NOT_ZERO);
-        require(address(underlying_) != address(0), UTokenError.ADDRESS_NOT_ZERO);
-        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, UTokenError.RESERVE_FACTORY_EXCEED_LIMIT);
+        if (initialExchangeRateMantissa_ == 0) revert InitExchangeRateNotZero();
+        if (address(underlying_) == address(0)) revert AddressZero();
+        if (reserveFactorMantissa_ > RESERVE_FACTORY_MAX_MANTISSA) revert ReserveFactoryExceedLimit();
         Controller.__Controller_init(admin_);
         ERC20Upgradeable.__ERC20_init(name_, symbol_);
         ERC20PermitUpgradeable.__ERC20Permit_init(name_);
@@ -164,12 +162,12 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     }
 
     function setAssetManager(address assetManager_) external onlyAdmin {
-        require(assetManager_ != address(0), UTokenError.ADDRESS_NOT_ZERO);
+        if (assetManager_ == address(0)) revert AddressZero();
         assetManager = assetManager_;
     }
 
     function setUserManager(address userManager_) external onlyAdmin {
-        require(userManager_ != address(0), UTokenError.ADDRESS_NOT_ZERO);
+        if (userManager_ == address(0)) revert AddressZero();
         userManager = userManager_;
     }
 
@@ -224,20 +222,17 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @param newInterestRateModel_ New interest rate model address
      */
     function setInterestRateModel(address newInterestRateModel_) external override onlyAdmin {
-        require(newInterestRateModel_ != address(0), UTokenError.ADDRESS_NOT_ZERO);
+        if (newInterestRateModel_ == address(0)) revert AddressZero();
         address oldInterestRateModel = address(interestRateModel);
         address newInterestRateModel = newInterestRateModel_;
-        require(
-            IInterestRateModel(newInterestRateModel).isInterestRateModel(),
-            UTokenError.CONTRACT_NOT_INTEREST_MODEL
-        );
+        if (!IInterestRateModel(newInterestRateModel).isInterestRateModel()) revert ContractNoInterestModel();
         interestRateModel = IInterestRateModel(newInterestRateModel);
 
         emit LogNewMarketInterestRateModel(oldInterestRateModel, newInterestRateModel);
     }
 
     function setReserveFactor(uint256 reserveFactorMantissa_) external override onlyAdmin {
-        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, UTokenError.RESERVE_FACTORY_EXCEED_LIMIT);
+        if (reserveFactorMantissa_ > RESERVE_FACTORY_MAX_MANTISSA) revert ReserveFactoryExceedLimit();
         reserveFactorMantissa = reserveFactorMantissa_;
     }
 
@@ -332,7 +327,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     function borrowRatePerBlock() public view override returns (uint256) {
         uint256 borrowRateMantissa = interestRateModel.getBorrowRate();
-        require(borrowRateMantissa <= BORROW_RATE_MAX_MANTISSA, UTokenError.BORROW_RATE_EXCEED_LIMIT);
+        if (borrowRateMantissa > BORROW_RATE_MAX_MANTISSA) revert BorrowRateExceedLimit();
 
         return borrowRateMantissa;
     }
@@ -350,7 +345,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      * @return Calculated exchange rate scaled by 1e18
      */
     function exchangeRateCurrent() public nonReentrant returns (uint256) {
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
         return exchangeRateStored();
     }
 
@@ -396,22 +391,16 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     function borrow(uint256 amount) external override onlyMember(msg.sender) whenNotPaused nonReentrant {
         IAssetManager assetManagerContract = IAssetManager(assetManager);
-        require(amount >= minBorrow, UTokenError.AMOUNT_LESS_MIN_BORROW);
-
-        require(amount <= getRemainingLoanSize(), UTokenError.AMOUNT_EXCEED_GLOBAL_MAX);
+        if (amount < minBorrow) revert AmountLessMinBorrow();
+        if (amount > getRemainingLoanSize()) revert AmountExceedGlobalMax();
 
         uint256 fee = calculatingFee(amount);
-        require(borrowBalanceView(msg.sender) + amount + fee <= maxBorrow, UTokenError.AMOUNT_EXCEED_MAX_BORROW);
-
-        require(!checkIsOverdue(msg.sender), UTokenError.MEMBER_IS_OVERDUE);
-
-        require(amount <= assetManagerContract.getLoanableAmount(underlying), UTokenError.INSUFFICIENT_FUNDS_LEFT);
-        require(
-            uint256(IUserManager(userManager).getCreditLimit(msg.sender)) >= amount + fee,
-            UTokenError.BORROW_EXCEED_CREDIT_LIMIT
-        );
-
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (borrowBalanceView(msg.sender) + amount + fee > maxBorrow) revert AmountExceedMaxBorrow();
+        if (checkIsOverdue(msg.sender)) revert MemberIsOverdue();
+        if (amount > assetManagerContract.getLoanableAmount(underlying)) revert InsufficientFundsLeft();
+        if (uint256(IUserManager(userManager).getCreditLimit(msg.sender)) < amount + fee)
+            revert BorrowExceedCreditLimit();
+        if (!accrueInterest()) revert AccrueInterestFailed();
 
         uint256 borrowedAmount = borrowBalanceStoredInternal(msg.sender);
 
@@ -433,7 +422,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         // The origination fees contribute to the reserve
         totalReserves += fee;
 
-        require(assetManagerContract.withdraw(underlying, msg.sender, amount), UTokenError.CALL_FAILED);
+        if (!assetManagerContract.withdraw(underlying, msg.sender, amount)) revert CallFailed();
 
         emit LogBorrow(msg.sender, amount, fee);
     }
@@ -463,13 +452,13 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         //In order to prevent the state from being changed, put the value at the top
         bool isOverdue = checkIsOverdue(borrower);
         uint256 oldPrincipal = getBorrowed(borrower);
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
 
         uint256 interest = calculatingInterest(borrower);
         uint256 borrowedAmount = borrowBalanceStoredInternal(borrower);
 
         uint256 repayAmount = amount > borrowedAmount ? borrowedAmount : amount;
-        require(repayAmount > 0, UTokenError.AMOUNT_NOT_ZERO);
+        if (repayAmount == 0) revert AmountZero();
 
         uint256 toReserveAmount;
         uint256 toRedeemableAmount;
@@ -508,8 +497,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         assetToken.transferFrom(payer, address(this), repayAmount);
 
         assetToken.approve(assetManager, repayAmount);
-
-        require(IAssetManager(assetManager).deposit(underlying, repayAmount), UTokenError.CALL_FAILED);
+        if (!IAssetManager(assetManager).deposit(underlying, repayAmount)) revert CallFailed();
 
         emit LogRepay(borrower, repayAmount);
     }
@@ -561,7 +549,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     }
 
     function mint(uint256 mintAmount) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
         uint256 exchangeRate = exchangeRateStored();
         IErc20 assetToken = IErc20(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
@@ -573,8 +561,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         _mint(msg.sender, mintTokens);
 
         assetToken.approve(assetManager, actualMintAmount);
-
-        require(IAssetManager(assetManager).deposit(underlying, actualMintAmount), UTokenError.CALL_FAILED);
+        if (!IAssetManager(assetManager).deposit(underlying, actualMintAmount)) revert CallFailed();
 
         emit LogMint(msg.sender, actualMintAmount, mintTokens);
     }
@@ -585,7 +572,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      * @param redeemTokens The number of uTokens to redeem into underlying
      */
     function redeem(uint256 redeemTokens) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
         _redeemFresh(payable(msg.sender), redeemTokens, 0);
     }
 
@@ -595,7 +582,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      * @param redeemAmount The amount of underlying to receive from redeeming uTokens
      */
     function redeemUnderlying(uint256 redeemAmount) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
         _redeemFresh(payable(msg.sender), 0, redeemAmount);
     }
 
@@ -611,7 +598,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 redeemTokensIn,
         uint256 redeemAmountIn
     ) private {
-        require(redeemTokensIn == 0 || redeemAmountIn == 0, UTokenError.AMOUNT_NOT_ZERO);
+        if (redeemTokensIn != 0 && redeemAmountIn != 0) revert AmountZero();
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
 
@@ -640,14 +627,13 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         totalRedeemable -= redeemAmount;
         _burn(redeemer, redeemTokens);
-
-        require(assetManagerContract.withdraw(underlying, redeemer, redeemAmount), UTokenError.CALL_FAILED);
+        if (!assetManagerContract.withdraw(underlying, redeemer, redeemAmount)) revert CallFailed();
 
         emit LogRedeem(redeemer, redeemTokensIn, redeemAmountIn, redeemAmount);
     }
 
     function addReserves(uint256 addAmount) external override whenNotPaused nonReentrant {
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
         IErc20 assetToken = IErc20(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
         assetToken.transferFrom(msg.sender, address(this), addAmount);
@@ -658,8 +644,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         totalReserves = totalReservesNew;
 
         assetToken.approve(assetManager, balanceAfter);
-
-        require(IAssetManager(assetManager).deposit(underlying, balanceAfter), UTokenError.CALL_FAILED);
+        if (!IAssetManager(assetManager).deposit(underlying, balanceAfter)) revert CallFailed();
 
         emit LogReservesAdded(msg.sender, actualAddAmount, totalReservesNew);
     }
@@ -671,11 +656,11 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         nonReentrant
         onlyAdmin
     {
-        require(accrueInterest(), UTokenError.ACCRUE_INTEREST_FAILED);
+        if (!accrueInterest()) revert AccrueInterestFailed();
 
         totalReserves = totalReserves - reduceAmount;
 
-        require(IAssetManager(assetManager).withdraw(underlying, receiver, reduceAmount), UTokenError.CALL_FAILED);
+        if (!IAssetManager(assetManager).withdraw(underlying, receiver, reduceAmount)) revert CallFailed();
 
         emit LogReservesReduced(receiver, reduceAmount, totalReserves);
     }
@@ -702,7 +687,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @param account Borrower address
      */
     function updateOverdueInfo(address account) external override whenNotPaused {
-        require(account != address(0), UTokenError.ADDRESS_NOT_ZERO);
+        if (account == address(0)) revert AddressZero();
         if (checkIsOverdue(account)) {
             IUserManager(userManager).updateTotalFrozen(account, true);
         }
