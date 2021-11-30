@@ -10,7 +10,7 @@ interface IUToken {
      *  @dev Returns the remaining amount that can be borrowed from the market.
      *  @return Remaining total amount
      */
-    function getRemainingLoanSize() external view returns (uint256);
+    function getRemainingDebtCeiling() external view returns (uint256);
 
     /**
      *  @dev Get the borrowed principle

@@ -49,7 +49,7 @@ contract UTokenMock is ERC20Upgradeable {
         return isOverdue;
     }
 
-    function getRemainingLoanSize() public pure returns (uint256) {
+    function getRemainingDebtCeiling() public pure returns (uint256) {
         return 0;
     }
 

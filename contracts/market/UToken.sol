@@ -3,8 +3,8 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
-
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
 import "../Controller.sol";
 import "../interfaces/IUserManager.sol";
 import "../interfaces/IAssetManager.sol";
@@ -227,7 +227,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @dev Returns the remaining amount that can be borrowed from the market.
      *  @return Remaining total amount
      */
-    function getRemainingLoanSize() public view override returns (uint256) {
+    function getRemainingDebtCeiling() public view override returns (uint256) {
         return debtCeiling >= totalBorrows ? debtCeiling - totalBorrows : 0;
     }
 
@@ -379,7 +379,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     function borrow(uint256 amount) external override onlyMember(msg.sender) whenNotPaused nonReentrant {
         IAssetManager assetManagerContract = IAssetManager(assetManager);
         if (amount < minBorrow) revert AmountLessMinBorrow();
-        if (amount > getRemainingLoanSize()) revert AmountExceedGlobalMax();
+        if (amount > getRemainingDebtCeiling()) revert AmountExceedGlobalMax();
 
         uint256 fee = calculatingFee(amount);
         if (borrowBalanceView(msg.sender) + amount + fee > maxBorrow) revert AmountExceedMaxBorrow();
