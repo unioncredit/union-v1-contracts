@@ -518,7 +518,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public override whenNotPaused {
+    ) public override whenNotPaused nonReentrant {
         IUErc20 erc20Token = IUErc20(underlying);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
 
