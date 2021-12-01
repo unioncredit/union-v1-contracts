@@ -508,4 +508,20 @@ describe("UToken Contract", async () => {
             .to.emit(uToken, "Approval")
             .withArgs(bob.address, alice.address, amount);
     });
+
+    it("Cannot borrow if the credit limit is negative", async () => {
+        //mock isMember
+        await userManager.setIsMember(true);
+        await userManager.setCreditLimit(ethers.utils.parseEther("1"));
+        await uToken.setOriginationFee("0");
+        await uToken.setOverdueBlocks(100);
+
+        const creditLimit = await userManager.getCreditLimit(alice.address);
+        await uToken.connect(alice).borrow(creditLimit);
+        await waitNBlocks(10);
+        await userManager.setCreditLimit(ethers.utils.parseEther("-1"));
+        await expect(uToken.connect(alice).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
+            "BorrowExceedCreditLimit()"
+        );
+    });
 });
