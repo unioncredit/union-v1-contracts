@@ -74,10 +74,10 @@ describe("User Manager Contract", () => {
     it("Stake amount more than individual limit should revert", async () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
-        const MAX_STAKE_AMOUNT = await userManager.MAX_STAKE_AMOUNT();
+        const maxStakeAmount = await userManager.maxStakeAmount();
         const stakeAmount = parseEther("1001");
 
-        stakeAmount.should.be.gt(MAX_STAKE_AMOUNT);
+        stakeAmount.should.be.gt(maxStakeAmount);
 
         await erc20.connect(MEMBER1).approve(userManager.address, stakeAmount);
         await expect(userManager.connect(MEMBER1).stake(stakeAmount)).to.be.revertedWith(
@@ -88,14 +88,14 @@ describe("User Manager Contract", () => {
     it("Total stake amount more than individual limit should revert even for multiple steps", async () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
-        const MAX_STAKE_AMOUNT = await userManager.MAX_STAKE_AMOUNT();
+        const maxStakeAmount = await userManager.maxStakeAmount();
         const stakeAmount1 = parseEther("900");
         const stakeAmount2 = parseEther("101");
         const stakeAmount3 = parseEther("100");
 
-        stakeAmount1.should.be.lt(MAX_STAKE_AMOUNT);
-        stakeAmount1.add(stakeAmount2).should.be.gt(MAX_STAKE_AMOUNT);
-        stakeAmount1.add(stakeAmount3).should.be.lte(MAX_STAKE_AMOUNT);
+        stakeAmount1.should.be.lt(maxStakeAmount);
+        stakeAmount1.add(stakeAmount2).should.be.gt(maxStakeAmount);
+        stakeAmount1.add(stakeAmount3).should.be.lte(maxStakeAmount);
 
         await erc20.connect(MEMBER1).approve(userManager.address, stakeAmount1.add(stakeAmount2).add(stakeAmount3));
 
