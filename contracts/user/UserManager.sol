@@ -94,7 +94,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     modifier onlyMarketOrAdmin() {
-        if (address(uToken) != msg.sender || !isAdmin(msg.sender)) revert AuthFailed();
+        if (address(uToken) != msg.sender && !isAdmin(msg.sender)) revert AuthFailed();
         _;
     }
 
@@ -502,7 +502,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param borrower borrower address
      */
     function cancelVouch(address staker, address borrower) external override onlyMember(msg.sender) whenNotPaused {
-        if (msg.sender != staker || msg.sender != borrower) revert AuthFailed();
+        if (msg.sender != staker && msg.sender != borrower) revert AuthFailed();
         if (getLockedStake(staker, borrower) != 0) revert LockedStakeNonZero();
         uint256 stakerCount = members[borrower].creditLine.stakerAddresses.length;
         bool stakerExist = false;

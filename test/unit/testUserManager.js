@@ -388,9 +388,7 @@ describe("User Manager Contract", () => {
 
         await userManager.updateLockedData(BOB.address, 10, true);
 
-        await expect(userManager.updateTrust(BOB.address, 1)).to.be.revertedWith(
-            "UserManager: trust amount cannot be less than the locked amount "
-        );
+        await expect(userManager.updateTrust(BOB.address, 1)).to.be.revertedWith("TrustAmountTooLarge()");
     });
 
     it("Get locked stake when totalLockedStake > stakingAmount", async () => {
@@ -410,9 +408,6 @@ describe("User Manager Contract", () => {
         const amount = parseEther("1000");
         await erc20.connect(MEMBER1).approve(userManager.address, amount);
         await userManager.connect(MEMBER1).stake(amount);
-        await expect(userManager.connect(MEMBER1).withdrawRewards()).to.be.revertedWith(
-            "UserManager: not enough rewards"
-        );
         await unionToken.transfer(comptroller.address, amount);
         //mock transfer reward
         await comptroller.setRewardsInfo(unionToken.address, amount);
@@ -480,7 +475,7 @@ describe("User Manager Contract", () => {
         await userManager.updateLockedData(BOB.address, stakeAmount, true);
 
         await expect(userManager.connect(MEMBER1).unstake(parseEther("2000"))).to.be.revertedWith(
-            "UserManager: unstake balance is insufficient"
+            "InsufficientBalance()"
         );
     });
 
