@@ -576,4 +576,14 @@ describe("User Manager Contract", () => {
         //Restore simulation settings
         await uToken.setIsOverdue(false);
     });
+
+    it("set max stake amount", async () => {
+        const amount = parseEther("1");
+        await userManager.setMaxStakeAmount(amount);
+        const res = await userManager.maxStakeAmount();
+        res.should.eq(amount);
+        await expect(userManager.connect(MEMBER1).stake(parseEther("2"))).to.be.revertedWith(
+            "UserManager: Stake limit hit"
+        );
+    });
 });

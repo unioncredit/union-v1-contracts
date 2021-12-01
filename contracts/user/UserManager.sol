@@ -48,7 +48,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     uint256 public constant MAX_TRUST_LIMIT = 100;
-    uint256 public constant MAX_STAKE_AMOUNT = 1000e18;
+    uint256 public maxStakeAmount;
     address public stakingToken;
     address public unionToken;
     address public assetManager;
@@ -148,6 +148,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      */
     event LogSetNewMemberFee(uint256 oldMemberFee, uint256 newMemberFee);
 
+    event LogSetMaxStakeAmount(uint256 oldMaxStakeAmount, uint256 newMaxStakeAmount);
+
     function __UserManager_init(
         address assetManager_,
         address unionToken_,
@@ -164,6 +166,13 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         unionToken = unionToken_;
         stakingToken = stakingToken_;
         newMemberFee = 10**18; // Set the default membership fee
+        maxStakeAmount = 100000e18;
+    }
+
+    function setMaxStakeAmount(uint256 maxStakeAmount_) public onlyAdmin {
+        uint256 oldMaxStakeAmount = maxStakeAmount;
+        maxStakeAmount = maxStakeAmount_;
+        emit LogSetMaxStakeAmount(oldMaxStakeAmount, maxStakeAmount);
     }
 
     function setUToken(address uToken_) public onlyAdmin {
@@ -628,7 +637,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         uint256 balance = stakers[msg.sender];
 
-        require(balance + amount <= MAX_STAKE_AMOUNT, "UserManager: Stake limit hit");
+        require(balance + amount <= maxStakeAmount, "UserManager: Stake limit hit");
 
         stakers[msg.sender] = balance + amount;
         totalStaked += amount;
