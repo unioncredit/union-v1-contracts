@@ -67,6 +67,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     error InsufficientFundsLeft();
     error MemberIsOverdue();
     error ReserveFactoryExceedLimit();
+    error DepositToAssetManagerFailed();
 
     /**
      *  @dev Change of the interest rate model
@@ -483,8 +484,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         assetToken.transferFrom(payer, address(this), repayAmount);
 
-        assetToken.approve(assetManager, repayAmount);
-        if (!IAssetManager(assetManager).deposit(underlying, repayAmount)) revert CallFailed();
+        _depositToAssetManager(repayAmount);
 
         emit LogRepay(borrower, repayAmount);
     }
@@ -532,8 +532,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 mintTokens = (actualMintAmount * WAD) / exchangeRate;
         _mint(msg.sender, mintTokens);
 
-        assetToken.approve(assetManager, actualMintAmount);
-        if (!IAssetManager(assetManager).deposit(underlying, actualMintAmount)) revert CallFailed();
+        _depositToAssetManager(actualMintAmount);
 
         emit LogMint(msg.sender, actualMintAmount, mintTokens);
     }
@@ -614,8 +613,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         totalReserves += actualAddAmount;
 
-        assetToken.approve(assetManager, balanceAfter);
-        if (!IAssetManager(assetManager).deposit(underlying, balanceAfter)) revert CallFailed();
+        _depositToAssetManager(balanceAfter);
 
         emit LogReservesAdded(msg.sender, actualAddAmount, totalReserves);
     }
@@ -678,5 +676,12 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
             }
         }
         IUserManager(userManager).batchUpdateTotalFrozen(overdueAccounts, isOverdues);
+    }
+
+    function _depositToAssetManager(uint256 amount) internal {
+        IERC20Upgradeable assetToken = IERC20Upgradeable(underlying);
+        assetToken.approve(assetManager, 0); // Some ERC20 tokens (e.g. Tether) changed the behavior of approve to look like safeApprove
+        assetToken.approve(assetManager, amount);
+        if (!IAssetManager(assetManager).deposit(underlying, amount)) revert DepositToAssetManagerFailed();
     }
 }
