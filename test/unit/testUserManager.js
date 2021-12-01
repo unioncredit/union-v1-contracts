@@ -39,7 +39,7 @@ describe("User Manager Contract", () => {
             initializer: "__UToken_init()"
         });
 
-        const amount = parseEther("10000");
+        const amount = parseEther("1000000");
         await erc20.mint(assetManager.address, amount);
         await erc20.mint(ADMIN.address, amount);
         await erc20.mint(MEMBER1.address, amount);
@@ -75,7 +75,7 @@ describe("User Manager Contract", () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
         const maxStakeAmount = await userManager.maxStakeAmount();
-        const stakeAmount = parseEther("1001");
+        const stakeAmount = parseEther("100001");
 
         stakeAmount.should.be.gt(maxStakeAmount);
 
@@ -89,9 +89,9 @@ describe("User Manager Contract", () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
         const maxStakeAmount = await userManager.maxStakeAmount();
-        const stakeAmount1 = parseEther("900");
-        const stakeAmount2 = parseEther("101");
-        const stakeAmount3 = parseEther("100");
+        const stakeAmount1 = parseEther("90000");
+        const stakeAmount2 = parseEther("10100");
+        const stakeAmount3 = parseEther("10000");
 
         stakeAmount1.should.be.lt(maxStakeAmount);
         stakeAmount1.add(stakeAmount2).should.be.gt(maxStakeAmount);
