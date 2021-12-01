@@ -59,10 +59,10 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     error BorrowExceedCreditLimit();
     error BorrowRateExceedLimit();
     error CallFailed();
-    error CallerNoAssetManager();
-    error CallerNoMember();
-    error CallerNoUserManager();
-    error ContractNoInterestModel();
+    error CallerNotAssetManager();
+    error CallerNotMember();
+    error CallerNotUserManager();
+    error ContractNotInterestModel();
     error InitExchangeRateNotZero();
     error InsufficientFundsLeft();
     error MemberIsOverdue();
@@ -102,17 +102,17 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @dev modifier limit member
      */
     modifier onlyMember(address account) {
-        if (!IUserManager(userManager).checkIsMember(account)) revert CallerNoMember();
+        if (!IUserManager(userManager).checkIsMember(account)) revert CallerNotMember();
         _;
     }
 
     modifier onlyAssetManager() {
-        if (msg.sender != assetManager) revert CallerNoAssetManager();
+        if (msg.sender != assetManager) revert CallerNotAssetManager();
         _;
     }
 
     modifier onlyUserManager() {
-        if (msg.sender != userManager) revert CallerNoUserManager();
+        if (msg.sender != userManager) revert CallerNotUserManager();
         _;
     }
 
@@ -212,7 +212,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         if (newInterestRateModel_ == address(0)) revert AddressZero();
         address oldInterestRateModel = address(interestRateModel);
         address newInterestRateModel = newInterestRateModel_;
-        if (!IInterestRateModel(newInterestRateModel).isInterestRateModel()) revert ContractNoInterestModel();
+        if (!IInterestRateModel(newInterestRateModel).isInterestRateModel()) revert ContractNotInterestModel();
         interestRateModel = IInterestRateModel(newInterestRateModel);
 
         emit LogNewMarketInterestRateModel(oldInterestRateModel, newInterestRateModel);
@@ -612,13 +612,12 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 balanceAfter = assetToken.balanceOf(address(this));
         uint256 actualAddAmount = balanceAfter - balanceBefore;
 
-        uint256 totalReservesNew = totalReserves + actualAddAmount;
-        totalReserves = totalReservesNew;
+        totalReserves += actualAddAmount;
 
         assetToken.approve(assetManager, balanceAfter);
         if (!IAssetManager(assetManager).deposit(underlying, balanceAfter)) revert CallFailed();
 
-        emit LogReservesAdded(msg.sender, actualAddAmount, totalReservesNew);
+        emit LogReservesAdded(msg.sender, actualAddAmount, totalReserves);
     }
 
     function removeReserves(address receiver, uint256 reduceAmount)
@@ -630,7 +629,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     {
         if (!accrueInterest()) revert AccrueInterestFailed();
 
-        totalReserves = totalReserves - reduceAmount;
+        totalReserves -= reduceAmount;
 
         if (!IAssetManager(assetManager).withdraw(underlying, receiver, reduceAmount)) revert CallFailed();
 

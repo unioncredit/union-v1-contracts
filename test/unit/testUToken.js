@@ -167,7 +167,7 @@ describe("UToken Contract", async () => {
     });
 
     it("Only member can borrow", async () => {
-        await expect(uToken.connect(bob).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith("CallerNoMember()");
+        await expect(uToken.connect(bob).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith("CallerNotMember()");
     });
 
     it("Verify various borrow restrictions", async () => {
