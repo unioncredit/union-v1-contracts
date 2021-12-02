@@ -21,7 +21,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
     bool public constant IS_UTOKEN = true;
     uint256 public constant WAD = 1e18;
-    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
+    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.005e16; //Maximum borrow rate that can ever be applied (.005% / block)
     uint256 internal constant RESERVE_FACTORY_MAX_MANTISSA = 1e18; //Maximum fraction of interest that can be set aside for reserves
 
     address public underlying;
@@ -114,12 +114,9 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint256 overdueBlocks_,
         address admin_
     ) public initializer {
-        require(initialExchangeRateMantissa_ > 0, "initial exchange rate must be greater than zero.");
+        require(initialExchangeRateMantissa_ != 0, "initial exchange rate must be greater than zero.");
         require(address(underlying_) != address(0), "underlying token is zero");
-        require(
-            reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
-            "reserveFactorMantissa error"
-        );
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
         uErc20 = uErc20_;
         Controller.__Controller_init(admin_);
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
@@ -200,10 +197,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
     }
 
     function setReserveFactor(uint256 reserveFactorMantissa_) external override onlyAdmin {
-        require(
-            reserveFactorMantissa_ >= 0 && reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA,
-            "reserveFactorMantissa error"
-        );
+        require(reserveFactorMantissa_ <= RESERVE_FACTORY_MAX_MANTISSA, "reserveFactorMantissa error");
         reserveFactorMantissa = reserveFactorMantissa_;
     }
 
@@ -212,11 +206,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return Remaining total amount
      */
     function getRemainingLoanSize() public view override returns (uint256) {
-        if (debtCeiling >= totalBorrows) {
-            return debtCeiling - totalBorrows;
-        } else {
-            return 0;
-        }
+        return debtCeiling >= totalBorrows ? debtCeiling - totalBorrows : 0;
     }
 
     /**
@@ -243,9 +233,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return isOverdue
      */
     function checkIsOverdue(address account) public view override returns (bool isOverdue) {
-        if (getBorrowed(account) == 0) {
-            isOverdue = false;
-        } else {
+        if (getBorrowed(account) != 0) {
             uint256 lastRepay = getLastRepay(account);
             uint256 diff = getBlockNumber() - lastRepay;
             isOverdue = (overdueBlocks < diff);
@@ -467,21 +455,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         bool isOverdue = checkIsOverdue(borrower);
         uint256 oldPrincipal = getBorrowed(borrower);
         require(accrueInterest(), "UToken: accrue interest failed");
-        require(accrualBlockNumber == getBlockNumber(), "UToken: market not fresh");
 
         uint256 interest = calculatingInterest(borrower);
         uint256 borrowedAmount = borrowBalanceStoredInternal(borrower);
 
-        uint256 repayAmount;
-        if (amount > borrowedAmount) {
-            repayAmount = borrowedAmount;
-        } else {
-            repayAmount = amount;
-        }
-
+        uint256 repayAmount = amount > borrowedAmount ? borrowedAmount : amount;
         require(repayAmount > 0, "UToken: repay amount or owed amount is zero");
-
-        require(assetToken.allowance(payer, address(this)) >= repayAmount, "UToken: Not enough allowance to repay");
 
         uint256 toReserveAmount;
         uint256 toRedeemableAmount;
@@ -535,7 +514,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public override whenNotPaused {
+    ) public override whenNotPaused nonReentrant {
         IUErc20 erc20Token = IUErc20(underlying);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
 
@@ -625,7 +604,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         address payable redeemer,
         uint256 redeemTokensIn,
         uint256 redeemAmountIn
-    ) internal {
+    ) private {
         require(redeemTokensIn == 0 || redeemAmountIn == 0, "one of redeemTokensIn or redeemAmountIn must be zero");
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
@@ -666,14 +645,11 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         require(accrueInterest(), "UToken: accrue interest failed");
         IUErc20 assetToken = IUErc20(underlying);
         uint256 balanceBefore = assetToken.balanceOf(address(this));
-        require(assetToken.allowance(msg.sender, address(this)) >= addAmount, "UToken: Not enough allowance");
         assetToken.safeTransferFrom(msg.sender, address(this), addAmount);
         uint256 balanceAfter = assetToken.balanceOf(address(this));
         uint256 actualAddAmount = balanceAfter - balanceBefore;
 
         uint256 totalReservesNew = totalReserves + actualAddAmount;
-        /* Revert on overflow */
-        require(totalReservesNew >= totalReserves, "add reserves unexpected overflow");
         totalReserves = totalReservesNew;
 
         assetToken.safeApprove(assetManager, 0);
@@ -692,13 +668,10 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         onlyAdmin
     {
         require(accrueInterest(), "UToken: accrue interest failed");
-        require(reduceAmount <= totalReserves, "amount is large than totalReserves");
 
         IAssetManager assetManagerContract = IAssetManager(assetManager);
 
         uint256 totalReservesNew = totalReserves - reduceAmount;
-        // We checked reduceAmount <= totalReserves above, so this should never revert.
-        require(totalReservesNew <= totalReserves, "reduce reserves unexpected underflow");
 
         totalReserves = totalReservesNew;
 
@@ -709,12 +682,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
     function debtWriteOff(address borrower, uint256 amount) external override whenNotPaused onlyUserManager {
         uint256 oldPrincipal = getBorrowed(borrower);
-        uint256 repayAmount;
-        if (amount > oldPrincipal) {
-            repayAmount = oldPrincipal;
-        } else {
-            repayAmount = amount;
-        }
+        uint256 repayAmount = amount > oldPrincipal ? oldPrincipal : amount;
 
         accountBorrows[borrower].principal = oldPrincipal - repayAmount;
         totalBorrows -= repayAmount;

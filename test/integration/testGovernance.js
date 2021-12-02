@@ -6,6 +6,17 @@ require("chai").should();
 
 describe("Governance Contract", async () => {
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [ADMIN, proxyAdmin] = await ethers.getSigners();
 
         console.log("Creating proxy instance of ERC20...");
@@ -144,7 +155,7 @@ describe("Governance Contract", async () => {
         const proposalId = await governanceProxy.latestProposalIds(ADMIN.address);
 
         const votingDelay = await governanceProxy.votingDelay();
-        await waitNBlocks(parseInt(votingDelay));
+        await waitNBlocks(parseInt(votingDelay) + 10);
 
         res = await governanceProxy.state(proposalId);
         res.toString().should.eq("1");

@@ -397,11 +397,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function getVouchingAmount(address staker, address borrower) public view returns (uint256) {
         uint256 totalStake = stakers[staker];
         uint256 trustAmount = members[borrower].creditLine.stakers[staker];
-        if (trustAmount > totalStake) {
-            return totalStake;
-        } else {
-            return trustAmount;
-        }
+        return trustAmount > totalStake ? totalStake : trustAmount;
     }
 
     /**
@@ -419,7 +415,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param account Member address
      */
     function addMember(address account) public override onlyAdmin {
-        require(!checkIsMember(account), "UserManager: address is already member");
         members[account].isMember = true;
         emit LogAddMember(account);
     }
@@ -560,12 +555,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function registerMember(address newMember) public override whenNotPaused {
         IUnionToken unionTokenContract = IUnionToken(unionToken);
         require(!checkIsMember(newMember), "UserManager: address is already member");
-        require(unionTokenContract.balanceOf(msg.sender) >= newMemberFee, "UserManager: balance not enough");
 
         uint256 effectiveStakerNumber = 0;
+        address stakerAddress;
         uint256 addressesLength = members[newMember].creditLine.stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
-            address stakerAddress = members[newMember].creditLine.stakerAddresses[i];
+            stakerAddress = members[newMember].creditLine.stakerAddresses[i];
             if (checkIsMember(stakerAddress) && getVouchingAmount(stakerAddress, newMember) > 0)
                 effectiveStakerNumber += 1;
         }
@@ -643,10 +638,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         stakers[msg.sender] = balance + amount;
         totalStaked += amount;
 
-        require(
-            erc20Token.allowance(msg.sender, address(this)) >= amount,
-            "UserManager: not enough allowance to stake"
-        );
         erc20Token.safeTransferFrom(msg.sender, address(this), amount);
         erc20Token.safeApprove(assetManager, 0);
         erc20Token.safeApprove(assetManager, amount);

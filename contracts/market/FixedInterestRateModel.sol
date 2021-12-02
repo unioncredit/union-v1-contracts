@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IInterestRateModel.sol";
 
 contract FixedInterestRateModel is Ownable, IInterestRateModel {
-    uint256 public constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
+    uint256 public constant BORROW_RATE_MAX_MANTISSA = 0.005e16; //Maximum borrow rate that can ever be applied (.005% / block)
     bool public constant override isInterestRateModel = true;
     uint256 public interestRatePerBlock;
 

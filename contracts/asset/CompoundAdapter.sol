@@ -147,9 +147,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
-        address cTokenAddress = tokenToCToken[tokenAddress];
-
-        return cTokenAddress != address(0);
+        return tokenToCToken[tokenAddress] != address(0);
     }
 
     function _claimTokens(address tokenAddress, address recipient) private {

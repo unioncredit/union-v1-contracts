@@ -94,12 +94,11 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     /**
      *  @dev Returns the amount of the lending pool balance minus the amount of total staked.
      *  @param tokenAddress ERC20 token address
-     *  @return Amount can be borrowed
+     *  @return loanAmount Amount can be borrowed
      */
-    function getLoanableAmount(address tokenAddress) public view override returns (uint256) {
+    function getLoanableAmount(address tokenAddress) public view override returns (uint256 loanAmount) {
         uint256 poolBalance = getPoolBalance(tokenAddress);
-        if (poolBalance > totalPrincipal[tokenAddress]) return poolBalance - totalPrincipal[tokenAddress];
-        return 0;
+        loanAmount = poolBalance > totalPrincipal[tokenAddress] ? poolBalance - totalPrincipal[tokenAddress] : 0;
     }
 
     /**
@@ -107,20 +106,16 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param tokenAddress ERC20 token address
      *  @return Total market balance
      */
-    function totalSupply(address tokenAddress) public override returns (uint256) {
+    function totalSupply(address tokenAddress) public override returns (uint256 tokenSupply) {
+        tokenSupply = 0;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
             uint256 moneyMarketsLength = moneyMarkets.length;
             for (uint256 i = 0; i < moneyMarketsLength; i++) {
                 if (!moneyMarkets[i].supportsToken(tokenAddress)) {
                     continue;
                 }
-                tokenSupply += moneyMarkets[i].getSupply(tokenAddress);
+                tokenSupply += moneyMarket.getSupply(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
     }
 
@@ -129,20 +124,16 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param tokenAddress ERC20 token address
      *  @return Total market balance
      */
-    function totalSupplyView(address tokenAddress) public view override returns (uint256) {
+    function totalSupplyView(address tokenAddress) public view override returns (uint256 tokenSupply) {
+        tokenSupply = 0;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
             uint256 moneyMarketsLength = moneyMarkets.length;
             for (uint256 i = 0; i < moneyMarketsLength; i++) {
                 if (!moneyMarkets[i].supportsToken(tokenAddress)) {
                     continue;
                 }
-                tokenSupply += moneyMarkets[i].getSupplyView(tokenAddress);
+                tokenSupply += moneyMarket.getSupplyView(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
     }
 
@@ -337,7 +328,10 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
             if (adapterAddress == address(moneyMarkets[i])) isExist = true;
         }
 
-        if (!isExist) moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
+        if (!isExist) {
+            moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
+            withdrawSeq.push(moneyMarkets.length - 1);
+        }
 
         approveAllTokensMax(adapterAddress);
     }

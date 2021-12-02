@@ -16,7 +16,7 @@ const checkFileExist = path => {
     }
 };
 
-const checkAssetManage = async chainId => {
+const checkAssetManager = async chainId => {
     const path = `../deployments/${networks[chainId]}/AssetManager.json`;
     const params = checkFileExist(path);
     const assetManager = await ethers.getContractAt("AssetManager", params.address);
