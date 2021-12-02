@@ -394,11 +394,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function getVouchingAmount(address staker, address borrower) public view returns (uint256) {
         uint256 totalStake = stakers[staker];
         uint256 trustAmount = members[borrower].creditLine.stakers[staker];
-        if (trustAmount > totalStake) {
-            return totalStake;
-        } else {
-            return trustAmount;
-        }
+        return trustAmount > totalStake ? totalStake : trustAmount;
     }
 
     /**

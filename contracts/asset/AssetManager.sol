@@ -107,8 +107,8 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @return Total market balance
      */
     function totalSupply(address tokenAddress) public override returns (uint256) {
+        uint256 tokenSupply;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
             for (uint256 i = 0; i < moneyMarkets.length; i++) {
                 IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
                 if (!moneyMarket.supportsToken(tokenAddress)) {
@@ -116,11 +116,8 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
                 }
                 tokenSupply += moneyMarket.getSupply(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
+        return tokenSupply;
     }
 
     /**
@@ -129,8 +126,8 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @return Total market balance
      */
     function totalSupplyView(address tokenAddress) public view override returns (uint256) {
+        uint256 tokenSupply;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
             for (uint256 i = 0; i < moneyMarkets.length; i++) {
                 IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
                 if (!moneyMarket.supportsToken(tokenAddress)) {
@@ -138,11 +135,8 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
                 }
                 tokenSupply += moneyMarket.getSupplyView(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
+        return tokenSupply;
     }
 
     /**
