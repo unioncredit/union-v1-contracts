@@ -15,8 +15,6 @@ library WadRayMath {
     }
 
     function wadDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 halfB = b / 2;
-
-        return (halfB + a * WAD) / b;
+        return (b + 2 * a * WAD) / (2 * b);
     }
 }
