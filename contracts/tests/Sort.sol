@@ -63,7 +63,7 @@ contract Sort {
         for (uint256 i = 0; i < length - 1; i++) {
             minIndex = i;
             for (uint256 j = i + 1; j < length; j++) {
-                if (data[j] < data[minIndex]) {    
+                if (data[j].amount < data[minIndex].amount) {    
                     minIndex = j;
                 }
             }
@@ -140,21 +140,16 @@ contract Sort {
     }
 
 
-    function oddEvenSort(LockedInfo[] memory arr, uint256 n) public pure returns(LockedInfo[] memory)
-    {
+    function oddEvenSort(LockedInfo[] memory arr, uint256 n) public pure returns(LockedInfo[] memory){
+        if (arr.length == 0 || arr.length == 1) return arr;
         // Initially array is unsorted
         bool isSorted = false;
-         
-        while (!isSorted)
-        {
+        while (!isSorted){
             isSorted = true;
             LockedInfo memory temp;
-   
             // Perform Bubble sort on odd indexed element
-            for (uint256 i=1; i<=n-2; i=i+2)
-            {
-                if (arr[i].amount > arr[i+1].amount)
-                {
+            for (uint256 i=1; i<=n-2; i=i+2){
+                if (arr[i].amount > arr[i+1].amount){
                     temp = arr[i];
                     arr[i] = arr[i+1];
                     arr[i+1] = temp;
@@ -163,10 +158,8 @@ contract Sort {
             }
    
             // Perform Bubble sort on even indexed element
-            for (uint256 i=0; i<=n-2; i=i+2)
-            {
-                if (arr[i].amount > arr[i+1].amount)
-                {
+            for (uint256 i=0; i<=n-2; i=i+2){
+                if (arr[i].amount > arr[i+1].amount){
                     temp = arr[i];
                     arr[i] = arr[i+1];
                     arr[i+1] = temp;
