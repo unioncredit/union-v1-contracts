@@ -201,14 +201,20 @@ contract Sort {
         console.log("%s GasCost: %s", name, diff);
     }
 
-    
+    function cloneData(LockedInfo[] memory data) public returns (LockedInfo[] memory) {
+      LockedInfo[] memory copy = new LockedInfo[](data.length);
+      for (uint i = 0; i < data.length; i++) {
+        copy[i] = LockedInfo(data[i].user, data[i].amount);
+      }
+      return copy;
+    }
 
     function gasCostSortInsertion(LockedInfo[] memory data) public returns(LockedInfo[] memory){
-        // gasCost("quick", quick, data);
-        // gasCost("selection", selection, data);
-        gasCost("insertion", insertion, data);
-        gasCost("bubble", bubble, data);
-        gasCost2("oddEvenSort", oddEvenSort, data, data.length);
-        gasCost3("inPlaceMerge", mergeSort, data, 0, data.length-1);     
+        // gasCost("quick", quick, cloneData(data));
+        // gasCost("selection", selection, cloneData(data));
+        gasCost("insertion", insertion, cloneData(data));
+        gasCost("bubble", bubble, cloneData(data));
+        gasCost2("oddEvenSort", oddEvenSort, cloneData(data), data.length);
+        gasCost3("inPlaceMerge", mergeSort, cloneData(data), 0, data.length-1);     
     }
 }
