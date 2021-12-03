@@ -49,11 +49,6 @@ const deployUToken = async () => {
     return upgrades.deployProxy(await ethers.getContractFactory("UToken"), {initializer: false});
 };
 
-const deployUErc20 = async () => {
-    const UErc20 = await ethers.getContractFactory("UErc20");
-    return await UErc20.deploy("UToken", "UToken");
-};
-
 const deployUserManager = async () => {
     return upgrades.deployProxy(await ethers.getContractFactory("UserManager"), {initializer: false});
 };
@@ -64,11 +59,13 @@ const initMarketRegistry = async ({marketRegistry, dai, uToken, userManager}) =>
     await marketRegistry.addUserManager(dai.address, userManager.address);
 };
 
-const initUToken = async ({uErc20, uToken, dai, assetManager, fixedInterestRateModel, userManager}) => {
+const initUToken = async ({uToken, dai, assetManager, fixedInterestRateModel, userManager}) => {
     const [admin] = await ethers.getSigners();
-    await uErc20.transferOwnership(uToken.address);
-    await uToken["__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"](
-        uErc20.address,
+    await uToken[
+        "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+    ](
+        "UToken",
+        "UToken",
         dai.address,
         ethers.utils.parseEther("1"), // initialExchangeRateMantissa
         ethers.utils.parseEther("0.5"), // reserveFactorMantissa
@@ -105,12 +102,11 @@ const deployFullSuite = async () => {
     const marketRegistry = await deployMarketRegistry();
     const comptroller = await deployAndInitComptroller({unionToken, marketRegistry});
     const assetManager = await deployAndInitAssetManager({marketRegistry});
-    const uErc20 = await deployUErc20();
     const uToken = await deployUToken();
     const userManager = await deployUserManager();
 
     await initMarketRegistry({marketRegistry, dai, uToken, userManager});
-    await initUToken({uErc20, uToken, dai, assetManager, fixedInterestRateModel, userManager});
+    await initUToken({uToken, dai, assetManager, fixedInterestRateModel, userManager});
     await initUserManager({userManager, assetManager, unionToken, dai, sumOfTrust, comptroller, uToken});
     await unionToken.whitelist(comptroller.address);
     return {
@@ -121,7 +117,6 @@ const deployFullSuite = async () => {
         comptroller,
         marketRegistry,
         assetManager,
-        uErc20,
         uToken,
         userManager
     };

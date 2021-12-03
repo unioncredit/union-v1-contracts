@@ -61,13 +61,12 @@ describe("UToken Contract", async () => {
     });
 
     beforeEach(async () => {
-        const UErc20 = await ethers.getContractFactory("UErc20");
-        uErc20 = await UErc20.deploy("uToken", "uToken");
-        const UToken = await ethers.getContractFactory("UToken");
+        const UToken = await ethers.getContractFactory("UDai");
         uToken = await upgrades.deployProxy(
             UToken,
             [
-                uErc20.address,
+                "uToken",
+                "uToken",
                 erc20.address,
                 initialExchangeRateMantissa,
                 reserveFactorMantissa,
@@ -80,10 +79,10 @@ describe("UToken Contract", async () => {
             ],
             {
                 initializer:
-                    "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                    "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)",
+                unsafeAllowLinkedLibraries: true
             }
         );
-        await uErc20.transferOwnership(uToken.address);
 
         await marketRegistry.deleteMarket(erc20.address);
         await marketRegistry.addUToken(erc20.address, uToken.address);
@@ -168,9 +167,7 @@ describe("UToken Contract", async () => {
     });
 
     it("Only member can borrow", async () => {
-        await expect(uToken.connect(bob).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
-            "UToken: caller is not a member"
-        );
+        await expect(uToken.connect(bob).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith("CallerNotMember()");
     });
 
     it("Verify various borrow restrictions", async () => {
@@ -179,32 +176,32 @@ describe("UToken Contract", async () => {
         await userManager.setCreditLimit(ethers.utils.parseEther("10"));
 
         await expect(uToken.connect(alice).borrow(minBorrow.sub(ethers.utils.parseEther("0.01")))).to.be.revertedWith(
-            "UToken: amount below loan min"
+            "AmountLessMinBorrow()"
         );
 
-        const remainingLoanSize = await uToken.getRemainingLoanSize();
+        const remainingDebtCeiling = await uToken.getRemainingDebtCeiling();
         await expect(
-            uToken.connect(alice).borrow(remainingLoanSize.add(ethers.utils.parseEther("1")))
-        ).to.be.revertedWith("UToken: amount above DebtCeiling");
+            uToken.connect(alice).borrow(remainingDebtCeiling.add(ethers.utils.parseEther("1")))
+        ).to.be.revertedWith("AmountExceedGlobalMax()");
 
         await expect(uToken.connect(alice).borrow(maxBorrow.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: amount above maxBorrow"
+            "AmountExceedMaxBorrow()"
         );
 
         const loanableAmount = await assetManager.getLoanableAmount(erc20.address);
         await expect(uToken.connect(alice).borrow(loanableAmount.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: Not enough to lend out"
+            "InsufficientFundsLeft()"
         );
 
         const creditLimit = await userManager.getCreditLimit(alice.address);
         await expect(uToken.connect(alice).borrow(creditLimit.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: The loan amount plus fee is greater than credit limit"
+            "BorrowExceedCreditLimit()"
         );
 
         await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
         await waitNBlocks(overdueBlocks);
         await expect(uToken.connect(alice).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
-            "UToken: Member has loans overdue"
+            "MemberIsOverdue()"
         );
     });
 
@@ -306,8 +303,8 @@ describe("UToken Contract", async () => {
 
         let totalRedeemable = await uToken.totalRedeemable();
         totalRedeemable.toString().should.eq(mintAmount.toString());
-        let balance = await uErc20.balanceOf(alice.address);
-        let totalSupply = await uErc20.totalSupply();
+        let balance = await uToken.balanceOf(alice.address);
+        let totalSupply = await uToken.totalSupply();
         totalSupply.toString().should.eq(balance.toString());
         exchangeRate = await uToken.exchangeRateStored();
         balance.toString().should.eq(mintAmount.mul(WAD).div(exchangeRate).toString());
@@ -342,11 +339,11 @@ describe("UToken Contract", async () => {
         await erc20.connect(alice).approve(uToken.address, mintAmount);
         await uToken.connect(alice).mint(mintAmount);
 
-        let uBalance = await uErc20.balanceOf(alice.address);
+        let uBalance = await uToken.balanceOf(alice.address);
         let erc20Balance = await erc20.balanceOf(alice.address);
         uBalance.toString().should.eq(mintAmount.toString());
         await uToken.connect(alice).redeem(uBalance);
-        uBalance = await uErc20.balanceOf(alice.address);
+        uBalance = await uToken.balanceOf(alice.address);
         let erc20BalanceAfter = await erc20.balanceOf(alice.address);
         uBalance.toString().should.eq("0");
         erc20BalanceAfter.toString().should.eq(erc20Balance.add(mintAmount).toString());
@@ -363,10 +360,10 @@ describe("UToken Contract", async () => {
         await erc20.connect(alice).approve(uToken.address, repayAmount);
         await uToken.connect(alice).repayBorrow(repayAmount);
 
-        uBalance = await uErc20.balanceOf(alice.address);
+        uBalance = await uToken.balanceOf(alice.address);
         erc20Balance = await erc20.balanceOf(alice.address);
         await uToken.connect(alice).redeemUnderlying(mintAmount);
-        uBalance = await uErc20.balanceOf(alice.address);
+        uBalance = await uToken.balanceOf(alice.address);
         uBalance.toString().should.not.eq("0");
         erc20BalanceAfter = await erc20.balanceOf(alice.address);
         erc20BalanceAfter.toString().should.eq(erc20Balance.add(mintAmount).toString());
@@ -500,15 +497,31 @@ describe("UToken Contract", async () => {
                 name,
                 version: "1",
                 chainId: 31337,
-                verifyingContract: uErc20.address
+                verifyingContract: uToken.address
             },
             bob.address,
             alice.address,
             amount.toString()
         );
 
-        await expect(uErc20.permit(bob.address, alice.address, amount, deadline, result.v, result.r, result.s))
-            .to.emit(uErc20, "Approval")
+        await expect(uToken.permit(bob.address, alice.address, amount, deadline, result.v, result.r, result.s))
+            .to.emit(uToken, "Approval")
             .withArgs(bob.address, alice.address, amount);
+    });
+
+    it("Cannot borrow if the credit limit is negative", async () => {
+        //mock isMember
+        await userManager.setIsMember(true);
+        await userManager.setCreditLimit(ethers.utils.parseEther("1"));
+        await uToken.setOriginationFee("0");
+        await uToken.setOverdueBlocks(100);
+
+        const creditLimit = await userManager.getCreditLimit(alice.address);
+        await uToken.connect(alice).borrow(creditLimit);
+        await waitNBlocks(10);
+        await userManager.setCreditLimit(ethers.utils.parseEther("-1"));
+        await expect(uToken.connect(alice).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
+            "BorrowExceedCreditLimit()"
+        );
     });
 });

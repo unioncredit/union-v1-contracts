@@ -7,7 +7,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
-    const uToken = await deployments.get("UToken");
+    const uToken = await deployments.get("UDai");
 
     const userManager = await deployments.get("UserManager");
 
@@ -41,4 +41,4 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     console.log("setMarketRegistry end");
 };
 module.exports.tags = ["MarketRegistrySetting"];
-module.exports.dependencies = ["MarketRegistry", "UToken", "UserManager"];
+module.exports.dependencies = ["MarketRegistry", "UDai", "UserManager"];

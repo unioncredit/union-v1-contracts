@@ -42,9 +42,9 @@ module.exports = async ({getNamedAccounts}) => {
         tx = await execute("UserManager", {from: deployer}, "addAdmin", timelock.address);
         console.log("UserManager addAdmin, tx is:", tx.transactionHash);
     }
-    if (!(await read("UToken", {from: deployer}, "isAdmin", timelock.address))) {
-        tx = await execute("UToken", {from: deployer}, "addAdmin", timelock.address);
-        console.log("UToken addAdmin, tx is:", tx.transactionHash);
+    if (!(await read("UDai", {from: deployer}, "isAdmin", timelock.address))) {
+        tx = await execute("UDai", {from: deployer}, "addAdmin", timelock.address);
+        console.log("UDai addAdmin, tx is:", tx.transactionHash);
     }
     //After running for a period of time, give up the admin permission of the deployer
     console.log("changeAdmin end");
@@ -60,5 +60,5 @@ module.exports.dependencies = [
     "AssetManager",
     "MarketRegistry",
     "UserManager",
-    "UToken"
+    "UDai"
 ];
