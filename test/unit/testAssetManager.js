@@ -58,13 +58,13 @@ describe("AssetManager Contract", async () => {
 
     it("Token is exist", async () => {
         await assetManager.addToken(erc20.address);
-        await expect(assetManager.addToken(erc20.address)).to.be.revertedWith("AssetManager: token is exist");
+        await expect(assetManager.addToken(erc20.address)).to.be.revertedWith("AssetManager: token exists");
     });
 
     it("Amount can not be zero", async () => {
         await marketRegistry.addUToken(erc20.address, CONTRACT.address);
         await expect(assetManager.connect(CONTRACT).deposit(erc20.address, 0)).to.be.revertedWith(
-            "AssetManager: amount can not be zero"
+            "AssetManager: amount cant be 0"
         );
     });
 
@@ -118,7 +118,7 @@ describe("AssetManager Contract", async () => {
 
     it("Claim tokens: recipient can not be zero", async () => {
         await expect(assetManager.claimTokens(erc20.address, ethers.constants.AddressZero)).to.be.revertedWith(
-            "AsstManager: recipient can not be zero"
+            "AssetManager:recipient cant be 0"
         );
     });
 
@@ -233,7 +233,7 @@ describe("AssetManager Contract", async () => {
         await marketRegistry.addUToken(erc20.address, CONTRACT.address);
         await expect(
             assetManager.connect(CONTRACT).withdraw(erc20.address, BOB.address, ethers.utils.parseEther("100000000"))
-        ).to.be.revertedWith("AssetManager: balance not enough to withdraw");
+        ).to.be.revertedWith("AssetManager: balance too low");
     });
 
     it("Set new marketRegistry", async () => {

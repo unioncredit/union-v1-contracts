@@ -30,15 +30,12 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     uint256[] public withdrawSeq; // Priority sequence of money market indices for processing withdraws
 
     modifier checkMarketSupported(address token) {
-        require(isMarketSupported(token), "AssetManager: token not support");
+        require(isMarketSupported(token), "AssetManager: unsupported token");
         _;
     }
 
     modifier onlyAuth(address token) {
-        require(
-            _isUToken(msg.sender, token) || _isUserManager(msg.sender, token),
-            "AssetManager: sender must uToken or userManager"
-        );
+        require(_isUToken(msg.sender, token) || _isUserManager(msg.sender, token), "AssetManager: unauthed sender");
         _;
     }
 
@@ -159,7 +156,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         returns (bool)
     {
         IERC20Upgradeable poolToken = IERC20Upgradeable(token);
-        require(amount > 0, "AssetManager: amount can not be zero");
+        require(amount > 0, "AssetManager: amount cant be 0");
 
         if (!_isUToken(msg.sender, token)) {
             balances[msg.sender][token] += amount;
@@ -223,7 +220,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         address account,
         uint256 amount
     ) external override whenNotPaused nonReentrant onlyAuth(token) returns (bool) {
-        require(_checkSenderBalance(msg.sender, token, amount), "AssetManager: balance not enough to withdraw");
+        require(_checkSenderBalance(msg.sender, token, amount), "AssetManager: balance too low");
 
         uint256 remaining = amount;
 
@@ -272,7 +269,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param tokenAddress ERC20 token address
      */
     function addToken(address tokenAddress) external override onlyAdmin {
-        require(!supportedMarkets[tokenAddress], "AssetManager: token is exist");
+        require(!supportedMarkets[tokenAddress], "AssetManager: token exists");
         supportedTokensList.push(tokenAddress);
         supportedMarkets[tokenAddress] = true;
 
@@ -450,7 +447,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param recipient Recipient address
      */
     function claimTokens(address tokenAddress, address recipient) external override onlyAdmin {
-        require(recipient != address(0), "AsstManager: recipient can not be zero");
+        require(recipient != address(0), "AssetManager:recipient cant be 0");
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
         token.safeTransfer(recipient, balance);
