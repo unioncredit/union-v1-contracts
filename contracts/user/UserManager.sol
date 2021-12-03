@@ -287,7 +287,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 stakingAmount = stakers[staker];
         address[] memory borrowerAddresses = members[staker].creditLine.borrowerAddresses;
         address borrower;
-        for (uint256 i = 0; i < borrowerAddresses.length; i++) {
+        uint256 addressesLength = borrowerAddresses.length;
+        for (uint256 i = 0; i < addressesLength; i++) {
             borrower = borrowerAddresses[i];
             totalLockedStake += getLockedStake(staker, borrower);
         }
@@ -311,7 +312,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.stakingAmount = stakers[staker];
 
         address borrower;
-        for (uint256 i = 0; i < trustInfo.borrowerAddresses.length; i++) {
+        uint256 addressLength = trustInfo.borrowerAddresses.length;
+        for (uint256 i = 0; i < addressLength; i++) {
             borrower = trustInfo.borrowerAddresses[i];
             if (uToken.checkIsOverdue(borrower)) {
                 totalFrozenAmount += getLockedStake(staker, borrower);
@@ -335,9 +337,10 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
         // Get the number of effective vouchee, first
         trustInfo.effectiveCount = 0;
-        uint256[] memory limits = new uint256[](trustInfo.stakerAddresses.length);
+        uint256 stakerAddressesLength = trustInfo.stakerAddresses.length;
+        uint256[] memory limits = new uint256[](stakerAddressesLength);
 
-        for (uint256 i = 0; i < trustInfo.stakerAddresses.length; i++) {
+        for (uint256 i = 0; i < stakerAddressesLength; i++) {
             trustInfo.staker = trustInfo.stakerAddresses[i];
 
             trustInfo.stakingAmount = stakers[trustInfo.staker];
@@ -555,7 +558,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         uint256 effectiveStakerNumber = 0;
         address stakerAddress;
-        for (uint256 i = 0; i < members[newMember].creditLine.stakerAddresses.length; i++) {
+        uint256 addressesLength = members[newMember].creditLine.stakerAddresses.length;
+        for (uint256 i = 0; i < addressesLength; i++) {
             stakerAddress = members[newMember].creditLine.stakerAddresses[i];
             if (checkIsMember(stakerAddress) && getVouchingAmount(stakerAddress, newMember) > 0)
                 effectiveStakerNumber += 1;
@@ -584,8 +588,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         ICreditLimitModel.LockedInfo[] memory lockedInfoList = new ICreditLimitModel.LockedInfo[](
             trustInfo.stakerAddresses.length
         );
-
-        for (uint256 i = 0; i < trustInfo.stakerAddresses.length; i++) {
+        uint256 addressesLength = trustInfo.stakerAddresses.length;
+        for (uint256 i = 0; i < addressesLength; i++) {
             ICreditLimitModel.LockedInfo memory lockedInfo;
 
             trustInfo.staker = trustInfo.stakerAddresses[i];
@@ -607,7 +611,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             lockedInfoList[i] = lockedInfo;
         }
 
-        for (uint256 i = 0; i < lockedInfoList.length; i++) {
+        uint256 lockedInfoListLength = lockedInfoList.length;
+        for (uint256 i = 0; i < lockedInfoListLength; i++) {
             members[lockedInfoList[i].staker].creditLine.lockedAmount[borrower] = creditLimitModel.getLockedAmount(
                 lockedInfoList,
                 lockedInfoList[i].staker,
@@ -704,7 +709,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 lastRepay
     ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
-        for (uint256 i = 0; i < stakerAddresses.length; i++) {
+        uint256 addressesLength;
+        for (uint256 i = 0; i < addressesLength; i++) {
             address staker = stakerAddresses[i];
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
 
@@ -808,8 +814,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 totalFrozenCoinAge = 0;
 
         address[] memory borrowerAddresses = getBorrowerAddresses(staker);
-
-        for (uint256 i = 0; i < borrowerAddresses.length; i++) {
+        uint256 addressLength = borrowerAddresses.length;
+        for (uint256 i = 0; i < addressLength; i++) {
             address borrower = borrowerAddresses[i];
             uint256 blocks = block.number - uToken.getLastRepay(borrower);
             if (uToken.checkIsOverdue(borrower)) {
