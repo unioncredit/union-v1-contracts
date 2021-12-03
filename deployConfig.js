@@ -20,11 +20,9 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"
         },
-        UErc20: {
+        UDai: {
             name: "uDAI",
-            symbol: "uDAI"
-        },
-        UToken: {
+            symbol: "uDAI",
             initialExchangeRateMantissa: "1000000000000000000",
             reserveFactorMantissa: "500000000000000000",
             originationFee: "10000000000000000",
@@ -80,11 +78,9 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"
         },
-        UErc20: {
+        UDai: {
             name: "uDAI",
-            symbol: "uDAI"
-        },
-        UToken: {
+            symbol: "uDAI",
             initialExchangeRateMantissa: "1000000000000000000",
             reserveFactorMantissa: "500000000000000000",
             originationFee: "10000000000000000",
@@ -135,11 +131,9 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"
         },
-        UErc20: {
+        UDai: {
             name: "uDAI",
-            symbol: "uDAI"
-        },
-        UToken: {
+            symbol: "uDAI",
             initialExchangeRateMantissa: "1000000000000000000",
             reserveFactorMantissa: "500000000000000000",
             originationFee: "10000000000000000",
