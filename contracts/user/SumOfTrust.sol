@@ -14,9 +14,10 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
     }
 
     function getCreditLimit(uint256[] memory vouchs) public view override returns (uint256) {
-        if (vouchs.length >= effectiveNumber) {
+        uint256 vouchLength = vouchs.length;
+        if (vouchLength >= effectiveNumber) {
             uint256 limit;
-            for (uint256 i = 0; i < vouchs.length; i++) {
+            for (uint256 i = 0; i < vouchLength; i++) {
                 limit += vouchs[i];
             }
 
@@ -32,13 +33,14 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
         uint256 amount,
         bool isIncrease
     ) public pure override returns (uint256) {
-        if (array.length == 0) return 0;
+        uint256 arrLength = array.length;
+        if (arrLength == 0) return 0;
 
         uint256 remaining = amount;
         uint256 newLockedAmount;
         if (isIncrease) {
             array = _sortArray(array, true);
-            for (uint256 i = 0; i < array.length; i++) {
+            for (uint256 i = 0; i < arrLength; i++) {
                 uint256 remainingVouchingAmount;
                 if (array[i].vouchingAmount > array[i].lockedAmount) {
                     remainingVouchingAmount = array[i].vouchingAmount - array[i].lockedAmount;
@@ -70,7 +72,7 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
             }
         } else {
             array = _sortArray(array, false);
-            for (uint256 i = 0; i < array.length; i++) {
+            for (uint256 i = 0; i < arrLength; i++) {
                 if (array[i].lockedAmount > remaining) {
                     newLockedAmount = array[i].lockedAmount - remaining;
                     remaining = 0;

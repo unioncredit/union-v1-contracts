@@ -18,7 +18,7 @@ import "../interfaces/IInterestRateModel.sol";
 contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardUpgradeable {
     bool public constant IS_UTOKEN = true;
     uint256 public constant WAD = 1e18;
-    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
+    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.005e16; //Maximum borrow rate that can ever be applied (.005% / block)
     uint256 internal constant RESERVE_FACTORY_MAX_MANTISSA = 1e18; //Maximum fraction of interest that can be set aside for reserves
 
     address public underlying;
@@ -667,9 +667,10 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      *  @param accounts Borrowers address
      */
     function batchUpdateOverdueInfos(address[] calldata accounts) external whenNotPaused {
-        address[] memory overdueAccounts = new address[](accounts.length);
-        bool[] memory isOverdues = new bool[](accounts.length);
-        for (uint256 i = 0; i < accounts.length; i++) {
+        uint256 accountsLength = accounts.length;
+        address[] memory overdueAccounts = new address[](accountsLength);
+        bool[] memory isOverdues = new bool[](accountsLength);
+        for (uint256 i = 0; i < accountsLength; i++) {
             if (checkIsOverdue(accounts[i])) {
                 overdueAccounts[i] = accounts[i];
                 isOverdues[i] = true;

@@ -179,9 +179,9 @@ describe("UToken Contract", async () => {
             "AmountLessMinBorrow()"
         );
 
-        const remainingLoanSize = await uToken.getRemainingDebtCeiling();
+        const remainingDebtCeiling = await uToken.getRemainingDebtCeiling();
         await expect(
-            uToken.connect(alice).borrow(remainingLoanSize.add(ethers.utils.parseEther("1")))
+            uToken.connect(alice).borrow(remainingDebtCeiling.add(ethers.utils.parseEther("1")))
         ).to.be.revertedWith("AmountExceedGlobalMax()");
 
         await expect(uToken.connect(alice).borrow(maxBorrow.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
