@@ -94,53 +94,23 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
         effectiveNumber = number;
     }
 
-    //use oddEvenSort
-    function _sortArray(LockedInfo[] memory arr, bool isPositive) public pure returns (LockedInfo[] memory) {
-        if (arr.length == 0 || arr.length == 1) return arr;
-        uint256 n = arr.length;
-        // Initially array is unsorted
-        bool isSorted = false;
-        while (!isSorted) {
-            isSorted = true;
-            LockedInfo memory temp;
-            if (isPositive) {
-                // Perform Bubble sort on odd indexed element
-                for (uint256 i = 1; i <= n - 2; i = i + 2) {
-                    if (arr[i].vouchingAmount < arr[i + 1].vouchingAmount) {
-                        temp = arr[i];
-                        arr[i] = arr[i + 1];
-                        arr[i + 1] = temp;
-                        isSorted = false;
-                    }
-                }
+    //use bubble
+    function _sortArray(LockedInfo[] memory arr, bool isPositive) private pure returns (LockedInfo[] memory) {
+        uint256 length = arr.length;
 
-                // Perform Bubble sort on even indexed element
-                for (uint256 i = 0; i <= n - 2; i = i + 2) {
-                    if (arr[i].vouchingAmount < arr[i + 1].vouchingAmount) {
-                        temp = arr[i];
-                        arr[i] = arr[i + 1];
-                        arr[i + 1] = temp;
-                        isSorted = false;
+        for (uint256 i = 0; i < length; i++) {
+            for (uint256 j = i + 1; j < length; j++) {
+                if (isPositive) {
+                    if (arr[i].vouchingAmount < arr[j].vouchingAmount) {
+                        LockedInfo memory temp = arr[j];
+                        arr[j] = arr[i];
+                        arr[i] = temp;
                     }
-                }
-            } else {
-                // Perform Bubble sort on odd indexed element
-                for (uint256 i = 1; i <= n - 2; i = i + 2) {
-                    if (arr[i].vouchingAmount > arr[i + 1].vouchingAmount) {
-                        temp = arr[i];
-                        arr[i] = arr[i + 1];
-                        arr[i + 1] = temp;
-                        isSorted = false;
-                    }
-                }
-
-                // Perform Bubble sort on even indexed element
-                for (uint256 i = 0; i <= n - 2; i = i + 2) {
-                    if (arr[i].vouchingAmount > arr[i + 1].vouchingAmount) {
-                        temp = arr[i];
-                        arr[i] = arr[i + 1];
-                        arr[i + 1] = temp;
-                        isSorted = false;
+                } else {
+                    if (arr[i].vouchingAmount > arr[j].vouchingAmount) {
+                        LockedInfo memory temp = arr[j];
+                        arr[j] = arr[i];
+                        arr[i] = temp;
                     }
                 }
             }
