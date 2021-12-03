@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 /**
  *  @title AssetManager Interface
@@ -69,10 +69,22 @@ interface IAssetManager {
     function addToken(address tokenAddress) external;
 
     /**
+     *  @dev Remove a ERC20 token to support in AssetManager
+     *  @param tokenAddress ERC20 token address
+     */
+    function removeToken(address tokenAddress) external;
+
+    /**
      *  @dev Add a new adapter for the underlying lending protocol
      *  @param adapterAddress adapter address
      */
     function addAdapter(address adapterAddress) external;
+
+    /**
+     *  @dev Remove a adapter for the underlying lending protocol
+     *  @param adapterAddress adapter address
+     */
+    function removeAdapter(address adapterAddress) external;
 
     /**
      *  @dev For a give token set allowance for all integrated money markets

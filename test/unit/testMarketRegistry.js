@@ -28,6 +28,7 @@ describe("MarketRegistry Contract", () => {
         res.uToken.should.eq(uToken.address);
 
         utokens = await marketRegistry.getUTokens();
+        console.log("utokens: ", utokens);
         utokens.length.should.eq(1);
 
         await marketRegistry.deleteMarket(ETH);
@@ -49,6 +50,7 @@ describe("MarketRegistry Contract", () => {
         res.userManager.should.eq(userManager.address);
 
         markets = await marketRegistry.getUserManagers();
+        console.log("userManager: ", markets);
         markets.length.should.eq(1);
 
         await marketRegistry.deleteMarket(ETH);

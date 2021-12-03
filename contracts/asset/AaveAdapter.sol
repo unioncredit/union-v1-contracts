@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -86,10 +86,12 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function setFloor(address tokenAddress, uint256 floor) external onlyAdmin {
+        require(tokenAddress != address(0), "AaveAdapter: tokenAddress can not be zero");
         floorMap[tokenAddress] = floor;
     }
 
     function setCeiling(address tokenAddress, uint256 ceiling) external onlyAdmin {
+        require(tokenAddress != address(0), "AaveAdapter: tokenAddress can not be zero");
         ceilingMap[tokenAddress] = ceiling;
     }
 
@@ -161,9 +163,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
-        address aTokenAddress = tokenToAToken[tokenAddress];
-
-        return aTokenAddress != address(0);
+        return tokenToAToken[tokenAddress] != address(0);
     }
 
     function _claimTokens(address tokenAddress, address recipient) private {

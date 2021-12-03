@@ -86,4 +86,11 @@ describe("Treasury Contract", () => {
         endBalance = await testToken.balanceOf(BOB.address);
         console.log(startBalance.toString(), endBalance.toString());
     });
+
+    it("change admin", async () => {
+        await treasury.changeAdmin(BOB.address);
+        await treasury.connect(BOB).acceptAdmin();
+        const admin = await treasury.admin();
+        admin.should.eq(BOB.address);
+    });
 });

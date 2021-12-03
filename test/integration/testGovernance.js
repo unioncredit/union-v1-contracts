@@ -6,6 +6,17 @@ require("chai").should();
 
 describe("Governance Contract", async () => {
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [ADMIN, proxyAdmin] = await ethers.getSigners();
 
         console.log("Creating proxy instance of ERC20...");
@@ -17,10 +28,10 @@ describe("Governance Contract", async () => {
         console.log(`ERC20 proxy created at ${erc20Proxy.address}`);
         await erc20Proxy.mint(ADMIN.address, parseEther("10000000"));
 
-        console.log("Creating proxy instance of CreditLimitByMedian.sol...");
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        console.log(`CreditLimitByMedian proxy created at ${creditLimitByMedian.address}`);
+        console.log("Creating proxy instance of SumOfTrust.sol...");
+        const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
+        sumOfTrust = await SumOfTrust.deploy(3);
+        console.log(`SumOfTrust proxy created at ${sumOfTrust.address}`);
 
         console.log("Creating proxy instance of FixedInterestRateModel.sol...");
         //The interest rate is set to 0 to prevent interference
@@ -66,7 +77,7 @@ describe("Governance Contract", async () => {
                 assetManagerProxy.address,
                 unionTokenProxy.address,
                 erc20Proxy.address,
-                creditLimitByMedian.address,
+                sumOfTrust.address,
                 comptroller.address,
                 ADMIN.address
             ],
@@ -144,7 +155,7 @@ describe("Governance Contract", async () => {
         const proposalId = await governanceProxy.latestProposalIds(ADMIN.address);
 
         const votingDelay = await governanceProxy.votingDelay();
-        await waitNBlocks(parseInt(votingDelay));
+        await waitNBlocks(parseInt(votingDelay) + 10);
 
         res = await governanceProxy.state(proposalId);
         res.toString().should.eq("1");

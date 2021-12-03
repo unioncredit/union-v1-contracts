@@ -96,22 +96,22 @@ describe("UToken Contract", async () => {
     it("Get and set params", async () => {
         let assetManagerNew = await uToken.assetManager();
         assetManagerNew.should.eq(assetManager.address);
-        await expect(uToken.connect(alice).setAssetManager(ethers.constants.AddressZero)).to.be.revertedWith(
+        await expect(uToken.connect(alice).setAssetManager(assetManager.address)).to.be.revertedWith(
             "Controller: not admin"
         );
-        await uToken.setAssetManager(ethers.constants.AddressZero);
+        await uToken.setAssetManager(assetManager.address);
         assetManagerNew = await uToken.assetManager();
-        assetManagerNew.should.eq(ethers.constants.AddressZero);
+        assetManagerNew.should.eq(assetManager.address);
 
         let userManagerNew = await uToken.userManager();
         userManagerNew.should.eq(userManager.address);
-        await expect(uToken.connect(alice).setUserManager(ethers.constants.AddressZero)).to.be.revertedWith(
+        await expect(uToken.connect(alice).setUserManager(userManager.address)).to.be.revertedWith(
             "Controller: not admin"
         );
 
-        await uToken.setUserManager(ethers.constants.AddressZero);
+        await uToken.setUserManager(userManager.address);
         userManagerNew = await uToken.userManager();
-        userManagerNew.should.eq(ethers.constants.AddressZero);
+        userManagerNew.should.eq(userManager.address);
 
         let originationFeeNew = await uToken.originationFee();
         originationFeeNew.toString().should.eq(originationFee.toString());
@@ -179,16 +179,16 @@ describe("UToken Contract", async () => {
         await userManager.setCreditLimit(ethers.utils.parseEther("10"));
 
         await expect(uToken.connect(alice).borrow(minBorrow.sub(ethers.utils.parseEther("0.01")))).to.be.revertedWith(
-            "UToken: amount less than loan size min"
+            "UToken: amount below loan min"
         );
 
         const remainingLoanSize = await uToken.getRemainingLoanSize();
         await expect(
             uToken.connect(alice).borrow(remainingLoanSize.add(ethers.utils.parseEther("1")))
-        ).to.be.revertedWith("UToken: amount more than loan global size max");
+        ).to.be.revertedWith("UToken: amount above DebtCeiling");
 
         await expect(uToken.connect(alice).borrow(maxBorrow.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
-            "UToken: amount large than borrow size max"
+            "UToken: amount above maxBorrow"
         );
 
         const loanableAmount = await assetManager.getLoanableAmount(erc20.address);

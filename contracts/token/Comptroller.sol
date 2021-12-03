@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -65,6 +65,7 @@ contract Comptroller is Controller, IComptroller {
     }
 
     function setHalfDecayPoint(uint256 point) public onlyAdmin {
+        require(point != 0, "Comptroller: halfDecayPoint can not be zero");
         halfDecayPoint = point;
     }
 
@@ -138,6 +139,9 @@ contract Comptroller is Controller, IComptroller {
         userManagerData.userStaked = userManagerContract.getStakerBalance(account);
         userManagerData.userFrozen = userManagerContract.getTotalFrozenAmount(account);
         userManagerData.totalStaked = userManagerContract.totalStaked() - userManagerData.totalFrozen;
+        if (userManagerData.totalStaked < 1e18) {
+            userManagerData.totalStaked = 1e18;
+        }
 
         uint256 lastUpdatedBlock = userInfo.updatedBlock;
         if (block.number < lastUpdatedBlock) {
@@ -248,7 +252,7 @@ contract Comptroller is Controller, IComptroller {
         uint256 inflationIndex
     ) private view returns (uint256) {
         uint256 startInflationIndex = users[account][token].inflationIndex;
-        require(userStaked * pastBlocks >= frozenCoinAge, " Comptroller: frozen coin age error");
+        require(userStaked * pastBlocks >= frozenCoinAge, "Comptroller: frozenCoinAge error");
 
         if (userStaked == 0 || totalStaked == 0 || startInflationIndex == 0 || pastBlocks == 0) {
             return 0;
@@ -258,7 +262,7 @@ contract Comptroller is Controller, IComptroller {
 
         uint256 curInflationIndex = _getInflationIndexNew(totalStaked, pastBlocks);
 
-        require(curInflationIndex >= startInflationIndex, "Comptroller: inflationIndex error");
+        require(curInflationIndex >= startInflationIndex, "Comptroller:inflationIndex error");
 
         return (curInflationIndex - startInflationIndex).wadMul(effectiveStakeAmount).wadMul(inflationIndex);
     }

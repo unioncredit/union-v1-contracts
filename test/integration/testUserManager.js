@@ -1,13 +1,36 @@
 const {ethers, upgrades, waffle} = require("hardhat");
 const {parseEther} = ethers.utils;
 const {waitNBlocks} = require("../../utils");
+const {expect} = require("chai");
 
 require("chai").should();
 
 describe("UserManager Contract", async () => {
     before(async () => {
-        [ADMIN, STAKER_A, STAKER_B, STAKER_C, STAKER_D, STAKER_E, BORROWER_Z, BORROWER_Y, proxyAdmin] =
-            await ethers.getSigners();
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
+        [
+            ADMIN,
+            STAKER_A,
+            STAKER_B,
+            STAKER_C,
+            STAKER_D,
+            STAKER_E,
+            BORROWER_Z,
+            BORROWER_Y,
+            STAKER_F,
+            STAKER_G,
+            proxyAdmin
+        ] = await ethers.getSigners();
 
         console.log("Creating proxy instance of ERC20...");
         erc20Proxy = await upgrades.deployProxy(
@@ -17,21 +40,16 @@ describe("UserManager Contract", async () => {
         );
         console.log(`ERC20 proxy created at ${erc20Proxy.address}`);
 
-        console.log("Creating proxy instance of SumOfTrust.sol...");
-        const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
-        sumOfTrust = await SumOfTrust.deploy(3);
-        console.log(`SumOfTrust proxy created at ${sumOfTrust.address}`);
-
         console.log("Creating proxy instance of FixedInterestRateModel.sol...");
         //The interest rate is set to 0 to prevent interference
         const FixedInterestRateModel = await ethers.getContractFactory("FixedInterestRateModel");
         fixedInterestRateModel = await FixedInterestRateModel.deploy(ethers.utils.parseEther("0"));
         console.log(`FixedInterestRateModel proxy created at ${fixedInterestRateModel.address}`);
 
-        console.log("Creating proxy instance of CreditLimitByMedian.sol...");
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        console.log(`CreditLimitByMedian proxy created at ${creditLimitByMedian.address}`);
+        console.log("Creating proxy instance of SumOfTrust.sol...");
+        const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
+        sumOfTrust = await SumOfTrust.deploy(3);
+        console.log(`SumOfTrust proxy created at ${sumOfTrust.address}`);
 
         console.log("Creating proxy instance of unionToken.sol...");
         const block = await waffle.provider.getBlock("latest");
@@ -625,6 +643,8 @@ describe("UserManager Contract", async () => {
                 await erc20Proxy.transfer(STAKER_C.address, amount);
                 await erc20Proxy.transfer(STAKER_D.address, amount);
                 await erc20Proxy.transfer(STAKER_E.address, amount);
+                await erc20Proxy.transfer(STAKER_F.address, amount);
+                await erc20Proxy.transfer(STAKER_G.address, amount);
 
                 console.log("Creating proxy instance of MarketRegistry.sol...");
                 marketRegistryProxy = await upgrades.deployProxy(await ethers.getContractFactory("MarketRegistry"), {
@@ -658,7 +678,7 @@ describe("UserManager Contract", async () => {
                         assetManagerProxy.address,
                         unionTokenProxy.address,
                         erc20Proxy.address,
-                        creditLimitByMedian.address,
+                        sumOfTrust.address,
                         comptroller.address,
                         ADMIN.address
                     ],
@@ -766,19 +786,19 @@ describe("UserManager Contract", async () => {
             staker_a_defaulted_stake = await userManagerProxy.getTotalFrozenAmount(STAKER_A.address);
             staker_a_defaulted_stake.toString().should.eq("0");
 
-            //Z(100,60,25) has a credit limit of median(60) or SumTrust(185)
+            //Z(100,60,25) has a credit limit of SumTrust(185)
             borrower_z_credit_limit = await userManagerProxy.getCreditLimit(BORROWER_Z.address);
-            borrower_z_credit_limit.toString().should.eq(parseEther("60").toString());
+            borrower_z_credit_limit.toString().should.eq(parseEther("185").toString());
 
-            //Y(60, 100, 125) has a credit limit of median(100) or SumTrust(285)
+            //Y(60, 100, 125) has a credit limit of SumTrust(285)
             borrower_y_credit_limit = await userManagerProxy.getCreditLimit(BORROWER_Y.address);
-            borrower_y_credit_limit.toString().should.eq(parseEther("100").toString());
+            borrower_y_credit_limit.toString().should.eq(parseEther("285").toString());
 
             //Z Borrows 60 which locks up to 60 from their vouchers stake [A(60), B(60),C(25)]
             await uTokenProxy.connect(BORROWER_Z).borrow(parseEther("60"));
 
             borrower_z_credit_limit = await userManagerProxy.getCreditLimit(BORROWER_Z.address);
-            borrower_z_credit_limit.toString().should.eq("0");
+            borrower_z_credit_limit.toString().should.eq(parseEther("125").toString());
 
             //A's stake states change to With-drawable = 40, Utilized = 60, Defaulted = 0
             staker_a_stake = await userManagerProxy.getStakerBalance(STAKER_A.address);
@@ -790,24 +810,24 @@ describe("UserManager Contract", async () => {
             staker_a_defaulted_stake = await userManagerProxy.getTotalFrozenAmount(STAKER_A.address);
             staker_a_defaulted_stake.toString().should.eq("0");
 
-            //Y now has the updated vouch of (40, 100, 125) giving Y a credit limit of 100(median) & 265(sumtrust) respectively
+            //Y now has the updated vouch of (40, 100, 125) giving Y a credit limit of 265(sumtrust) respectively
             //But A, D, E haven't changed the trust settings for Y. Only the vouch calculated on the fly has
             borrower_y_credit_limit = await userManagerProxy.getCreditLimit(BORROWER_Y.address);
-            borrower_y_credit_limit.toString().should.eq(parseEther("100").toString());
+            borrower_y_credit_limit.toString().should.eq(parseEther("265").toString());
 
             //If Y borrows 100 which would lock up to 100 from A, D, E => (60,100,100)
             await uTokenProxy.connect(BORROWER_Y).borrow(parseEther("100"));
 
-            //A, D, E free stake would end up as (0,0,25) which => median(0) & sumtrust(25)
+            //A, D, E free stake would end up as (60,0,100) which => sumtrust(165)
             borrower_y_credit_limit = await userManagerProxy.getCreditLimit(BORROWER_Y.address);
-            borrower_y_credit_limit.toString().should.eq("0");
+            borrower_y_credit_limit.toString().should.eq(parseEther("165").toString());
 
             //A would end up with the stake states of 0 with-drawable, 100 utilized, 0 defaulted
             staker_a_stake = await userManagerProxy.getStakerBalance(STAKER_A.address);
             staker_a_stake.toString().should.eq(parseEther("100").toString());
 
             staker_a_locked_stake = await userManagerProxy.getTotalLockedStake(STAKER_A.address);
-            staker_a_locked_stake.toString().should.eq(parseEther("100").toString());
+            staker_a_locked_stake.toString().should.eq(parseEther("60").toString());
 
             staker_a_defaulted_stake = await userManagerProxy.getTotalFrozenAmount(STAKER_A.address);
             staker_a_defaulted_stake.toString().should.eq("0");
@@ -821,10 +841,55 @@ describe("UserManager Contract", async () => {
             staker_a_stake.toString().should.eq(parseEther("100").toString());
 
             staker_a_locked_stake = await userManagerProxy.getTotalLockedStake(STAKER_A.address);
-            staker_a_locked_stake.toString().should.eq(parseEther("40").toString());
+            staker_a_locked_stake.toString().should.eq(parseEther("0").toString());
 
             staker_a_defaulted_stake = await userManagerProxy.getTotalFrozenAmount(STAKER_A.address);
             staker_a_defaulted_stake.toString().should.eq("0");
+        });
+
+        //Stakers A,B,C stake 100, 65, 20, approve it for borrower Z, then staker B stakes an additional 0.07 DAI, and borrower Z borrows 185.
+        it("rewards calculation", async () => {
+            await uTokenProxy.setOriginationFee("0");
+            await userManagerProxy.setCreditLimitModel(sumOfTrust.address);
+
+            await userManagerProxy.connect(STAKER_A).stake(parseEther("100"));
+            await userManagerProxy.connect(STAKER_B).stake(parseEther("65"));
+            await userManagerProxy.connect(STAKER_C).stake(parseEther("20"));
+
+            //A, B, C set trust for Z(100,60,25) and the "vouch" is the same.
+            await userManagerProxy.connect(STAKER_A).updateTrust(BORROWER_Z.address, parseEther("100"));
+            await userManagerProxy.connect(STAKER_B).updateTrust(BORROWER_Z.address, parseEther("65"));
+            await userManagerProxy.connect(STAKER_C).updateTrust(BORROWER_Z.address, parseEther("20"));
+
+            //Reward withdrawal when call stake
+            await userManagerProxy.connect(STAKER_B).stake(parseEther("0.07"));
+            await uTokenProxy.connect(BORROWER_Z).borrow(parseEther("185"));
+
+            await waitNBlocks(11);
+
+            await uTokenProxy.connect(BORROWER_Y).updateOverdueInfo(BORROWER_Z.address);
+
+            const aRewards = await comptroller.calculateRewards(STAKER_A.address, erc20Proxy.address);
+            console.log("STAKER_A: ", aRewards.toString());
+            const bRewards = await comptroller.calculateRewards(STAKER_B.address, erc20Proxy.address);
+            console.log("STAKER_B: ", bRewards.toString());
+            const cRewards = await comptroller.calculateRewards(STAKER_C.address, erc20Proxy.address);
+            console.log("STAKER_C: ", cRewards.toString());
+        });
+
+        it("Compare the rewards of max staker and min staker", async () => {
+            await erc20Proxy.connect(STAKER_F).approve(userManagerProxy.address, ethers.utils.parseEther("10"));
+            await userManagerProxy.connect(STAKER_F).stake(ethers.utils.parseEther("10"));
+
+            await erc20Proxy.connect(STAKER_G).approve(userManagerProxy.address, ethers.utils.parseEther("11"));
+            await userManagerProxy.connect(STAKER_G).stake(ethers.utils.parseEther("11"));
+
+            //The STAKER_F and STAKER_G stake time is one block away, so wait for more blocks to reduce the error
+            await waitNBlocks(100);
+
+            const gRewards = await comptroller.calculateRewards(STAKER_G.address, erc20Proxy.address);
+            const fRewards = await comptroller.calculateRewards(STAKER_F.address, erc20Proxy.address);
+            expect(gRewards).to.be.above(fRewards);
         });
     });
 });
