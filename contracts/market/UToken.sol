@@ -21,7 +21,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
     bool public constant IS_UTOKEN = true;
     uint256 public constant WAD = 1e18;
-    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.0005e16; //Maximum borrow rate that can ever be applied (.0005% / block)
+    uint256 internal constant BORROW_RATE_MAX_MANTISSA = 0.005e16; //Maximum borrow rate that can ever be applied (.005% / block)
     uint256 internal constant RESERVE_FACTORY_MAX_MANTISSA = 1e18; //Maximum fraction of interest that can be set aside for reserves
 
     address public underlying;
@@ -206,11 +206,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return Remaining total amount
      */
     function getRemainingLoanSize() public view override returns (uint256) {
-        if (debtCeiling >= totalBorrows) {
-            return debtCeiling - totalBorrows;
-        } else {
-            return 0;
-        }
+        return debtCeiling >= totalBorrows ? debtCeiling - totalBorrows : 0;
     }
 
     /**
@@ -237,9 +233,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @return isOverdue
      */
     function checkIsOverdue(address account) public view override returns (bool isOverdue) {
-        if (getBorrowed(account) == 0) {
-            isOverdue = false;
-        } else {
+        if (getBorrowed(account) != 0) {
             uint256 lastRepay = getLastRepay(account);
             uint256 diff = getBlockNumber() - lastRepay;
             isOverdue = (overdueBlocks < diff);
@@ -461,21 +455,12 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         bool isOverdue = checkIsOverdue(borrower);
         uint256 oldPrincipal = getBorrowed(borrower);
         require(accrueInterest(), "UToken: accrue interest failed");
-        require(accrualBlockNumber == getBlockNumber(), "UToken: market not fresh");
 
         uint256 interest = calculatingInterest(borrower);
         uint256 borrowedAmount = borrowBalanceStoredInternal(borrower);
 
-        uint256 repayAmount;
-        if (amount > borrowedAmount) {
-            repayAmount = borrowedAmount;
-        } else {
-            repayAmount = amount;
-        }
-
-        require(repayAmount > 0, "UToken: repay amount is zero");
-
-        require(assetToken.allowance(payer, address(this)) >= repayAmount, "UToken: Not enough allowance");
+        uint256 repayAmount = amount > borrowedAmount ? borrowedAmount : amount;
+        require(repayAmount > 0, "UToken: repay amount or owed amount is zero");
 
         uint256 toReserveAmount;
         uint256 toRedeemableAmount;
@@ -529,7 +514,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public override whenNotPaused {
+    ) public override whenNotPaused nonReentrant {
         IUErc20 erc20Token = IUErc20(underlying);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
 
@@ -697,12 +682,7 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
 
     function debtWriteOff(address borrower, uint256 amount) external override whenNotPaused onlyUserManager {
         uint256 oldPrincipal = getBorrowed(borrower);
-        uint256 repayAmount;
-        if (amount > oldPrincipal) {
-            repayAmount = oldPrincipal;
-        } else {
-            repayAmount = amount;
-        }
+        uint256 repayAmount = amount > oldPrincipal ? oldPrincipal : amount;
 
         accountBorrows[borrower].principal = oldPrincipal - repayAmount;
         totalBorrows -= repayAmount;
@@ -745,9 +725,10 @@ contract UToken is IUToken, Controller, ReentrancyGuardUpgradeable {
      *  @param accounts Borrowers address
      */
     function batchUpdateOverdueInfos(address[] calldata accounts) external whenNotPaused {
-        address[] memory overdueAccounts = new address[](accounts.length);
-        bool[] memory isOverdues = new bool[](accounts.length);
-        for (uint256 i = 0; i < accounts.length; i++) {
+        uint256 accountsLength = accounts.length;
+        address[] memory overdueAccounts = new address[](accountsLength);
+        bool[] memory isOverdues = new bool[](accountsLength);
+        for (uint256 i = 0; i < accountsLength; i++) {
             if (checkIsOverdue(accounts[i])) {
                 overdueAccounts[i] = accounts[i];
                 isOverdues[i] = true;

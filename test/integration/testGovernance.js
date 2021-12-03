@@ -6,6 +6,17 @@ require("chai").should();
 
 describe("Governance Contract", async () => {
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [ADMIN, proxyAdmin] = await ethers.getSigners();
 
         console.log("Creating proxy instance of ERC20...");
