@@ -104,17 +104,16 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     /**
      *  @dev Get the total amount of tokens deposited to all the integrated underlying protocols without side effects.
      *  @param tokenAddress ERC20 token address
-     *  @return Total market balance
+     *  @return tokenSupply Total market balance
      */
     function totalSupply(address tokenAddress) public override returns (uint256 tokenSupply) {
         tokenSupply = 0;
         if (isMarketSupported(tokenAddress)) {
             uint256 moneyMarketsLength = moneyMarkets.length;
             for (uint256 i = 0; i < moneyMarketsLength; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
-                    continue;
+                if (moneyMarkets[i].supportsToken(tokenAddress)) {
+                    tokenSupply += moneyMarkets[i].getSupply(tokenAddress);
                 }
-                tokenSupply += moneyMarket.getSupply(tokenAddress);
             }
         }
     }
@@ -122,17 +121,16 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     /**
      *  @dev Get the total amount of tokens deposited to all the integrated underlying protocols, but without side effects. Safe to call anytime, but may not get the most updated number for the current block. Call totalSupply() for that purpose.
      *  @param tokenAddress ERC20 token address
-     *  @return Total market balance
+     *  @return tokenSupply Total market balance
      */
     function totalSupplyView(address tokenAddress) public view override returns (uint256 tokenSupply) {
         tokenSupply = 0;
         if (isMarketSupported(tokenAddress)) {
             uint256 moneyMarketsLength = moneyMarkets.length;
             for (uint256 i = 0; i < moneyMarketsLength; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
-                    continue;
+                if (moneyMarkets[i].supportsToken(tokenAddress)) {
+                    tokenSupply += moneyMarkets[i].getSupplyView(tokenAddress);
                 }
-                tokenSupply += moneyMarket.getSupplyView(tokenAddress);
             }
         }
     }
