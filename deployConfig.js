@@ -148,7 +148,7 @@ var configs = {
         UnionToken: {
             name: "Union Token",
             symbol: "UNION",
-            mintingAllowedAfter: "1633061850",
+            mintingAllowedAfter: "1639032000",
             comptrollerAmount: "1000000000000000000000000",
             amountForTreasuryVester: "14000000000000000000000000"
         },
