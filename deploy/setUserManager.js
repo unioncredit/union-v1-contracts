@@ -2,7 +2,7 @@ module.exports = async ({getNamedAccounts}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
 
-    const uToken = await deployments.get("UToken");
+    const uToken = await deployments.get("UDai");
 
     console.log("setUserManager start");
     if (!((await read("UserManager", {from: deployer}, "uToken")) === uToken.address)) {
@@ -12,4 +12,4 @@ module.exports = async ({getNamedAccounts}) => {
     console.log("setUserManager end");
 };
 module.exports.tags = ["UserManagerSetting"];
-module.exports.dependencies = ["UserManager", "UToken"];
+module.exports.dependencies = ["UserManager", "UDai"];

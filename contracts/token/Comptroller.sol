@@ -252,7 +252,7 @@ contract Comptroller is Controller, IComptroller {
         uint256 inflationIndex
     ) private view returns (uint256) {
         uint256 startInflationIndex = users[account][token].inflationIndex;
-        require(userStaked * pastBlocks >= frozenCoinAge, " Comptroller: frozen coin age error");
+        require(userStaked * pastBlocks >= frozenCoinAge, "Comptroller: frozenCoinAge error");
 
         if (userStaked == 0 || totalStaked == 0 || startInflationIndex == 0 || pastBlocks == 0) {
             return 0;
@@ -262,7 +262,7 @@ contract Comptroller is Controller, IComptroller {
 
         uint256 curInflationIndex = _getInflationIndexNew(totalStaked, pastBlocks);
 
-        require(curInflationIndex >= startInflationIndex, "Comptroller: inflationIndex error");
+        require(curInflationIndex >= startInflationIndex, "Comptroller:inflationIndex error");
 
         return (curInflationIndex - startInflationIndex).wadMul(effectiveStakeAmount).wadMul(inflationIndex);
     }

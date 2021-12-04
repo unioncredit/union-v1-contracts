@@ -6,6 +6,17 @@ require("chai").should();
 
 describe("Governance Contract", async () => {
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [ADMIN, proxyAdmin] = await ethers.getSigners();
 
         console.log("Creating proxy instance of ERC20...");
@@ -94,12 +105,11 @@ describe("Governance Contract", async () => {
         await timlockProxy.renounceRole(ethers.utils.id("PROPOSER_ROLE"), ADMIN.address);
         await timlockProxy.renounceRole(ethers.utils.id("EXECUTOR_ROLE"), ADMIN.address);
 
-        const UErc20 = await ethers.getContractFactory("UErc20");
-        const uErc20 = await UErc20.deploy("UToken", "UToken");
         uTokenProxy = await upgrades.deployProxy(
             await ethers.getContractFactory("UToken"),
             [
-                uErc20.address,
+                "UToken",
+                "UToken",
                 erc20Proxy.address,
                 "1000000000000000000",
                 "500000000000000000",
@@ -112,10 +122,9 @@ describe("Governance Contract", async () => {
             ],
             {
                 initializer:
-                    "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                    "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
             }
         );
-        await uErc20.transferOwnership(uTokenProxy.address);
         await marketRegistryProxy.addUToken(erc20Proxy.address, uTokenProxy.address);
         await erc20Proxy.approve(assetManagerProxy.address, parseEther("10000"));
         await userManagerProxy.addAdmin(timlockProxy.address);
@@ -144,7 +153,7 @@ describe("Governance Contract", async () => {
         const proposalId = await governanceProxy.latestProposalIds(ADMIN.address);
 
         const votingDelay = await governanceProxy.votingDelay();
-        await waitNBlocks(parseInt(votingDelay));
+        await waitNBlocks(parseInt(votingDelay) + 10);
 
         res = await governanceProxy.state(proposalId);
         res.toString().should.eq("1");

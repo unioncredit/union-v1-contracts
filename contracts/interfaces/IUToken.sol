@@ -10,7 +10,7 @@ interface IUToken {
      *  @dev Returns the remaining amount that can be borrowed from the market.
      *  @return Remaining total amount
      */
-    function getRemainingLoanSize() external view returns (uint256);
+    function getRemainingDebtCeiling() external view returns (uint256);
 
     /**
      *  @dev Get the borrowed principle
@@ -52,24 +52,6 @@ interface IUToken {
      *  @return Handling fee
      */
     function calculatingFee(uint256 amount) external view returns (uint256);
-
-    /**
-     *  @dev Get member loan data
-     *  @param member Member address
-     *  @return Loan
-     */
-    function getLoan(address member)
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            address,
-            uint256,
-            int256,
-            bool,
-            uint256
-        );
 
     /**
      *  @dev Calculating member's borrowed interest
@@ -169,16 +151,6 @@ interface IUToken {
      *  @param amount Repay amount
      */
     function repayBorrowBehalf(address borrower, uint256 amount) external;
-
-    function repayBorrowWithPermit(
-        address borrower,
-        uint256 amount,
-        uint256 nonce,
-        uint256 expiry,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
 
     /**
      *  @dev Update borrower overdue info

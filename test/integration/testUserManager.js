@@ -7,6 +7,17 @@ require("chai").should();
 
 describe("UserManager Contract", async () => {
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [
             ADMIN,
             STAKER_A,
@@ -101,12 +112,11 @@ describe("UserManager Contract", async () => {
             //Handling fee is set to 0
             await userManagerProxy.setNewMemberFee(0);
 
-            const UErc20 = await ethers.getContractFactory("UErc20");
-            const uErc20 = await UErc20.deploy("UToken", "UToken");
             uTokenProxy = await upgrades.deployProxy(
                 await ethers.getContractFactory("UToken"),
                 [
-                    uErc20.address,
+                    "UToken",
+                    "UToken",
                     erc20Proxy.address,
                     "1000000000000000000",
                     "500000000000000000",
@@ -119,10 +129,9 @@ describe("UserManager Contract", async () => {
                 ],
                 {
                     initializer:
-                        "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                        "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
                 }
             );
-            await uErc20.transferOwnership(uTokenProxy.address);
             await uTokenProxy.setInterestRateModel(fixedInterestRateModel.address);
             await uTokenProxy.setAssetManager(assetManagerProxy.address);
             await uTokenProxy.setUserManager(userManagerProxy.address);
@@ -236,12 +245,11 @@ describe("UserManager Contract", async () => {
                 //Handling fee is set to 0
                 await userManagerProxy.setNewMemberFee(0);
 
-                const UErc20 = await ethers.getContractFactory("UErc20");
-                const uErc20 = await UErc20.deploy("UToken", "UToken");
                 uTokenProxy = await upgrades.deployProxy(
                     await ethers.getContractFactory("UToken"),
                     [
-                        uErc20.address,
+                        "UToken",
+                        "UToken",
                         erc20Proxy.address,
                         "1000000000000000000",
                         "500000000000000000",
@@ -254,11 +262,9 @@ describe("UserManager Contract", async () => {
                     ],
                     {
                         initializer:
-                            "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                            "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
                     }
                 );
-                await uErc20.transferOwnership(uTokenProxy.address);
-
                 await uTokenProxy.setInterestRateModel(fixedInterestRateModel.address);
                 await uTokenProxy.setAssetManager(assetManagerProxy.address);
                 await uTokenProxy.setUserManager(userManagerProxy.address);
@@ -679,12 +685,11 @@ describe("UserManager Contract", async () => {
                 //Handling fee is set to 0
                 await userManagerProxy.setNewMemberFee(0);
 
-                const UErc20 = await ethers.getContractFactory("UErc20");
-                const uErc20 = await UErc20.deploy("UToken", "UToken");
                 uTokenProxy = await upgrades.deployProxy(
                     await ethers.getContractFactory("UToken"),
                     [
-                        uErc20.address,
+                        "UToken",
+                        "UToken",
                         erc20Proxy.address,
                         "1000000000000000000",
                         "500000000000000000",
@@ -697,11 +702,9 @@ describe("UserManager Contract", async () => {
                     ],
                     {
                         initializer:
-                            "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                            "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
                     }
                 );
-                await uErc20.transferOwnership(uTokenProxy.address);
-
                 await uTokenProxy.setInterestRateModel(fixedInterestRateModel.address);
                 await uTokenProxy.setAssetManager(assetManagerProxy.address);
                 await uTokenProxy.setUserManager(userManagerProxy.address);
