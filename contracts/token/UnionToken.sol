@@ -31,7 +31,7 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
     uint256 public constant INIT_CIRCULATING = 1000000000 * 10**18;
 
     /// @notice Cap on the percentage of totalSupply that can be minted at each mint
-    uint256 public constant mintCap = 4;
+    uint256 public constant mintCap = 2;
 
     constructor(
         string memory name,

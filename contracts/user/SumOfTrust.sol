@@ -94,6 +94,7 @@ contract SumOfTrust is Ownable, ICreditLimitModel {
         effectiveNumber = number;
     }
 
+    //use bubble
     function _sortArray(LockedInfo[] memory arr, bool isPositive) private pure returns (LockedInfo[] memory) {
         uint256 length = arr.length;
 
