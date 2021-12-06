@@ -128,17 +128,16 @@ contract Sort {
     }
 }
  
-    function mergeSort(LockedInfo[] memory arr, uint256 l, uint256 r) public pure returns(LockedInfo[] memory) {
+    function inPlaceMerge(LockedInfo[] memory arr, uint256 l, uint256 r) public pure returns(LockedInfo[] memory) {
         if (l < r) {
             uint256 m = l + (r - l) / 2;
-            mergeSort(arr, l, m);
-            mergeSort(arr, m + 1, r);
+            inPlaceMerge(arr, l, m);
+            inPlaceMerge(arr, m + 1, r);
             merge(arr, l, m, r);
         }
 
         return arr;
     }
-
 
     function oddEvenSort(LockedInfo[] memory arr, uint256 n) public pure returns(LockedInfo[] memory){
         if (arr.length == 0 || arr.length == 1) return arr;
@@ -215,6 +214,6 @@ contract Sort {
         gasCost("insertion", insertion, cloneData(data));
         gasCost("bubble", bubble, cloneData(data));
         gasCost2("oddEvenSort", oddEvenSort, cloneData(data), data.length);
-        gasCost3("inPlaceMerge", mergeSort, cloneData(data), 0, data.length-1);     
+        gasCost3("inPlaceMerge", inPlaceMerge, cloneData(data), 0, data.length-1);     
     }
 }
