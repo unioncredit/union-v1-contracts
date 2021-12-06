@@ -307,6 +307,10 @@ const checkUserManager = async chainId => {
     if (uToken.toLowerCase() != uTokenParams.address?.toLowerCase()) {
         throw new Error("UserManager set uToken error");
     }
+    const maxStakeAmount = await userManager.maxStakeAmount();
+    if (maxStakeAmount.toString() != configs[chainId]["UserManager"]["maxStakeAmount"]) {
+        throw new Error("UserManager set maxStakeAmount error");
+    }
     console.log("UserManager success");
 };
 
@@ -373,7 +377,7 @@ const checkUToken = async chainId => {
 
 (async () => {
     const chainId = await getChainId();
-    await checkAssetManage(chainId);
+    await checkAssetManager(chainId);
     await checkPureTokenAdapter(chainId);
     await checkCompoundAdapter(chainId);
     await checkComptroller(chainId);
