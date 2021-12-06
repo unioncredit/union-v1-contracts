@@ -7,7 +7,7 @@
         "test": "yarn hardhat test",
         "unitTest": "yarn hardhat test test/unit/*",
         "deploy": "yarn hardhat deploy --network",
-        "deployHardhat": "yarn hardhat deploy --write true --reset --network hardhat",
+        "deployTest": "yarn hardhat deploy --write true --reset --network hardhat",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "setAuth": "yarn hardhat run scripts/setAuth.js --network",
         "coverage": "yarn hardhat coverage",

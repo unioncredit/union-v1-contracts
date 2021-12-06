@@ -69,3 +69,23 @@ jobs:
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
                   INFURA_ID: ${{ secrets.INFURA_ID }}
                   MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
+    deployTest:
+        name: Test deploy script
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 12
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Run Deploy Script and Check Results
+              run: |
+                  npm run deployTest
+              env:
+                  COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  INFURA_ID: ${{ secrets.INFURA_ID }}
+                  MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
