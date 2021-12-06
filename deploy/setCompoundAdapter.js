@@ -51,4 +51,3 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
 };
 module.exports.tags = ["CompoundAdapter"];
-module.exports.runAtTheEnd = true;
