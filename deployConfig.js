@@ -54,6 +54,9 @@ var configs = {
         },
         TimelockController: {
             minDelay: "0"
+        },
+        UserManager: {
+            maxStakeAmount: "100000000000000000000000"
         }
     },
     4: {
@@ -112,6 +115,9 @@ var configs = {
         },
         TimelockController: {
             minDelay: "0"
+        },
+        UserManager: {
+            maxStakeAmount: "100000000000000000000000"
         }
     },
     42: {
@@ -165,6 +171,9 @@ var configs = {
         },
         TimelockController: {
             minDelay: "0"
+        },
+        UserManager: {
+            maxStakeAmount: "100000000000000000000000"
         }
     }
 };

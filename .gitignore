@@ -77,3 +77,4 @@ coverage.json
 development.json
 artifacts
 cache
+deployments/hardhat

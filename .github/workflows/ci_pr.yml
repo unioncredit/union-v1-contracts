@@ -8,9 +8,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
+            - uses: actions/setup-node@v2
               with:
-                  node-version: 12
+                  node-version: 14
 
             - name: Install Dependencies
               run: npm install
@@ -30,9 +30,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
+            - uses: actions/setup-node@v2
               with:
-                  node-version: 12
+                  node-version: 14
             - uses: actions/setup-python@v2
               with:
                   python-version: "3.x"
@@ -53,9 +53,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v1
+            - uses: actions/setup-node@v2
               with:
-                  node-version: 12
+                  node-version: 14
 
             - name: Install Dependencies
               run: npm install
@@ -64,6 +64,26 @@ jobs:
               run: |
                   npm run gasReport
                   npm run gasDelta
+              env:
+                  COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  INFURA_ID: ${{ secrets.INFURA_ID }}
+                  MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
+    deployTest:
+        name: Test deploy script
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 14
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Run Deploy Script and Check Results
+              run: |
+                  npm run deployTest
               env:
                   COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
