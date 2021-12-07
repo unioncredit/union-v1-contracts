@@ -78,7 +78,7 @@ const checkFileExist = path => {
 
     const comptrollerPath = `../deployments/${networks[chainId]}/Comptroller.json`;
     const comptrollerParams = checkFileExist(comptrollerPath);
-    const comptroller = await ethers.getContractAt("PureTokenAdapter", comptrollerParams.address);
+    const comptroller = await ethers.getContractAt("Comptroller", comptrollerParams.address);
     tx = await comptroller.addAdmin(timelockAddress);
     console.log("Comptroller addAdmin, tx is:", tx.hash);
     if (admin) {
