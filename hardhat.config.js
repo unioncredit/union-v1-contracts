@@ -37,7 +37,7 @@ module.exports = {
         mainnet: {
             url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID,
             accounts: {
-                mnemonic: process.env.MNEMONIC
+                mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
             }
         }
     },
