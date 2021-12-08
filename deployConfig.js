@@ -125,8 +125,8 @@ var configs = {
         }
     },
     42: {
-        Guardian: "",
-        Admin: "",
+        Guardian: "0x55C296592acDb317050c84C5eBF4eecCa85a0D8f",
+        Admin: "0x012eE3D0f6A28636734c2B3BA6027Fb2a672c539",
         DAI: "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa",
         cDAI: "0xf0d0eb522cfa50b716b3b1604c4f0fa6f04376ad",
         AssetManager: {
