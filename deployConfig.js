@@ -56,6 +56,8 @@ var configs = {
         }
     },
     31337: {
+        Guardian: "",
+        Admin: "",
         DAI: "",
         cDAI: "",
         AssetManager: {
@@ -116,6 +118,8 @@ var configs = {
         }
     },
     4: {
+        Guardian: "",
+        Admin: "",
         DAI: "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea",
         cDAI: "0x6d7f0754ffeb405d23c51ce938289d4835be3b14",
         AssetManager: {
@@ -177,6 +181,8 @@ var configs = {
         }
     },
     42: {
+        Guardian: "",
+        Admin: "",
         DAI: "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa",
         cDAI: "0xf0d0eb522cfa50b716b3b1604c4f0fa6f04376ad",
         AssetManager: {

@@ -9,7 +9,7 @@ contract Sort {
         uint256 amount;
     }
 
-    function quick(LockedInfo[] memory data) public pure returns(LockedInfo[] memory) {
+    function quick(LockedInfo[] memory data) public pure returns (LockedInfo[] memory) {
         if (data.length > 1) {
             quickPart(data, 0, data.length - 1);
         }
@@ -40,30 +40,30 @@ contract Sort {
         }
     }
 
-    function insertion(LockedInfo[] memory data) public pure returns(LockedInfo[] memory) {  
+    function insertion(LockedInfo[] memory data) public pure returns (LockedInfo[] memory) {
         uint256 length = data.length;
         int256 preIndex;
         LockedInfo memory current;
         for (uint256 i = 1; i < length; i++) {
-            preIndex = int(i - 1);
+            preIndex = int256(i - 1);
             current = data[i];
-            while(preIndex >= 0 && data[uint256(preIndex)].amount > current.amount) {
-                data[uint256(preIndex+1)] = data[uint256(preIndex)];
+            while (preIndex >= 0 && data[uint256(preIndex)].amount > current.amount) {
+                data[uint256(preIndex + 1)] = data[uint256(preIndex)];
                 preIndex--;
             }
-            data[uint256(preIndex+1)] = current;
+            data[uint256(preIndex + 1)] = current;
         }
         return data;
     }
 
-    function selection(LockedInfo[] memory data) public pure returns(LockedInfo[] memory) {
+    function selection(LockedInfo[] memory data) public pure returns (LockedInfo[] memory) {
         uint256 length = data.length;
         uint256 minIndex;
         LockedInfo memory temp;
         for (uint256 i = 0; i < length - 1; i++) {
             minIndex = i;
             for (uint256 j = i + 1; j < length; j++) {
-                if (data[j].amount < data[minIndex].amount) {    
+                if (data[j].amount < data[minIndex].amount) {
                     minIndex = j;
                 }
             }
@@ -73,7 +73,7 @@ contract Sort {
         }
     }
 
-    function bubble(LockedInfo[] memory data) public pure returns(LockedInfo[] memory) {
+    function bubble(LockedInfo[] memory data) public pure returns (LockedInfo[] memory) {
         uint256 length = data.length;
         for (uint256 i = 0; i < length; i++) {
             for (uint256 j = i + 1; j < length; j++) {
@@ -85,50 +85,51 @@ contract Sort {
             }
         }
         return data;
-    } 
+    }
 
     //InPlace Merge
-    function merge(LockedInfo[] memory arr, uint256 start, uint256 mid,uint256 end) public pure returns(LockedInfo[] memory)
-{
+    function merge(
+        LockedInfo[] memory arr,
+        uint256 start,
+        uint256 mid,
+        uint256 end
+    ) public pure returns (LockedInfo[] memory) {
         uint256 start2 = mid + 1;
-    
+
         // If the direct merge is already sorted
-        if (arr[mid].amount > arr[start2].amount)
-        {
+        if (arr[mid].amount > arr[start2].amount) {
             // Two pointers to maintain start
-        // of both arrays to merge
-        while (start <= mid && start2 <= end)
-        {
-            
-            // If element 1 is in right place
-            if (arr[start].amount <= arr[start2].amount)
-            {
-                start++;
-            }
-            else
-            {
-                LockedInfo memory value = arr[start2];
-                uint256 index = start2;
-    
-                // Shift all the elements between element 1
-                // element 2, right by 1.
-                while (index != start)
-                {
-                    arr[index] = arr[index - 1];
-                    index--;
+            // of both arrays to merge
+            while (start <= mid && start2 <= end) {
+                // If element 1 is in right place
+                if (arr[start].amount <= arr[start2].amount) {
+                    start++;
+                } else {
+                    LockedInfo memory value = arr[start2];
+                    uint256 index = start2;
+
+                    // Shift all the elements between element 1
+                    // element 2, right by 1.
+                    while (index != start) {
+                        arr[index] = arr[index - 1];
+                        index--;
+                    }
+                    arr[start] = value;
+
+                    // Update all the pointers
+                    start++;
+                    mid++;
+                    start2++;
                 }
-                arr[start] = value;
-    
-                // Update all the pointers
-                start++;
-                mid++;
-                start2++;
             }
         }
     }
-}
- 
-    function inPlaceMerge(LockedInfo[] memory arr, uint256 l, uint256 r) public pure returns(LockedInfo[] memory) {
+
+    function inPlaceMerge(
+        LockedInfo[] memory arr,
+        uint256 l,
+        uint256 r
+    ) public pure returns (LockedInfo[] memory) {
         if (l < r) {
             uint256 m = l + (r - l) / 2;
             inPlaceMerge(arr, l, m);
@@ -139,37 +140,38 @@ contract Sort {
         return arr;
     }
 
-    function oddEvenSort(LockedInfo[] memory arr, uint256 n) public pure returns(LockedInfo[] memory){
+    function oddEvenSort(LockedInfo[] memory arr, uint256 n) public pure returns (LockedInfo[] memory) {
         if (arr.length == 0 || arr.length == 1) return arr;
         // Initially array is unsorted
         bool isSorted = false;
-        while (!isSorted){
+        while (!isSorted) {
             isSorted = true;
             LockedInfo memory temp;
             // Perform Bubble sort on odd indexed element
-            for (uint256 i=1; i<=n-2; i=i+2){
-                if (arr[i].amount > arr[i+1].amount){
+            for (uint256 i = 1; i <= n - 2; i = i + 2) {
+                if (arr[i].amount > arr[i + 1].amount) {
                     temp = arr[i];
-                    arr[i] = arr[i+1];
-                    arr[i+1] = temp;
+                    arr[i] = arr[i + 1];
+                    arr[i + 1] = temp;
                     isSorted = false;
                 }
             }
-   
+
             // Perform Bubble sort on even indexed element
-            for (uint256 i=0; i<=n-2; i=i+2){
-                if (arr[i].amount > arr[i+1].amount){
+            for (uint256 i = 0; i <= n - 2; i = i + 2) {
+                if (arr[i].amount > arr[i + 1].amount) {
                     temp = arr[i];
-                    arr[i] = arr[i+1];
-                    arr[i+1] = temp;
+                    arr[i] = arr[i + 1];
+                    arr[i + 1] = temp;
                     isSorted = false;
                 }
             }
         }
-   
+
         return arr;
     }
 
+    /*
     function gasCost(string memory name, function(LockedInfo[] memory data) internal returns(LockedInfo[] memory) fun, LockedInfo[] memory data)
         internal returns(LockedInfo[] memory arr)
     {
@@ -216,4 +218,5 @@ contract Sort {
         gasCost2("oddEvenSort", oddEvenSort, cloneData(data), data.length);
         gasCost3("inPlaceMerge", inPlaceMerge, cloneData(data), 0, data.length-1);     
     }
+    */
 }
