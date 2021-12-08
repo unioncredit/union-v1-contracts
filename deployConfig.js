@@ -1,4 +1,62 @@
 var configs = {
+    1: {
+        Guardian: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
+        Admin: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
+        DAI: "",
+        cDAI: "",
+        AssetManager: {
+            newSeq: [0]
+        },
+        PureTokenAdapter: {
+            pureTokenCeiling: "1000000000000000000000000",
+            pureTokenFloor: "10000000000000000000000"
+        },
+        CompoundAdapter: {
+            compoundTokenCeiling: "1000000000000000000000000",
+            compoundTokenFloor: "10000000000000000000000"
+        },
+        FixedInterestRateModel: {
+            interestRatePerBlock: "95129375951"
+        },
+        UDai: {
+            name: "uDAI",
+            symbol: "uDAI",
+            initialExchangeRateMantissa: "1000000000000000000",
+            reserveFactorMantissa: "500000000000000000",
+            originationFee: "10000000000000000",
+            debtCeiling: "1000000000000000000000000",
+            maxBorrow: "10000000000000000000000",
+            minBorrow: "1000000000000000000",
+            overdueBlocks: "57000"
+        },
+        SumOfTrust: {
+            effectiveNumber: "3"
+        },
+        UnionToken: {
+            name: "Union Token",
+            symbol: "UNION",
+            mintingAllowedAfter: "1765324800", // 2025/12/10 00:00:00 GMT+0000
+            comptrollerAmount: "1000000000000000000000000",
+            amountForTreasuryVester: "14000000000000000000000000"
+        },
+        TreasuryVester: {
+            vestingAmount: "20000000000000000000000000",
+            vestingBegin: "1630478173718",
+            vestingCliff: "1630478173718",
+            vestingEnd: "1630488714518"
+        },
+        Treasury: {
+            dripStart: "1630478703907",
+            dripRate: "1000000000000000000",
+            dripAmount: "20000000000000000000000000"
+        },
+        TimelockController: {
+            minDelay: "0"
+        },
+        UserManager: {
+            maxStakeAmount: "100000000000000000000000"
+        }
+    },
     31337: {
         Guardian: "",
         Admin: "",
