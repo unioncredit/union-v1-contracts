@@ -49,14 +49,16 @@ abstract contract LendingPool {
             address,
             uint8
         );
+}
 
+abstract contract AMarket {
     function claimRewards(
         address[] calldata assets,
         uint256 amount,
         address to
     ) external virtual;
 
-    function getRewardsBalance(address[] memory assets, address user) external virtual returns (uint256);
+    function getRewardsBalance(address[] memory assets, address user) external view virtual returns (uint256);
 }
 
 /**
@@ -71,6 +73,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     address public assetManager;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
+    AMarket public market;
     LendingPool public lendingPool;
 
     modifier checkTokenSupported(address tokenAddress) {
@@ -83,10 +86,15 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         _;
     }
 
-    function __AaveAdapter_init(address _assetManager, LendingPool _lendingPool) public initializer {
+    function __AaveAdapter_init(
+        address _assetManager,
+        LendingPool _lendingPool,
+        AMarket _market
+    ) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
         lendingPool = _lendingPool;
+        market = _market;
     }
 
     function setAssetManager(address _assetManager) external onlyAdmin {
@@ -174,8 +182,8 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         address aTokenAddress = tokenToAToken[tokenAddress];
         address[] memory assets = new address[](1);
         assets[0] = aTokenAddress;
-        uint256 rewards = lendingPool.getRewardsBalance(assets, address(this));
-        lendingPool.claimRewards(assets, rewards, msg.sender);
+        uint256 rewards = market.getRewardsBalance(assets, address(this));
+        market.claimRewards(assets, rewards, msg.sender);
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {

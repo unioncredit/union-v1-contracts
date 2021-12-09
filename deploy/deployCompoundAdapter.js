@@ -12,7 +12,7 @@ module.exports = async ({getNamedAccounts, getChainId, deployments}) => {
                 proxyContract: "UUPSProxy",
                 execute: {
                     methodName: "__CompoundAdapter_init",
-                    args: [configs[chainId]["cComptroller"], assetManager.address]
+                    args: [assetManager.address, configs[chainId]["cComptroller"]]
                 }
             },
             log: true

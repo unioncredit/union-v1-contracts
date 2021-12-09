@@ -19,7 +19,7 @@ abstract contract CToken is IERC20Upgradeable {
     function exchangeRateStored() external view virtual returns (uint256);
 }
 
-abstract contract cComptroller {
+abstract contract CComptroller {
     function getCompAddress() external view virtual returns (address);
 
     // Claim all the COMP accrued by holder in all markets
@@ -47,7 +47,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     mapping(address => address) public tokenToCToken;
 
     address public assetManager;
-    cComptroller public comptroller;
+    CComptroller public comptroller;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
 
@@ -61,10 +61,10 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         _;
     }
 
-    function __CompoundAdapter_init(address _comptroller, address _assetManager) public initializer {
+    function __CompoundAdapter_init(address _assetManager, address _comptroller) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
-        comptroller = cComptroller(_comptroller);
+        comptroller = CComptroller(_comptroller);
     }
 
     function setAssetManager(address _assetManager) external onlyAdmin {
@@ -72,7 +72,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function setComptroller(address _comptroller) external onlyAdmin {
-        comptroller = cComptroller(_comptroller);
+        comptroller = CComptroller(_comptroller);
     }
 
     function setFloor(address tokenAddress, uint256 floor) external onlyAdmin {
