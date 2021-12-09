@@ -40,8 +40,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1640942403", // a timestamp after the deployment
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "1000000000000000000000000", //1m
+            amountForTreasuryVester: "15000000000000000000000000", //15m,
+            amountForTreasury: "4000000000000000000000000" //4m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -103,8 +104,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1633061850",
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "1000000000000000000000000", //1m
+            amountForTreasuryVester: "15000000000000000000000000", //15m,
+            amountForTreasury: "4000000000000000000000000" //4m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -161,8 +163,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1638921600", // 2021/12/08 00:00:00 UTC+0
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "1000000000000000000000000", //1m
+            amountForTreasuryVester: "15000000000000000000000000", //15m,
+            amountForTreasury: "4000000000000000000000000" //4m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",

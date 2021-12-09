@@ -100,12 +100,12 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
     }
 };
 
-const setUnionToken = async (chainId, timelockAddress) => {
+const setUnionToken = async (chainId, admin) => {
     const unionTokenPath = `../deployments/${networks[chainId]}/UnionToken.json`;
     const unionTokenParams = checkFileExist(unionTokenPath);
     const unionToken = await ethers.getContractAt("UnionToken", unionTokenParams.address);
-    if ((await unionToken.owner()) != timelockAddress) {
-        tx = await unionToken.transferOwnership(timelockAddress);
+    if ((await unionToken.owner()) != admin) {
+        tx = await unionToken.transferOwnership(admin);
         console.log("UnionToken transferOwnership, tx is:", tx.hash);
     }
 };
@@ -236,7 +236,7 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
     await setCompoundAdapter(chainId, timelockAddress, admin, guardian);
     await setPureTokenAdapter(chainId, timelockAddress, admin, guardian);
     await setComptroller(chainId, timelockAddress, admin, guardian);
-    await setUnionToken(chainId, timelockAddress);
+    await setUnionToken(chainId, admin);
     await setFixedInterestRateModel(chainId, admin);
     await setSumOfTrust(chainId, admin);
     await setTreasury(chainId, admin);
