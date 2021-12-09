@@ -30,7 +30,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
         console.log("AssetManager addAdapter AaveAdapter, tx is:", tx.transactionHash);
     }
 
-    if (configs[chainId]["CompoundAdapter"]) {
+    if (configs[chainId]["CompoundAdapter"] && configs[chainId]["cComptroller"]) {
         tx = await execute(
             "AssetManager",
             {from: deployer},

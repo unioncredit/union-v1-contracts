@@ -4,6 +4,7 @@ var configs = {
         Admin: "",
         DAI: "",
         cDAI: "",
+        cComptroller: "",
         AssetManager: {
             newSeq: [0]
         },
@@ -66,6 +67,7 @@ var configs = {
         Admin: "",
         DAI: "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea",
         cDAI: "0x6d7f0754ffeb405d23c51ce938289d4835be3b14",
+        cComptroller: "0x2eaa9d77ae4d8f9cdd9faacd44016e746485bddb",
         AssetManager: {
             newSeq: [0]
         },
@@ -129,6 +131,7 @@ var configs = {
         Admin: "",
         DAI: "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa",
         cDAI: "0xf0d0eb522cfa50b716b3b1604c4f0fa6f04376ad",
+        cComptroller: "0x5eae89dc1c671724a672ff0630122ee834098657",
         AssetManager: {
             newSeq: [0]
         },

@@ -49,6 +49,14 @@ abstract contract LendingPool {
             address,
             uint8
         );
+
+    function claimRewards(
+        address[] calldata assets,
+        uint256 amount,
+        address to
+    ) external virtual;
+
+    function getRewardsBalance(address[] memory assets, address user) external virtual returns (uint256);
 }
 
 /**
@@ -160,6 +168,14 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
 
     function supportsToken(address tokenAddress) external view override returns (bool) {
         return _supportsToken(tokenAddress);
+    }
+
+    function claimRewards(address tokenAddress) external override onlyAdmin {
+        address aTokenAddress = tokenToAToken[tokenAddress];
+        address[] memory assets = new address[](1);
+        assets[0] = aTokenAddress;
+        uint256 rewards = lendingPool.getRewardsBalance(assets, address(this));
+        lendingPool.claimRewards(assets, rewards, msg.sender);
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
