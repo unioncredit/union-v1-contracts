@@ -1,6 +1,6 @@
 # Smart Contracts for Union V1
 
-[![build and test](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_push.yml/badge.svg)](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_push.yml) [![coverage and slither](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_pr.yml/badge.svg)](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_pr.yml) [![codecov](https://codecov.io/gh/unioncredit/union-v1-contracts/branch/master/graph/badge.svg?token=RWHSS7TLO6)](https://codecov.io/gh/unioncredit/union-v1-contracts)
+[![build and test](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_push.yml/badge.svg)](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_push.yml) [![coverage and slither](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_pr.yml/badge.svg)](https://github.com/unioncredit/union-v1-contracts/actions/workflows/ci_pr.yml) [![codecov](https://codecov.io/gh/unioncredit/union-v1-contracts/branch/develop/graph/badge.svg?token=RWHSS7TLO6)](https://codecov.io/gh/unioncredit/union-v1-contracts)
 
 # Networks
 
@@ -30,7 +30,7 @@ Union is an upgradeable system. Each deployed contract is actually a "Proxy" tha
 
 Requirements:
 
--   Node @12.x
+-   Node @14.x
 -   Python @3.x (for running Slither)
 
 Clone the repo and then install dependencies:
@@ -47,10 +47,36 @@ To run the entire test suite:
 $ yarn test
 ```
 
+To run the unit tests only:
+
+```
+$ yarn unitTest
+```
+
+To run the deployment script tests:
+
+```
+$ yarn deployTest
+```
+
 # Coverage
 
 To run tests with coverage:
 
 ```
 $ yarn coverage
+```
+
+# Deployment
+
+To deploy to a supported network:
+
+```
+$ yarn deploy {network}
+```
+
+Check the deployed params:
+
+```
+$ yarn checkDeploy {network}
 ```
