@@ -61,7 +61,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     error AmountZero();
     error BorrowExceedCreditLimit();
     error BorrowRateExceedLimit();
-    error withdrawFailed();
+    error WithdrawFailed();
     error CallerNotAssetManager();
     error CallerNotMember();
     error CallerNotUserManager();
@@ -71,7 +71,6 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
     error MemberIsOverdue();
     error ReserveFactoryExceedLimit();
     error DepositToAssetManagerFailed();
-    error transferFailed();
 
     /**
      *  @dev Change of the interest rate model
@@ -414,7 +413,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         // The origination fees contribute to the reserve
         totalReserves += fee;
 
-        if (!assetManagerContract.withdraw(underlying, msg.sender, amount)) revert withdrawFailed();
+        if (!assetManagerContract.withdraw(underlying, msg.sender, amount)) revert WithdrawFailed();
 
         emit LogBorrow(msg.sender, amount, fee);
     }
@@ -602,7 +601,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         totalRedeemable -= redeemAmount;
         _burn(redeemer, redeemTokens);
-        if (!assetManagerContract.withdraw(underlying, redeemer, redeemAmount)) revert withdrawFailed();
+        if (!assetManagerContract.withdraw(underlying, redeemer, redeemAmount)) revert WithdrawFailed();
 
         emit LogRedeem(redeemer, redeemTokensIn, redeemAmountIn, redeemAmount);
     }
@@ -633,7 +632,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         totalReserves -= reduceAmount;
 
-        if (!IAssetManager(assetManager).withdraw(underlying, receiver, reduceAmount)) revert withdrawFailed();
+        if (!IAssetManager(assetManager).withdraw(underlying, receiver, reduceAmount)) revert WithdrawFailed();
 
         emit LogReservesReduced(receiver, reduceAmount, totalReserves);
     }
