@@ -28,7 +28,7 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
     /// @notice The timestamp after which minting may occur
     uint256 public mintingAllowedAfter;
 
-    uint256 public constant INIT_CIRCULATING = 1000000000 * 10**18;
+    uint256 public constant INIT_CIRCULATING = 1000000000 * 10**18; // 1B
 
     /// @notice Cap on the percentage of totalSupply that can be minted at each mint
     uint256 public constant mintCap = 2;
