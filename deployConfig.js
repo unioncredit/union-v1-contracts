@@ -41,8 +41,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1640942403", // a timestamp after the deployment
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "10000000000000000000000000", //10m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -105,8 +106,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1633061850",
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "10000000000000000000000000", //10m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -127,8 +129,8 @@ var configs = {
         }
     },
     42: {
-        Guardian: "",
-        Admin: "",
+        Guardian: "0x55C296592acDb317050c84C5eBF4eecCa85a0D8f",
+        Admin: "0x012eE3D0f6A28636734c2B3BA6027Fb2a672c539",
         DAI: "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa",
         cDAI: "0xf0d0eb522cfa50b716b3b1604c4f0fa6f04376ad",
         cComptroller: "0x5eae89dc1c671724a672ff0630122ee834098657",
@@ -164,8 +166,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1638921600", // 2021/12/08 00:00:00 UTC+0
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "10000000000000000000000000", //10m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
