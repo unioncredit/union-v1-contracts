@@ -71,6 +71,7 @@ contract Sort {
             data[i] = data[minIndex];
             data[minIndex] = temp;
         }
+        return data;
     }
 
     function bubble(LockedInfo[] memory data) public pure returns (LockedInfo[] memory) {
@@ -123,6 +124,7 @@ contract Sort {
                 }
             }
         }
+        return arr;
     }
 
     function inPlaceMerge(
