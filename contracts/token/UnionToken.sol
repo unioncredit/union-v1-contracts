@@ -11,6 +11,7 @@ import "./Whitelistable.sol";
  * @dev Mint and distribute UnionTokens.
  */
 contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     //The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH =
         keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
@@ -39,6 +40,8 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
         uint256 mintingAllowedAfter_
     ) ERC20(name, symbol) ERC20Permit(name) {
         require(mintingAllowedAfter_ >= block.timestamp, "minting can only begin after deployment");
+        _setRoleAdmin(MINTER_ROLE, MINTER_ROLE); //The admin of MINTER_ROLE is set to itself, ADMIN_ROLE cannot modify MINTER_ROLE
+        _setupRole(MINTER_ROLE, msg.sender);
 
         //If the balance is not 0, the data has been migrated and it is not a newly deployed contract. At this time, INIT_CIRCULATING tokens are not pre-mined
         if (balanceOf(msg.sender) == 0) {
@@ -50,7 +53,7 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
         whitelist(msg.sender);
     }
 
-    function mint(address dst, uint256 amount) external onlyOwner returns (bool) {
+    function mint(address dst, uint256 amount) external onlyRole(MINTER_ROLE) returns (bool) {
         require(amount <= (totalSupply() * mintCap) / 100, "exceeded mint cap");
 
         _mint(dst, amount);

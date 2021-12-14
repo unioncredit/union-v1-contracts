@@ -185,7 +185,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         unionToken = unionToken_;
         stakingToken = stakingToken_;
         newMemberFee = 10**18; // Set the default membership fee
-        maxStakeAmount = 100000e18;
+        maxStakeAmount = 5000e18;
     }
 
     function setMaxStakeAmount(uint256 maxStakeAmount_) public onlyAdmin {
