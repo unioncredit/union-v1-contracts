@@ -54,7 +54,7 @@ var configs = {
             vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
         },
         Treasury: {
-            dripStart: "", // leave empty to use the timestamp when deploying
+            dripStart: "1640131200", // 2021/12/22 00:00:00 GMT+0000
             dripRate: parseUnits("1"),
             dripAmount: parseUnits("20000000") //20m
         },
