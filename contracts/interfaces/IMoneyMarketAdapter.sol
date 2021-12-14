@@ -58,4 +58,6 @@ interface IMoneyMarketAdapter {
      * @param tokenAddress The address of token whose ceiling is being fetched
      */
     function ceilingMap(address tokenAddress) external view returns (uint256);
+
+    function claimRewards(address tokenAddress) external;
 }

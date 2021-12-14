@@ -1,9 +1,10 @@
 var configs = {
     1: {
-        Guardian: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
+        Guardian: "0x48ea9B2d86744E19321361Fa3C0D7bBE1F8D5a8E",
         Admin: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
-        DAI: "",
-        cDAI: "",
+        DAI: "0x5592ec0cfb4dbc12d3ab100b257153436a1f0fea",
+        cDAI: "0x6d7f0754ffeb405d23c51ce938289d4835be3b14",
+        cComptroller: "0x2eaa9d77ae4d8f9cdd9faacd44016e746485bddb",
         AssetManager: {
             newSeq: [0]
         },
@@ -36,8 +37,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1765324800", // 2025/12/10 00:00:00 GMT+0000
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "9000000000000000000000000", //9m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -62,6 +64,7 @@ var configs = {
         Admin: "",
         DAI: "",
         cDAI: "",
+        cComptroller: "",
         AssetManager: {
             newSeq: [0]
         },
@@ -98,8 +101,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1640942403", // a timestamp after the deployment
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "10000000000000000000000000", //10m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -161,8 +165,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1633061850",
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "10000000000000000000000000", //10m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",
@@ -219,8 +224,9 @@ var configs = {
             name: "Union Token",
             symbol: "UNION",
             mintingAllowedAfter: "1638921600", // 2021/12/08 00:00:00 UTC+0
-            comptrollerAmount: "1000000000000000000000000",
-            amountForTreasuryVester: "14000000000000000000000000"
+            comptrollerAmount: "10000000000000000000000000", //10m
+            amountForTreasuryVester: "150000000000000000000000000", //150m,
+            amountForTreasury: "40000000000000000000000000" //40m
         },
         TreasuryVester: {
             vestingAmount: "20000000000000000000000000",

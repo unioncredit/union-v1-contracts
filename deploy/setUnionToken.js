@@ -10,6 +10,8 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
 
     const treasuryVester = await deployments.get("TreasuryVester");
 
+    const treasury = await deployments.get("Treasury");
+
     console.log("setUnionToken start");
     if (!(await read("UnionToken", {from: deployer}, "whitelistEnabled"))) {
         tx = await execute("UnionToken", {from: deployer}, "enableWhitelist");
@@ -17,7 +19,15 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
     }
     if (!(await read("UnionToken", {from: deployer}, "isWhitelisted", comptroller.address))) {
         tx = await execute("UnionToken", {from: deployer}, "whitelist", comptroller.address);
-        console.log("UnionToken whitelist, tx is:", tx.transactionHash);
+        console.log("UnionToken whitelist comptroller, tx is:", tx.transactionHash);
+    }
+    if (!(await read("UnionToken", {from: deployer}, "isWhitelisted", treasuryVester.address))) {
+        tx = await execute("UnionToken", {from: deployer}, "whitelist", treasuryVester.address);
+        console.log("UnionToken whitelist treasuryVester, tx is:", tx.transactionHash);
+    }
+    if (!(await read("UnionToken", {from: deployer}, "isWhitelisted", treasury.address))) {
+        tx = await execute("UnionToken", {from: deployer}, "whitelist", treasury.address);
+        console.log("UnionToken whitelist treasury, tx is:", tx.transactionHash);
     }
     if ((await read("UnionToken", {from: deployer}, "balanceOf", comptroller.address)) == "0") {
         tx = await execute(
@@ -28,6 +38,17 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
             configs[chainId]["UnionToken"]["comptrollerAmount"]
         );
         console.log("UnionToken transfer comptroller, tx is:", tx.transactionHash);
+    }
+
+    if ((await read("UnionToken", {from: deployer}, "balanceOf", treasury.address)) == "0") {
+        tx = await execute(
+            "UnionToken",
+            {from: deployer},
+            "transfer",
+            treasury.address,
+            configs[chainId]["UnionToken"]["amountForTreasury"]
+        );
+        console.log("UnionToken transfer treasury, tx is:", tx.transactionHash);
     }
 
     if ((await read("UnionToken", {from: deployer}, "balanceOf", treasuryVester.address)) == "0") {

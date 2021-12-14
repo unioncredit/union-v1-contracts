@@ -29,8 +29,8 @@ describe("AaveAdapter Contract", async () => {
     beforeEach(async () => {
         aaveAdapter = await upgrades.deployProxy(
             await ethers.getContractFactory("AaveAdapter"),
-            [ASSET_MANAGER.address, marketMock.address],
-            {initializer: "__AaveAdapter_init(address,address)"}
+            [ASSET_MANAGER.address, marketMock.address, marketMock.address],
+            {initializer: "__AaveAdapter_init(address,address,address)"}
         );
         await aaveAdapter.mapTokenToAToken(erc20.address);
     });

@@ -51,6 +51,16 @@ abstract contract LendingPool {
         );
 }
 
+abstract contract AMarket {
+    function claimRewards(
+        address[] calldata assets,
+        uint256 amount,
+        address to
+    ) external virtual;
+
+    function getRewardsBalance(address[] memory assets, address user) external view virtual returns (uint256);
+}
+
 /**
  * @title AaveAdapter
  *  @dev The implementation of Aave.Finance MoneyMarket that integrates with AssetManager.
@@ -63,6 +73,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     address public assetManager;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
+    AMarket public market;
     LendingPool public lendingPool;
 
     modifier checkTokenSupported(address tokenAddress) {
@@ -75,10 +86,15 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         _;
     }
 
-    function __AaveAdapter_init(address _assetManager, LendingPool _lendingPool) public initializer {
+    function __AaveAdapter_init(
+        address _assetManager,
+        LendingPool _lendingPool,
+        AMarket _market
+    ) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
         lendingPool = _lendingPool;
+        market = _market;
     }
 
     function setAssetManager(address _assetManager) external onlyAdmin {
@@ -160,6 +176,14 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
 
     function supportsToken(address tokenAddress) external view override returns (bool) {
         return _supportsToken(tokenAddress);
+    }
+
+    function claimRewards(address tokenAddress) external override onlyAdmin {
+        address aTokenAddress = tokenToAToken[tokenAddress];
+        address[] memory assets = new address[](1);
+        assets[0] = aTokenAddress;
+        uint256 rewards = market.getRewardsBalance(assets, address(this));
+        market.claimRewards(assets, rewards, msg.sender);
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
