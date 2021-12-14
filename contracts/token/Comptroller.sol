@@ -61,7 +61,7 @@ contract Comptroller is Controller, IComptroller {
         marketRegistry = IMarketRegistry(marketRegistry_);
         gInflationIndex = INIT_INFLATION_INDEX;
         gLastUpdatedBlock = block.number;
-        halfDecayPoint = 100000;
+        halfDecayPoint = 500000;
     }
 
     function setHalfDecayPoint(uint256 point) public onlyAdmin {
