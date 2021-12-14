@@ -9,6 +9,10 @@ async function enfranchise(contract, actor, amount) {
     await contract.connect(actor).delegate(actor.address);
 }
 
+const initialVotingDelay = 2;
+const initialVotingPeriod = 5760;
+const initialProposalThreshold = "50000000000000000000000";
+
 describe("Governor Contract", () => {
     before(async function () {
         [ADMIN, CONTRACT, ALICE, BOB, actor] = await ethers.getSigners();
@@ -34,11 +38,17 @@ describe("Governor Contract", () => {
 
     beforeEach(async () => {
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
+        const Governor = await ethers.getContractFactory("UnionGovernor");
         unionToken = await UnionToken.deploy("Union Token", "unionToken");
         Timelock = await ethers.getContractFactory("TimelockController");
         timelock = await Timelock.deploy(0, [ADMIN.address], [ADMIN.address]);
-        governor = await Governor.deploy(unionToken.address, timelock.address);
+        governor = await Governor.deploy(
+            unionToken.address,
+            timelock.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
 
         await unionToken.connect(ADMIN).delegate(ADMIN.address);
         await governor
@@ -173,11 +183,17 @@ describe("Governor Contract Propose", () => {
         callDatas = [encodeParameters(["address"], [BOB.address])];
 
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
+        const Governor = await ethers.getContractFactory("UnionGovernor");
         unionToken = await UnionToken.deploy("Union Token", "unionToken");
         Timelock = await ethers.getContractFactory("TimelockController");
         timelock = await Timelock.deploy(0, [ADMIN.address], [ADMIN.address]);
-        governor = await Governor.deploy(unionToken.address, timelock.address);
+        governor = await Governor.deploy(
+            unionToken.address,
+            timelock.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
 
         await unionToken.connect(ADMIN).delegate(ADMIN.address);
         await governor
@@ -316,11 +332,18 @@ describe("Governor Contract Queue", () => {
     before(async () => {
         [ADMIN, BOB] = await ethers.getSigners();
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
+        const Governor = await ethers.getContractFactory("UnionGovernor");
         unionToken = await UnionToken.deploy("Union Token", "unionToken");
         Timelock = await ethers.getContractFactory("TimelockController");
         timelock = await Timelock.deploy(0, [ADMIN.address], [ADMIN.address]);
-        governor = await Governor.deploy(unionToken.address, timelock.address);
+        governor = await Governor.deploy(
+            unionToken.address,
+            timelock.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
+
         await timelock.grantRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), governor.address);
         await timelock.grantRole(ethers.utils.id("PROPOSER_ROLE"), governor.address);
         await timelock.grantRole(ethers.utils.id("EXECUTOR_ROLE"), governor.address);
@@ -373,11 +396,17 @@ describe("Governor Contract State", () => {
         [ADMIN, ALICE, BOB, CONTRACT] = await ethers.getSigners();
 
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
+        const Governor = await ethers.getContractFactory("UnionGovernor");
         unionToken = await UnionToken.deploy("Union Token", "unionToken");
         Timelock = await ethers.getContractFactory("TimelockController");
         timelock = await Timelock.deploy(0, [ADMIN.address], [ADMIN.address]);
-        governor = await Governor.deploy(unionToken.address, timelock.address);
+        governor = await Governor.deploy(
+            unionToken.address,
+            timelock.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
 
         await unionToken.transfer(BOB.address, etherMantissa(40000000));
         await unionToken.connect(BOB).delegate(BOB.address);
@@ -478,11 +507,17 @@ describe("Change New Governor Contract", () => {
         [ADMIN, ALICE, BOB, CONTRACT] = await ethers.getSigners();
 
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
+        const Governor = await ethers.getContractFactory("UnionGovernor");
         unionToken = await UnionToken.deploy("Union Token", "unionToken");
         Timelock = await ethers.getContractFactory("TimelockController");
         timelock = await Timelock.deploy(0, [ADMIN.address], [ADMIN.address]);
-        governor = await Governor.deploy(unionToken.address, timelock.address);
+        governor = await Governor.deploy(
+            unionToken.address,
+            timelock.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
 
         await timelock.grantRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), governor.address);
         await timelock.grantRole(ethers.utils.id("PROPOSER_ROLE"), governor.address);

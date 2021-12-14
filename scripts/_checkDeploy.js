@@ -395,6 +395,26 @@ const checkUToken = async chainId => {
     console.log("UDai success");
 };
 
+const checkGovernance = async chainId => {
+    const path = `../deployments/${networks[chainId]}/UnionGovernor.json`;
+    const params = checkFileExist(path);
+    const unionGovernor = await ethers.getContractAt("UnionGovernor", params.address);
+    const data = configs[chainId]["UnionGovernor"];
+
+    const votingDelay = await unionGovernor.votingDelay();
+    if (votingDelay != data.initialVotingDelay) {
+        throw new Error("unionGovernor set votingDelay error");
+    }
+    const votingPeriod = await unionGovernor.votingPeriod();
+    if (votingPeriod != data.initialVotingPeriod) {
+        throw new Error("unionGovernor set votingPeriod error");
+    }
+    const proposalThreshold = await unionGovernor.proposalThreshold();
+    if (proposalThreshold != data.initialProposalThreshold) {
+        throw new Error("unionGovernor set proposalThreshold error");
+    }
+};
+
 async function main() {
     const chainId = await getChainId();
     await checkAssetManager(chainId);
@@ -412,6 +432,7 @@ async function main() {
     await checkUnionToken(chainId);
     await checkUserManager(chainId);
     await checkUToken(chainId);
+    await checkGovernance(chainId);
 }
 
 module.exports = main;

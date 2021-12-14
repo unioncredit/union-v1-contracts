@@ -55,6 +55,11 @@ var configs = {
         },
         UserManager: {
             maxStakeAmount: "100000000000000000000000"
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: "50000000000000000000000"
         }
     },
     31337: {
@@ -119,6 +124,11 @@ var configs = {
         },
         UserManager: {
             maxStakeAmount: "100000000000000000000000"
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: "50000000000000000000000"
         }
     },
     4: {
@@ -184,6 +194,11 @@ var configs = {
         },
         UserManager: {
             maxStakeAmount: "100000000000000000000000"
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: "50000000000000000000000"
         }
     },
     42: {
@@ -244,6 +259,11 @@ var configs = {
         },
         UserManager: {
             maxStakeAmount: "100000000000000000000000"
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: "50000000000000000000000"
         }
     }
 };
