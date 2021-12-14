@@ -50,7 +50,7 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
         whitelist(msg.sender);
     }
 
-    function mint(address dst, uint256 amount) external onlyOwner returns (bool) {
+    function mint(address dst, uint256 amount) external onlyRole(MINTER_ROLE) returns (bool) {
         require(amount <= (totalSupply() * mintCap) / 100, "exceeded mint cap");
 
         _mint(dst, amount);
