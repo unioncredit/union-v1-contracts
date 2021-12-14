@@ -59,7 +59,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "6575",
             initialVotingPeriod: "19725",
-            initialProposalThreshold: "50000000000000000000000"
+            initialProposalThreshold: "1000000000000000000000000"
         }
     },
     31337: {
@@ -128,7 +128,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "6575",
             initialVotingPeriod: "19725",
-            initialProposalThreshold: "50000000000000000000000"
+            initialProposalThreshold: "1000000000000000000000000"
         }
     },
     4: {
@@ -198,7 +198,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "6575",
             initialVotingPeriod: "19725",
-            initialProposalThreshold: "50000000000000000000000"
+            initialProposalThreshold: "1000000000000000000000000"
         }
     },
     42: {
@@ -263,7 +263,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "6575",
             initialVotingPeriod: "19725",
-            initialProposalThreshold: "50000000000000000000000"
+            initialProposalThreshold: "1000000000000000000000000"
         }
     }
 };
