@@ -100,7 +100,7 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
     }
 };
 
-const setUnionToken = async (chainId, timelockAddress, deployer) => {
+const setUnionToken = async (chainId, timelockAddress, admin, deployer) => {
     const unionTokenPath = `../deployments/${networks[chainId]}/UnionToken.json`;
     const unionTokenParams = checkFileExist(unionTokenPath);
     const unionToken = await ethers.getContractAt("UnionToken", unionTokenParams.address);
@@ -110,6 +110,12 @@ const setUnionToken = async (chainId, timelockAddress, deployer) => {
         tx = await unionToken.grantRole(MINTER_ROLE, timelockAddress);
         console.log("UnionToken grantRole, tx is:", tx.hash);
         tx = await unionToken.renounceRole(MINTER_ROLE, deployer);
+        console.log("UnionToken renounceRole, tx is:", tx.hash);
+    }
+    if (!(await unionToken.hasRole(ADMIN_ROLE, admin))) {
+        tx = await unionToken.grantRole(ADMIN_ROLE, admin);
+        console.log("UnionToken grantRole, tx is:", tx.hash);
+        tx = await unionToken.renounceRole(ADMIN_ROLE, deployer);
         console.log("UnionToken renounceRole, tx is:", tx.hash);
     }
 };
