@@ -12,6 +12,7 @@ require("dotenv").config();
 
 // tasks
 require("./tasks/gasDelta");
+require("./tasks/accounts");
 
 module.exports = {
     networks: {
