@@ -87,9 +87,9 @@ describe("User Manager Contract", () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
         const maxStakeAmount = await userManager.maxStakeAmount();
-        const stakeAmount1 = parseEther("90000");
-        const stakeAmount2 = parseEther("10100");
-        const stakeAmount3 = parseEther("10000");
+        const stakeAmount1 = parseEther("4000");
+        const stakeAmount2 = parseEther("1001");
+        const stakeAmount3 = parseEther("1000");
 
         stakeAmount1.should.be.lt(maxStakeAmount);
         stakeAmount1.add(stakeAmount2).should.be.gt(maxStakeAmount);
