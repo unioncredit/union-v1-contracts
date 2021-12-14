@@ -67,6 +67,15 @@ describe("UnionToken Contract", () => {
                 errMsg
             );
         });
+
+        it("Admin cannot modify the role of Minter", async () => {
+            const errMsg = `AccessControl: account ${ADMIN.address.toLowerCase()} is missing role ${ethers.utils.id(
+                "MINTER_ROLE"
+            )}`;
+            await expect(unionToken.grantRole(ethers.utils.id("MINTER_ROLE"), MINTER.address)).to.be.revertedWith(
+                errMsg
+            );
+        });
     });
 
     describe("Mint cap", () => {

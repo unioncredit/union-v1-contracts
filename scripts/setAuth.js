@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const {ethers, getChainId} = hre;
+const {ethers, getNamedAccounts, getChainId} = hre;
 
 const configs = require("../deployConfig.js");
 
@@ -100,13 +100,17 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
     }
 };
 
-const setUnionToken = async (chainId, admin) => {
+const setUnionToken = async (chainId, timelockAddress, deployer) => {
     const unionTokenPath = `../deployments/${networks[chainId]}/UnionToken.json`;
     const unionTokenParams = checkFileExist(unionTokenPath);
     const unionToken = await ethers.getContractAt("UnionToken", unionTokenParams.address);
-    if ((await unionToken.owner()) != admin) {
-        tx = await unionToken.transferOwnership(admin);
-        console.log("UnionToken transferOwnership, tx is:", tx.hash);
+
+    const MINTER_ROLE = ethers.utils.id("MINTER_ROLE");
+    if (!(await unionToken.hasRole(MINTER_ROLE, timelockAddress))) {
+        tx = await unionToken.grantRole(MINTER_ROLE, timelockAddress);
+        console.log("UnionToken grantRole, tx is:", tx.hash);
+        tx = await unionToken.renounceRole(MINTER_ROLE, deployer);
+        console.log("UnionToken renounceRole, tx is:", tx.hash);
     }
 };
 
@@ -226,6 +230,7 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
 
 (async () => {
     const chainId = await getChainId();
+    const {deployer} = await getNamedAccounts();
     const timelockPath = `../deployments/${networks[chainId]}/TimelockController.json`;
     const timelockParams = checkFileExist(timelockPath);
     const timelockAddress = timelockParams.address;
@@ -236,7 +241,7 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
     await setCompoundAdapter(chainId, timelockAddress, admin, guardian);
     await setPureTokenAdapter(chainId, timelockAddress, admin, guardian);
     await setComptroller(chainId, timelockAddress, admin, guardian);
-    await setUnionToken(chainId, admin);
+    await setUnionToken(chainId, timelockAddress, admin, deployer);
     await setFixedInterestRateModel(chainId, admin);
     await setSumOfTrust(chainId, admin);
     await setTreasury(chainId, admin);

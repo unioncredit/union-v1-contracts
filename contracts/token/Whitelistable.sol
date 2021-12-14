@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 abstract contract Whitelistable is AccessControl {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     // allow all transfers when set as false
     bool public whitelistEnabled;
 
@@ -27,9 +26,7 @@ abstract contract Whitelistable is AccessControl {
 
     constructor() {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
-        _setRoleAdmin(MINTER_ROLE, MINTER_ROLE);
         _setupRole(ADMIN_ROLE, msg.sender);
-        _setupRole(MINTER_ROLE, msg.sender);
     }
 
     /**
