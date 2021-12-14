@@ -1,7 +1,7 @@
 var configs = {
     1: {
         Guardian: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
-        Admin: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
+        Admin: "0x48ea9B2d86744E19321361Fa3C0D7bBE1F8D5a8E",
         DAI: "",
         cDAI: "",
         AssetManager: {
