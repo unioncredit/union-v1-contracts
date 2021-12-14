@@ -5,7 +5,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const {deployer} = await getNamedAccounts();
     const chainId = await getChainId();
 
-    if (configs[chainId]["CompoundAdapter"]) {
+    if (configs[chainId]["CompoundAdapter"] && configs[chainId]["cComptroller"]) {
         const DAI =
             network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 

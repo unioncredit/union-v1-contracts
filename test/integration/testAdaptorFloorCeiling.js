@@ -36,6 +36,7 @@ describe("Test floor, ceiling and withdraw sequence of money market adaptors", (
         await assetManager.addToken(dai.address);
 
         const CompoundMock = await ethers.getContractFactory("CompoundMock");
+        const comptroller = await CompoundMock.deploy();
         aDAI = await CompoundMock.deploy();
         await aDAI["__CompoundMock_init(uint256,address)"](ethers.utils.parseEther("0.01"), dai.address);
 
@@ -47,8 +48,8 @@ describe("Test floor, ceiling and withdraw sequence of money market adaptors", (
 
         aAdaptor = await upgrades.deployProxy(
             await ethers.getContractFactory("CompoundAdapter"),
-            [assetManager.address],
-            {initializer: "__CompoundAdapter_init(address)"}
+            [assetManager.address, comptroller.address],
+            {initializer: "__CompoundAdapter_init(address,address)"}
         );
         await aAdaptor.setFloor(dai.address, aFloorAmount);
         await aAdaptor.setCeiling(dai.address, aCeilingAmount);
@@ -57,8 +58,8 @@ describe("Test floor, ceiling and withdraw sequence of money market adaptors", (
 
         bAdaptor = await upgrades.deployProxy(
             await ethers.getContractFactory("CompoundAdapter"),
-            [assetManager.address],
-            {initializer: "__CompoundAdapter_init(address)"}
+            [assetManager.address, comptroller.address],
+            {initializer: "__CompoundAdapter_init(address,address)"}
         );
         await bAdaptor.setFloor(dai.address, bFloorAmount);
         await bAdaptor.setCeiling(dai.address, bCeilingAmount);
@@ -67,8 +68,8 @@ describe("Test floor, ceiling and withdraw sequence of money market adaptors", (
 
         cAdaptor = await upgrades.deployProxy(
             await ethers.getContractFactory("CompoundAdapter"),
-            [assetManager.address],
-            {initializer: "__CompoundAdapter_init(address)"}
+            [assetManager.address, comptroller.address],
+            {initializer: "__CompoundAdapter_init(address,address)"}
         );
         await cAdaptor.setFloor(dai.address, cFloorAmount);
         await cAdaptor.setCeiling(dai.address, cCeilingAmount);

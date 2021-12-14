@@ -10,13 +10,17 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
             network.name === "hardhat"
                 ? (await deployments.get("AaveMock")).address
                 : configs[chainId]["AaveAdapter"]["lendingPool"];
+        const market =
+            network.name === "hardhat"
+                ? (await deployments.get("AaveMock")).address
+                : configs[chainId]["AaveAdapter"]["market"];
         await deploy("AaveAdapter", {
             from: deployer,
             proxy: {
                 proxyContract: "UUPSProxy",
                 execute: {
                     methodName: "__AaveAdapter_init",
-                    args: [assetManager.address, lendingPool]
+                    args: [assetManager.address, lendingPool, market]
                 }
             },
             log: true
