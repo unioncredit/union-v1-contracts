@@ -33,7 +33,7 @@ var configs = {
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
             reserveFactorMantissa: parseUnits("1"), // 100%
-            originationFee: parseUnits("0.5"), // 0.5%
+            originationFee: parseUnits("0.005"), // 0.5%
             debtCeiling: parseUnits("250000"),
             maxBorrow: parseUnits("25000"),
             minBorrow: parseUnits("100"), // 100 dai
@@ -175,7 +175,7 @@ var configs = {
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
             reserveFactorMantissa: parseUnits("1"), // 100%
-            originationFee: parseUnits("0.5"), // 0.5%
+            originationFee: parseUnits("0.005"), // 0.5%
             debtCeiling: parseUnits("250000"),
             maxBorrow: parseUnits("25000"),
             minBorrow: parseUnits("100"), // 100 dai
