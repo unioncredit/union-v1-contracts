@@ -6,6 +6,9 @@ var configs = {
         Guardian: "0x48ea9B2d86744E19321361Fa3C0D7bBE1F8D5a8E",
         Admin: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
         DAI: "0x6b175474e89094c44da98b954eedeac495271d0f",
+        AssetManager: {
+            newSeq: [0, 1, 2]
+        },
         PureTokenAdapter: {
             floor: parseUnits("50000"),
             ceiling: parseUnits("1000000000")
@@ -145,6 +148,9 @@ var configs = {
         Guardian: "0x55C296592acDb317050c84C5eBF4eecCa85a0D8f",
         Admin: "0x012eE3D0f6A28636734c2B3BA6027Fb2a672c539",
         DAI: "0x4f96fe3b7a6cf9725f59d353f723c1bdb64ca6aa",
+        AssetManager: {
+            newSeq: [0, 1]
+        },
         PureTokenAdapter: {
             floor: parseUnits("50000"),
             ceiling: parseUnits("1000000000")
