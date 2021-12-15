@@ -17,6 +17,18 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     );
     console.log("AssetManager addAdapter PureTokenAdapter, tx is:", tx.transactionHash);
 
+    if (configs[chainId]["CompoundAdapter"]) {
+        tx = await execute(
+            "AssetManager",
+            {from: deployer},
+            "addAdapter",
+            (
+                await deployments.get("CompoundAdapter")
+            ).address
+        );
+        console.log("AssetManager addAdapter CompoundAdapter, tx is:", tx.transactionHash);
+    }
+
     if (configs[chainId]["AaveAdapter"]) {
         console.log("setAssetManager start");
         tx = await execute(
@@ -30,30 +42,18 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
         console.log("AssetManager addAdapter AaveAdapter, tx is:", tx.transactionHash);
     }
 
-    if (configs[chainId]["CompoundAdapter"] && configs[chainId]["cComptroller"]) {
-        tx = await execute(
-            "AssetManager",
-            {from: deployer},
-            "addAdapter",
-            (
-                await deployments.get("CompoundAdapter")
-            ).address
-        );
-        console.log("AssetManager addAdapter CompoundAdapter, tx is:", tx.transactionHash);
-    }
-
     if (!(await read("AssetManager", {from: deployer}, "isMarketSupported", DAI))) {
         tx = await execute("AssetManager", {from: deployer}, "addToken", DAI);
         console.log("AssetManager addToken, tx is:", tx.transactionHash);
     }
 
-    tx = await execute(
-        "AssetManager",
-        {from: deployer},
-        "changeWithdrawSequence",
-        configs[chainId]["AssetManager"]["newSeq"]
-    );
-    console.log("AssetManager changeWithdrawSequence, tx is:", tx.transactionHash);
+    // tx = await execute(
+    //     "AssetManager",
+    //     {from: deployer},
+    //     "changeWithdrawSequence",
+    //     configs[chainId]["AssetManager"]["newSeq"]
+    // );
+    // console.log("AssetManager changeWithdrawSequence, tx is:", tx.transactionHash);
 
     console.log("setAssetManager end");
 };

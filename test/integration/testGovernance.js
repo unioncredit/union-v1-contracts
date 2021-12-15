@@ -1,8 +1,12 @@
 const {ethers, upgrades, waffle} = require("hardhat");
 const {parseEther} = ethers.utils;
-const {waitNBlocks, encodeParameters, etherUnsigned, increaseTime} = require("../../utils");
+const {waitNBlocks, etherUnsigned, increaseTime} = require("../../utils");
 
 require("chai").should();
+
+const initialVotingDelay = 2;
+const initialVotingPeriod = 5760;
+const initialProposalThreshold = "50000000000000000000000";
 
 describe("Governance Contract", async () => {
     before(async () => {
@@ -95,8 +99,14 @@ describe("Governance Contract", async () => {
         console.log(`Timelock proxy created at ${timlockProxy.address}`);
 
         console.log("Creating proxy instance of Governor.sol...");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
-        governanceProxy = await Governor.deploy(unionTokenProxy.address, timlockProxy.address);
+        const Governor = await ethers.getContractFactory("UnionGovernor");
+        governanceProxy = await Governor.deploy(
+            unionTokenProxy.address,
+            timlockProxy.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
         console.log(`Governor proxy created at ${governanceProxy.address}`);
         await timlockProxy.grantRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), governanceProxy.address);
         await timlockProxy.grantRole(ethers.utils.id("PROPOSER_ROLE"), governanceProxy.address);

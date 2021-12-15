@@ -63,12 +63,12 @@ const checkPureTokenAdapter = async chainId => {
         DAI = erc20.address;
     }
     const ceiling = await pureTokenAdapter.ceilingMap(DAI);
-    if (parseFloat(ceiling) != parseFloat(configs[chainId]["PureTokenAdapter"]["pureTokenCeiling"])) {
+    if (parseFloat(ceiling) != parseFloat(configs[chainId]["PureTokenAdapter"]["ceiling"])) {
         throw new Error("PureTokenAdapter setCeiling error");
     }
 
     const floor = await pureTokenAdapter.floorMap(DAI);
-    if (parseFloat(floor) != parseFloat(configs[chainId]["PureTokenAdapter"]["pureTokenFloor"])) {
+    if (parseFloat(floor) != parseFloat(configs[chainId]["PureTokenAdapter"]["floor"])) {
         throw new Error("PureTokenAdapter setFloor error");
     }
 
@@ -94,17 +94,17 @@ const checkCompoundAdapter = async chainId => {
         DAI = erc20.address;
     }
     const ceiling = await compoundAdapter.ceilingMap(DAI);
-    if (parseFloat(ceiling) != parseFloat(configs[chainId]["CompoundAdapter"]["compoundTokenCeiling"])) {
+    if (parseFloat(ceiling) != parseFloat(configs[chainId]["CompoundAdapter"]["ceiling"])) {
         throw new Error("CompoundAdapter setCeiling error");
     }
 
     const floor = await compoundAdapter.floorMap(DAI);
-    if (parseFloat(floor) != parseFloat(configs[chainId]["CompoundAdapter"]["compoundTokenFloor"])) {
+    if (parseFloat(floor) != parseFloat(configs[chainId]["CompoundAdapter"]["floor"])) {
         throw new Error("CompoundAdapter setFloor error");
     }
 
     const cToken = await compoundAdapter.tokenToCToken(DAI);
-    if (cToken.toLowerCase() != configs[chainId]["cDAI"]?.toLowerCase()) {
+    if (cToken.toLowerCase() != configs[chainId]["CompoundAdapter"]["cDAI"]?.toLowerCase()) {
         throw new Error("CompoundAdapter setCToken error");
     }
 
@@ -115,6 +115,42 @@ const checkCompoundAdapter = async chainId => {
     }
 
     console.log("CompoundAdapter success");
+};
+
+const checkAaveAdapter = async chainId => {
+    const path = `../deployments/${networks[chainId]}/AaveAdapter.json`;
+    const params = checkFileExist(path);
+    const compoundAdapter = await ethers.getContractAt("AaveAdapter", params.address);
+
+    let DAI;
+    if (chainId != 31337) {
+        DAI = configs[chainId]["DAI"];
+    } else {
+        const erc20 = checkFileExist(`../deployments/${networks[chainId]}/FaucetERC20.json`);
+        DAI = erc20.address;
+    }
+    const ceiling = await compoundAdapter.ceilingMap(DAI);
+    if (parseFloat(ceiling) != parseFloat(configs[chainId]["AaveAdapter"]["ceiling"])) {
+        throw new Error("AaveAdapter setCeiling error");
+    }
+
+    const floor = await compoundAdapter.floorMap(DAI);
+    if (parseFloat(floor) != parseFloat(configs[chainId]["AaveAdapter"]["floor"])) {
+        throw new Error("AaveAdapter setFloor error");
+    }
+
+    const cToken = await compoundAdapter.tokenToCToken(DAI);
+    if (cToken.toLowerCase() != configs[chainId]["AaveAdapter"]["cDAI"]?.toLowerCase()) {
+        throw new Error("AaveAdapter setCToken error");
+    }
+
+    const assetManager = await compoundAdapter.assetManager();
+    const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
+    if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
+        throw new Error("AaveAdapter set assetManager error");
+    }
+
+    console.log("AaveAdapter success");
 };
 
 const checkComptroller = async chainId => {
@@ -329,6 +365,10 @@ const checkUserManager = async chainId => {
     if (maxStakeAmount.toString() != configs[chainId]["UserManager"]["maxStakeAmount"]) {
         throw new Error("UserManager set maxStakeAmount error");
     }
+    const newMemberFee = await userManager.newMemberFee();
+    if (newMemberFee.toString() != configs[chainId]["UserManager"]["newMemberFee"]) {
+        throw new Error("UserManager new member fee error");
+    }
     console.log("UserManager success");
 };
 
@@ -395,12 +435,35 @@ const checkUToken = async chainId => {
     console.log("UDai success");
 };
 
+const checkGovernance = async chainId => {
+    const path = `../deployments/${networks[chainId]}/UnionGovernor.json`;
+    const params = checkFileExist(path);
+    const unionGovernor = await ethers.getContractAt("UnionGovernor", params.address);
+    const data = configs[chainId]["UnionGovernor"];
+
+    const votingDelay = await unionGovernor.votingDelay();
+    if (votingDelay != data.initialVotingDelay) {
+        throw new Error("unionGovernor set votingDelay error");
+    }
+    const votingPeriod = await unionGovernor.votingPeriod();
+    if (votingPeriod != data.initialVotingPeriod) {
+        throw new Error("unionGovernor set votingPeriod error");
+    }
+    const proposalThreshold = await unionGovernor.proposalThreshold();
+    if (proposalThreshold.toString() != data.initialProposalThreshold.toString()) {
+        throw new Error("unionGovernor set proposalThreshold error");
+    }
+};
+
 async function main() {
     const chainId = await getChainId();
     await checkAssetManager(chainId);
     await checkPureTokenAdapter(chainId);
     if (chainId == 1 || chainId == 4 || chainId == 42) {
         await checkCompoundAdapter(chainId);
+    }
+    if (chainId == 1) {
+        await checkAaveAdapter(chainId);
     }
     await checkComptroller(chainId);
     await checkFixedInterestRateModel(chainId);
@@ -412,6 +475,7 @@ async function main() {
     await checkUnionToken(chainId);
     await checkUserManager(chainId);
     await checkUToken(chainId);
+    await checkGovernance(chainId);
 }
 
 module.exports = main;
