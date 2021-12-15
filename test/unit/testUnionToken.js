@@ -8,7 +8,8 @@ const {signERC2612Permit} = require("eth-permit");
 const {waitNBlocks, increaseTime} = require("../../utils");
 
 describe("UnionToken Contract", () => {
-    let ADMIN, MINTER, ALICE, BOB, GEORGE, COMPTROLLER, delegatee;
+    let ADMIN, ALICE, BOB, GEORGE, COMPTROLLER, delegatee;
+    // const [, privateKey_BOB] = privateKeys;
     const name = "Union Token";
     let testToken;
     let unionToken;
@@ -29,7 +30,7 @@ describe("UnionToken Contract", () => {
     });
 
     before(async () => {
-        [ADMIN, MINTER, ALICE, BOB, GEORGE, COMPTROLLER] = await ethers.getSigners();
+        [ADMIN, ALICE, BOB, GEORGE, COMPTROLLER] = await ethers.getSigners();
 
         testToken = await upgrades.deployProxy(
             await ethers.getContractFactory("FaucetERC20"),
@@ -42,39 +43,33 @@ describe("UnionToken Contract", () => {
 
     const deployUnionToken = async () => {
         const latestBlock = await ethers.provider.getBlock("latest");
+        // console.log({latestBlock});
         const mintingAllowedAfter = latestBlock.timestamp + 10;
+
+        // const mintingAllowedAfter = Math.floor(Date.now()/1000); // 10 mins after current time
+        // console.log({mintingAllowedAfter})
 
         const UnionToken = await ethers.getContractFactory("UnionToken");
         unionToken = await UnionToken.deploy("Union Token", "UNION", mintingAllowedAfter);
-        await unionToken.grantRole(ethers.utils.id("MINTER_ROLE"), MINTER.address);
-        await unionToken.renounceRole(ethers.utils.id("MINTER_ROLE"), ADMIN.address);
         await waitNBlocks(10);
     };
 
-    describe("Mint using non minter (Bob)", () => {
+    describe("Mint using non admin (Bob)", () => {
         before(deployUnionToken);
 
-        it("Admin should not be admin", async () => {
-            isMinter = await unionToken.hasRole(ethers.utils.id("MINTER_ROLE"), ADMIN.address);
-            isMinter.should.eq(false);
+        it("Bob should not be admin", async () => {
+            isAdmin = (await unionToken.owner()) == BOB.address;
+            isAdmin.should.eq(false);
         });
 
-        it("Mint transaction from Bob should fail", async () => {
-            const errMsg = `AccessControl: account ${ADMIN.address.toLowerCase()} is missing role ${ethers.utils.id(
-                "MINTER_ROLE"
-            )}`;
-            await expect(unionToken.connect(ADMIN).mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith(
-                errMsg
+        it("Mint transaction from Bob should fail and after set minter to Bob should success", async () => {
+            await expect(unionToken.connect(BOB).mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith(
+                "no auth"
             );
-        });
-
-        it("Admin cannot modify the role of Minter", async () => {
-            const errMsg = `AccessControl: account ${ADMIN.address.toLowerCase()} is missing role ${ethers.utils.id(
-                "MINTER_ROLE"
-            )}`;
-            await expect(unionToken.grantRole(ethers.utils.id("MINTER_ROLE"), MINTER.address)).to.be.revertedWith(
-                errMsg
-            );
+            await expect(unionToken.setMinter(ethers.constants.AddressZero)).to.be.revertedWith("address not be zero");
+            await unionToken.setMinter(BOB.address);
+            await expect(unionToken.mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith("no auth");
+            unionToken.connect(BOB).mint(ADMIN.address, parseEther("10000000"));
         });
     });
 
@@ -88,7 +83,7 @@ describe("UnionToken Contract", () => {
             const mintCap = await unionToken.mintCap();
             const mintAmount = totalSupply.mul(mintCap).div("100");
 
-            await unionToken.connect(MINTER).mint(ADMIN.address, mintAmount);
+            await unionToken.mint(ADMIN.address, mintAmount);
         });
 
         it("Should not be able to mint amount greater than mint cap", async () => {
@@ -97,9 +92,7 @@ describe("UnionToken Contract", () => {
             const totalSupply = await unionToken.totalSupply();
             const mintCap = await unionToken.mintCap();
             const mintAmount = totalSupply.mul(mintCap).div("100");
-            await expect(unionToken.connect(MINTER).mint(ADMIN.address, mintAmount.add("1"))).to.be.revertedWith(
-                "exceeded mint cap"
-            );
+            await expect(unionToken.mint(ADMIN.address, mintAmount.add("1"))).to.be.revertedWith("exceeded mint cap");
         });
     });
 
