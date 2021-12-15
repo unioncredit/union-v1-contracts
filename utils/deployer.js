@@ -8,11 +8,10 @@ const deployAndInitDAI = async () => {
     );
 };
 
-const deployAndInitUnionToken = async () => {
+const deployAndInitUnionToken = async ({timelock}) => {
     const latestBlock = await ethers.provider.getBlock("latest");
-
     const UnionToken = await ethers.getContractFactory("UnionToken");
-    return await UnionToken.deploy("Union Token", "Union", latestBlock.timestamp + 100);
+    return await UnionToken.deploy("Union Token", "Union", timelock.address, latestBlock.timestamp + 100);
 };
 
 const deployAndInitFixedInterestRateModel = async () => {
@@ -29,6 +28,12 @@ const deployMarketRegistry = async () => {
     return upgrades.deployProxy(await ethers.getContractFactory("MarketRegistry"), {
         initializer: "__MarketRegistry_init()"
     });
+};
+
+const deployAndInitTimelock = async () => {
+    const [admin] = await ethers.getSigners();
+    const Timelock = await ethers.getContractFactory("TimelockController");
+    return await Timelock.deploy(0, [admin.address], [admin.address]);
 };
 
 const deployAndInitComptroller = async ({unionToken, marketRegistry}) => {
@@ -97,7 +102,8 @@ const initUserManager = async ({userManager, uToken}) => {
 
 const deployFullSuite = async () => {
     const dai = await deployAndInitDAI();
-    const unionToken = await deployAndInitUnionToken();
+    const timelock = await deployAndInitTimelock();
+    const unionToken = await deployAndInitUnionToken({timelock});
     const fixedInterestRateModel = await deployAndInitFixedInterestRateModel();
     const sumOfTrust = await deployAndInitSumOfTrust();
     const marketRegistry = await deployMarketRegistry();
@@ -133,6 +139,7 @@ module.exports = {
     deployAndInitAssetManager,
     deployAndInitUToken,
     deployAndInitUserManager,
+    deployAndInitTimelock,
     initMarketRegistry,
     initUToken,
     initUserManager,

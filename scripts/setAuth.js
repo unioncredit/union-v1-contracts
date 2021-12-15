@@ -109,11 +109,6 @@ const setUnionToken = async (chainId, timelockAddress, admin) => {
         tx = await unionToken.transferOwnership(admin);
         console.log("UnionToken transferOwnership, tx is:", tx.hash);
     }
-
-    if ((await unionToken.minter()) != timelockAddress) {
-        tx = await unionToken.setMinter(timelockAddress);
-        console.log("UnionToken setMinter, tx is:", tx.hash);
-    }
 };
 
 const setFixedInterestRateModel = async (chainId, admin) => {

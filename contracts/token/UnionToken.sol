@@ -34,8 +34,10 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
     uint256 public constant mintCap = 2;
 
     address public minter;
+    address public pendingMinter;
 
     event MinterChange(address oldMinter, address newMinter);
+    event NewPendingMinter(address oldPendingMinter, address newPendingMinter);
 
     modifier onlyMinter() {
         require(minter == msg.sender, "no auth");
@@ -45,6 +47,7 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
     constructor(
         string memory name,
         string memory symbol,
+        address minter_,
         uint256 mintingAllowedAfter_
     ) ERC20(name, symbol) ERC20Permit(name) {
         require(mintingAllowedAfter_ >= block.timestamp, "minting can only begin after deployment");
@@ -56,19 +59,31 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
 
         mintingAllowedAfter = mintingAllowedAfter_;
         whitelistEnabled = false;
-        _setMinter(msg.sender);
+        _setMinter(minter_);
         whitelist(msg.sender);
     }
 
-    function setMinter(address newMinter) external onlyMinter {
-        require(newMinter != address(0), "address not be zero");
-        _setMinter(newMinter);
+    function setPendingMinter(address newPendingMinter) external onlyMinter {
+        require(newPendingMinter != address(0), "address not be zero");
+        _setPendingMinter(newPendingMinter);
+    }
+
+    function acceptMinter() external {
+        require(msg.sender == pendingMinter && pendingMinter != address(0), "no auth");
+        _setMinter(pendingMinter);
+        _setPendingMinter(address(0));
     }
 
     function _setMinter(address newMinter) private {
         address oldMinter = minter;
         minter = newMinter;
-        emit MinterChange(oldMinter, minter);
+        emit MinterChange(oldMinter, newMinter);
+    }
+
+    function _setPendingMinter(address newPendingMinter) private {
+        address oldPendingMinter = pendingMinter;
+        pendingMinter = newPendingMinter;
+        emit NewPendingMinter(oldPendingMinter, newPendingMinter);
     }
 
     function mint(address dst, uint256 amount) external onlyMinter returns (bool) {

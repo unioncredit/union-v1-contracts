@@ -5,7 +5,7 @@ const configs = require("../../deployConfig.js");
 
 require("chai").should();
 
-const {deployAndInitUnionToken} = require("../../utils/deployer");
+const {deployAndInitUnionToken, deployAndInitTimelock} = require("../../utils/deployer");
 
 describe("Treasury Contract", async () => {
     let unionTokenProxy;
@@ -23,9 +23,10 @@ describe("Treasury Contract", async () => {
                 }
             ]
         });
-        [ADMIN, COMP] = await ethers.getSigners();
-        unionTokenProxy = await deployAndInitUnionToken();
 
+        [ADMIN, COMP] = await ethers.getSigners();
+        const timelock = await deployAndInitTimelock();
+        unionTokenProxy = await deployAndInitUnionToken({timelock});
         const Treasury = await ethers.getContractFactory("Treasury");
         treasury = await Treasury.deploy(unionTokenProxy.address);
         const TreasuryVester = await ethers.getContractFactory("TreasuryVester");

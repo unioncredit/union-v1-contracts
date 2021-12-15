@@ -50,7 +50,7 @@ describe("UnionToken Contract", () => {
         // console.log({mintingAllowedAfter})
 
         const UnionToken = await ethers.getContractFactory("UnionToken");
-        unionToken = await UnionToken.deploy("Union Token", "UNION", mintingAllowedAfter);
+        unionToken = await UnionToken.deploy("Union Token", "UNION", ADMIN.address, mintingAllowedAfter);
         await waitNBlocks(10);
     };
 
@@ -66,8 +66,11 @@ describe("UnionToken Contract", () => {
             await expect(unionToken.connect(BOB).mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith(
                 "no auth"
             );
-            await expect(unionToken.setMinter(ethers.constants.AddressZero)).to.be.revertedWith("address not be zero");
-            await unionToken.setMinter(BOB.address);
+            await expect(unionToken.setPendingMinter(ethers.constants.AddressZero)).to.be.revertedWith(
+                "address not be zero"
+            );
+            await unionToken.setPendingMinter(BOB.address);
+            await unionToken.connect(BOB).acceptMinter();
             await expect(unionToken.mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith("no auth");
             unionToken.connect(BOB).mint(ADMIN.address, parseEther("10000000"));
         });
