@@ -2,10 +2,9 @@
 pragma solidity 0.8.4;
 pragma abicoder v1;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract Whitelistable is AccessControl {
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+abstract contract Whitelistable is Ownable {
     // allow all transfers when set as false
     bool public whitelistEnabled;
 
@@ -24,15 +23,10 @@ abstract contract Whitelistable is AccessControl {
         _;
     }
 
-    constructor() {
-        _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
-        _setupRole(ADMIN_ROLE, msg.sender);
-    }
-
     /**
      * @notice enable whitelist and only allow transfers from whitelisted addresses
      */
-    function enableWhitelist() external onlyRole(ADMIN_ROLE) {
+    function enableWhitelist() external onlyOwner {
         whitelistEnabled = true;
         emit WhitelistEnabled();
     }
@@ -40,7 +34,7 @@ abstract contract Whitelistable is AccessControl {
     /**
      * @notice disable whitelist and allow transfers for everyone
      */
-    function disableWhitelist() external onlyRole(ADMIN_ROLE) {
+    function disableWhitelist() external onlyOwner {
         whitelistEnabled = false;
         emit WhitelistDisabled();
     }
@@ -57,7 +51,7 @@ abstract contract Whitelistable is AccessControl {
      * @dev Adds account to whitelist
      * @param _account The address to whitelist
      */
-    function whitelist(address _account) public onlyRole(ADMIN_ROLE) {
+    function whitelist(address _account) public onlyOwner {
         require(_account != address(0), "Whitelistable: account can not be zero");
         _whitelisted[_account] = true;
         emit Whitelisted(_account);
@@ -67,7 +61,7 @@ abstract contract Whitelistable is AccessControl {
      * @dev Removes account from whitelist
      * @param _account The address to remove from the whitelist
      */
-    function unwhitelist(address _account) external onlyRole(ADMIN_ROLE) {
+    function unwhitelist(address _account) external onlyOwner {
         require(_account != address(0), "Whitelistable: account can not be zero");
         _whitelisted[_account] = false;
         emit Unwhitelisted(_account);
