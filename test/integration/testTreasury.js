@@ -1,12 +1,11 @@
 const {ethers} = require("hardhat");
-const {parseEther} = ethers.utils;
 const {expect} = require("chai");
 const {waitNBlocks, increaseTime} = require("../../utils");
 const configs = require("../../deployConfig.js");
 
 require("chai").should();
 
-const {deployFullSuite} = require("../../utils/deployer");
+const {deployAndInitUnionToken} = require("../../utils/deployer");
 
 describe("Treasury Contract", async () => {
     let unionTokenProxy;
@@ -25,15 +24,13 @@ describe("Treasury Contract", async () => {
             ]
         });
         [ADMIN, COMP] = await ethers.getSigners();
-
-        const {unionToken} = await deployFullSuite();
-        unionTokenProxy = unionToken;
+        unionTokenProxy = await deployAndInitUnionToken();
 
         const Treasury = await ethers.getContractFactory("Treasury");
-        treasury = await Treasury.deploy(unionToken.address);
+        treasury = await Treasury.deploy(unionTokenProxy.address);
         const TreasuryVester = await ethers.getContractFactory("TreasuryVester");
         treasuryVester = await TreasuryVester.deploy(
-            unionToken.address,
+            unionTokenProxy.address,
             treasury.address,
             treasuryVesterParams.vestingAmount,
             treasuryVesterParams.vestingBegin,
@@ -41,7 +38,7 @@ describe("Treasury Contract", async () => {
             treasuryVesterParams.vestingEnd
         );
 
-        await unionToken.transfer(treasuryVester.address, treasuryVesterParams.vestingAmount);
+        await unionTokenProxy.transfer(treasuryVester.address, treasuryVesterParams.vestingAmount);
     });
 
     it("TreasuryVester claim", async () => {
