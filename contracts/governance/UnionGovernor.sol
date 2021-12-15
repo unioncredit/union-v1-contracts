@@ -5,30 +5,38 @@ import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesComp.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
 
-contract UnionGovernor is GovernorCompatibilityBravo, GovernorVotesComp, GovernorTimelockControl {
+contract UnionGovernor is GovernorCompatibilityBravo, GovernorSettings, GovernorVotesComp, GovernorTimelockControl {
     uint256 public proposalCount;
     mapping(address => uint256) public latestProposalIds;
 
-    constructor(ERC20VotesComp _token, TimelockController _timelock)
+    constructor(
+        ERC20VotesComp _token,
+        TimelockController _timelock,
+        uint256 initialVotingDelay,
+        uint256 initialVotingPeriod,
+        uint256 initialProposalThreshold
+    )
         Governor("Union Governor")
         GovernorVotesComp(_token)
         GovernorTimelockControl(_timelock)
+        GovernorSettings(initialVotingDelay, initialVotingPeriod, initialProposalThreshold)
     // solhint-disable-next-line no-empty-blocks
     {
 
     }
 
-    function votingDelay() public pure virtual override returns (uint256) {
-        return 6575; // 1 day
+    function votingDelay() public view override(IGovernor, GovernorSettings) returns (uint256) {
+        return super.votingDelay();
     }
 
-    function votingPeriod() public pure virtual override returns (uint256) {
-        return 19725; // 3 day
+    function votingPeriod() public view override(IGovernor, GovernorSettings) returns (uint256) {
+        return super.votingPeriod();
     }
 
-    function proposalThreshold() public pure virtual override returns (uint256) {
-        return 50000e18;
+    function proposalThreshold() public view override(Governor, GovernorSettings) returns (uint256) {
+        return super.proposalThreshold();
     }
 
     function quorum(uint256 blockNumber) public view override returns (uint256) {

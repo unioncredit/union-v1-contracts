@@ -64,6 +64,11 @@ var configs = {
         UserManager: {
             maxStakeAmount: parseUnits("5000"),
             newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: parseUnits("1000000")
         }
     },
     31337: {
@@ -129,6 +134,11 @@ var configs = {
         UserManager: {
             maxStakeAmount: parseUnits("5000"),
             newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: parseUnits("1000000")
         }
     },
     4: {
@@ -193,7 +203,13 @@ var configs = {
             minDelay: "0"
         },
         UserManager: {
-            maxStakeAmount: "100000000000000000000000"
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: parseUnits("1000000")
         }
     },
     42: {
@@ -259,7 +275,13 @@ var configs = {
             minDelay: "0"
         },
         UserManager: {
-            maxStakeAmount: "100000000000000000000000"
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: parseUnits("1000000")
         }
     }
 };
