@@ -55,7 +55,7 @@ describe("UserManager Contract", async () => {
         const block = await waffle.provider.getBlock("latest");
         const time = block.timestamp;
         const UnionToken = await ethers.getContractFactory("UnionToken");
-        unionTokenProxy = await UnionToken.deploy("Union Token", "UNION", parseInt(time) + 10);
+        unionTokenProxy = await UnionToken.deploy("Union Token", "UNION", ADMIN.address, parseInt(time) + 10);
         console.log(`UnionToken proxy created at ${unionTokenProxy.address}`);
     });
 

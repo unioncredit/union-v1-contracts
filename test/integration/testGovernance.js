@@ -32,6 +32,11 @@ describe("Governance Contract", async () => {
         console.log(`ERC20 proxy created at ${erc20Proxy.address}`);
         await erc20Proxy.mint(ADMIN.address, parseEther("10000000"));
 
+        console.log("Creating proxy instance of Timelock.sol...");
+        const Timelock = await ethers.getContractFactory("TimelockController");
+        timlockProxy = await Timelock.deploy(etherUnsigned(7 * 24 * 60 * 60), [ADMIN.address], [ADMIN.address]);
+        console.log(`Timelock proxy created at ${timlockProxy.address}`);
+
         console.log("Creating proxy instance of SumOfTrust.sol...");
         const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
         sumOfTrust = await SumOfTrust.deploy(3);
@@ -47,7 +52,7 @@ describe("Governance Contract", async () => {
         const block = await waffle.provider.getBlock("latest");
         const time = block.timestamp;
         const UnionToken = await ethers.getContractFactory("UnionToken");
-        unionTokenProxy = await UnionToken.deploy("Union Token", "UNION", parseInt(time) + 10);
+        unionTokenProxy = await UnionToken.deploy("Union Token", "UNION", timlockProxy.address, parseInt(time) + 10);
         console.log(`UnionToken proxy created at ${unionTokenProxy.address}`);
 
         console.log("Creating proxy instance of MarketRegistry.sol...");
@@ -92,11 +97,6 @@ describe("Governance Contract", async () => {
         console.log(`UserManager proxy created at ${userManagerProxy.address}`);
         //Handling fee is set to 0
         await userManagerProxy.setNewMemberFee(0);
-
-        console.log("Creating proxy instance of Timelock.sol...");
-        const Timelock = await ethers.getContractFactory("TimelockController");
-        timlockProxy = await Timelock.deploy(etherUnsigned(7 * 24 * 60 * 60), [ADMIN.address], [ADMIN.address]);
-        console.log(`Timelock proxy created at ${timlockProxy.address}`);
 
         console.log("Creating proxy instance of Governor.sol...");
         const Governor = await ethers.getContractFactory("UnionGovernor");
