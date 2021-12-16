@@ -54,17 +54,6 @@ module.exports = async ({getNamedAccounts, getChainId, ethers}) => {
             governor.address
         );
         console.log("grantRole PROPOSER_ROLE governor, tx is:", tx.transactionHash);
-
-        if (configs[chainId].Admin) {
-            tx = await execute(
-                "TimelockController",
-                {from: deployer},
-                "grantRole",
-                ethers.utils.id("PROPOSER_ROLE"),
-                configs[chainId].Admin
-            );
-            console.log("grantRole PROPOSER_ROLE Admin, tx is:", tx.transactionHash);
-        }
     }
     if (
         !(await read(
@@ -83,17 +72,6 @@ module.exports = async ({getNamedAccounts, getChainId, ethers}) => {
             governor.address
         );
         console.log("grantRole EXECUTOR_ROLE governor, tx is:", tx.transactionHash);
-
-        if (configs[chainId].Admin) {
-            tx = await execute(
-                "TimelockController",
-                {from: deployer},
-                "grantRole",
-                ethers.utils.id("EXECUTOR_ROLE"),
-                configs[chainId].Admin
-            );
-            console.log("grantRole EXECUTOR_ROLE Admin, tx is:", tx.transactionHash);
-        }
     }
 
     if (
