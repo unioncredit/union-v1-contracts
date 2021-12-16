@@ -244,8 +244,14 @@ const checkTimelock = async chainId => {
     const governorParams = checkFileExist(`../deployments/${networks[chainId]}/UnionGovernor.json`);
     const isAdmin = await timelock.hasRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), governorParams.address);
     if (!isAdmin) {
+        throw new Error("Timelock set governor error");
+    }
+
+    const admin = configs[chainId]["Admin"];
+    if (admin && !(await timelock.hasRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), admin))) {
         throw new Error("Timelock set admin error");
     }
+
     const isProposer = await timelock.hasRole(ethers.utils.id("PROPOSER_ROLE"), governorParams.address);
     if (!isProposer) {
         throw new Error("Timelock set proposer error");
