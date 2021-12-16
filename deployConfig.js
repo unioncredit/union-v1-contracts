@@ -71,7 +71,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "6575",
             initialVotingPeriod: "19725",
-            initialProposalThreshold: parseUnits("1000000")
+            initialProposalThreshold: parseUnits("10000000")
         }
     },
     31337: {
@@ -141,7 +141,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "6575",
             initialVotingPeriod: "19725",
-            initialProposalThreshold: parseUnits("1000000")
+            initialProposalThreshold: parseUnits("10000000")
         }
     },
     42: {
@@ -213,7 +213,7 @@ var configs = {
         UnionGovernor: {
             initialVotingDelay: "5", // 1 min
             initialVotingPeriod: "274", // 1 hr
-            initialProposalThreshold: parseUnits("1000000")
+            initialProposalThreshold: parseUnits("10000000")
         }
     }
 };
