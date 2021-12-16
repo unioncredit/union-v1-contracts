@@ -15,11 +15,12 @@ module.exports = async ({ethers, getNamedAccounts, getChainId}) => {
         (await read("Treasury", {from: deployer}, "tokenSchedules", comptroller.address)).target ===
         ethers.constants.AddressZero
     ) {
+        const dripStart = params.dripStart ? params.dripStart : (await ethers.provider.getBlock("latest")).number;
         tx = await execute(
             "Treasury",
             {from: deployer},
             "addSchedule",
-            params.dripStart,
+            dripStart,
             params.dripRate,
             comptroller.address,
             params.dripAmount

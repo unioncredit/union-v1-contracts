@@ -57,7 +57,7 @@ var configs = {
             vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
         },
         Treasury: {
-            dripStart: "1640131200", // 2021/12/22 00:00:00 GMT+0000
+            dripStart: "",
             dripRate: parseUnits("1"),
             dripAmount: parseUnits("20000000") //20m
         },
@@ -127,7 +127,7 @@ var configs = {
             vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
         },
         Treasury: {
-            dripStart: "1640131200", // 2021/12/22 00:00:00 GMT+0000
+            dripStart: "",
             dripRate: parseUnits("1"),
             dripAmount: parseUnits("20000000") //20m
         },
@@ -199,7 +199,7 @@ var configs = {
             vestingEnd: "1639668600" // 2021/12/16 15:30:00 GMT+0000
         },
         Treasury: {
-            dripStart: "1639582200", // 2021/12/15 15:30:00 GMT+0000
+            dripStart: "",
             dripRate: parseUnits("1"),
             dripAmount: parseUnits("20000000") //20m
         },

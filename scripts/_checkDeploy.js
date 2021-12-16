@@ -267,11 +267,16 @@ const checkTreasury = async chainId => {
     const comptrollerParams = checkFileExist(`../deployments/${networks[chainId]}/Comptroller.json`);
     const schedule = await treasury.tokenSchedules(comptrollerParams.address);
     if (
-        parseFloat(schedule.dripStart) != parseFloat(configs[chainId]["Treasury"]["dripStart"]) &&
+        configs[chainId]["Treasury"]["dripStart"] &&
+        parseFloat(schedule.dripStart) != parseFloat(configs[chainId]["Treasury"]["dripStart"])
+    ) {
+        throw new Error("Treasury set dripStart error");
+    }
+    if (
         parseFloat(schedule.dripRate) != parseFloat(configs[chainId]["Treasury"]["dripRate"]) &&
         parseFloat(schedule.dripAmount) != parseFloat(configs[chainId]["Treasury"]["dripAmount"])
     ) {
-        throw new Error("Treasury set data error");
+        throw new Error("Treasury set dripRate or dripAmount error");
     }
 
     console.log("Treasury success");
