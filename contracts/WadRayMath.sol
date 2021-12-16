@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 /**
  * @title WadRayMath library
@@ -15,8 +15,6 @@ library WadRayMath {
     }
 
     function wadDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 halfB = b / 2;
-
-        return (halfB + a * WAD) / b;
+        return (b + 2 * a * WAD) / (2 * b);
     }
 }

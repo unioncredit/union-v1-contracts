@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -19,6 +19,24 @@ abstract contract CToken is IERC20Upgradeable {
     function exchangeRateStored() external view virtual returns (uint256);
 }
 
+abstract contract CComptroller {
+    function getCompAddress() external view virtual returns (address);
+
+    // Claim all the COMP accrued by holder in all markets
+    function claimComp(address holder) external virtual;
+
+    // Claim all the COMP accrued by holder in specific markets
+    function claimComp(address holder, CToken[] memory cTokens) external virtual;
+
+    // Claim all the COMP accrued by specific holders in specific markets for their supplies and/or borrows
+    function claimComp(
+        address[] memory holders,
+        CToken[] memory cTokens,
+        bool borrowers,
+        bool suppliers
+    ) external virtual;
+}
+
 /**
  * @title CompoundAdapter
  *  @dev The implementation of Compound.Finance MoneyMarket that integrates with AssetManager.
@@ -29,6 +47,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     mapping(address => address) public tokenToCToken;
 
     address public assetManager;
+    CComptroller public comptroller;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
 
@@ -42,13 +61,18 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         _;
     }
 
-    function __CompoundAdapter_init(address _assetManager) public initializer {
+    function __CompoundAdapter_init(address _assetManager, address _comptroller) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
+        comptroller = CComptroller(_comptroller);
     }
 
     function setAssetManager(address _assetManager) external onlyAdmin {
         assetManager = _assetManager;
+    }
+
+    function setComptroller(address _comptroller) external onlyAdmin {
+        comptroller = CComptroller(_comptroller);
     }
 
     function setFloor(address tokenAddress, uint256 floor) external onlyAdmin {
@@ -147,9 +171,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
-        address cTokenAddress = tokenToCToken[tokenAddress];
-
-        return cTokenAddress != address(0);
+        return tokenToCToken[tokenAddress] != address(0);
     }
 
     function _claimTokens(address tokenAddress, address recipient) private {
@@ -157,5 +179,15 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
         token.safeTransfer(recipient, balance);
+    }
+
+    function claimRewards(address tokenAddress) external override onlyAdmin {
+        IERC20Upgradeable comp = IERC20Upgradeable(comptroller.getCompAddress());
+        address cTokenAddress = tokenToCToken[tokenAddress];
+        CToken cToken = CToken(cTokenAddress);
+        CToken[] memory assets = new CToken[](1);
+        assets[0] = cToken;
+        comptroller.claimComp(address(this), assets);
+        comp.safeTransfer(msg.sender, comp.balanceOf(address(this)));
     }
 }

@@ -39,7 +39,7 @@ describe("User Manager Contract", () => {
             initializer: "__UToken_init()"
         });
 
-        const amount = parseEther("10000");
+        const amount = parseEther("1000000");
         await erc20.mint(assetManager.address, amount);
         await erc20.mint(ADMIN.address, amount);
         await erc20.mint(MEMBER1.address, amount);
@@ -74,35 +74,31 @@ describe("User Manager Contract", () => {
     it("Stake amount more than individual limit should revert", async () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
-        const MAX_STAKE_AMOUNT = await userManager.MAX_STAKE_AMOUNT();
-        const stakeAmount = parseEther("1001");
+        const maxStakeAmount = await userManager.maxStakeAmount();
+        const stakeAmount = parseEther("100001");
 
-        stakeAmount.should.be.gt(MAX_STAKE_AMOUNT);
+        stakeAmount.should.be.gt(maxStakeAmount);
 
         await erc20.connect(MEMBER1).approve(userManager.address, stakeAmount);
-        await expect(userManager.connect(MEMBER1).stake(stakeAmount)).to.be.revertedWith(
-            "UserManager: Stake limit hit"
-        );
+        await expect(userManager.connect(MEMBER1).stake(stakeAmount)).to.be.revertedWith("StakeLimitReached()");
     });
 
     it("Total stake amount more than individual limit should revert even for multiple steps", async () => {
         const memberFee = parseEther("0.1");
         await userManager.setNewMemberFee(memberFee);
-        const MAX_STAKE_AMOUNT = await userManager.MAX_STAKE_AMOUNT();
-        const stakeAmount1 = parseEther("900");
-        const stakeAmount2 = parseEther("101");
-        const stakeAmount3 = parseEther("100");
+        const maxStakeAmount = await userManager.maxStakeAmount();
+        const stakeAmount1 = parseEther("4000");
+        const stakeAmount2 = parseEther("1001");
+        const stakeAmount3 = parseEther("1000");
 
-        stakeAmount1.should.be.lt(MAX_STAKE_AMOUNT);
-        stakeAmount1.add(stakeAmount2).should.be.gt(MAX_STAKE_AMOUNT);
-        stakeAmount1.add(stakeAmount3).should.be.lte(MAX_STAKE_AMOUNT);
+        stakeAmount1.should.be.lt(maxStakeAmount);
+        stakeAmount1.add(stakeAmount2).should.be.gt(maxStakeAmount);
+        stakeAmount1.add(stakeAmount3).should.be.lte(maxStakeAmount);
 
         await erc20.connect(MEMBER1).approve(userManager.address, stakeAmount1.add(stakeAmount2).add(stakeAmount3));
 
         userManager.connect(MEMBER1).stake(stakeAmount1);
-        await expect(userManager.connect(MEMBER1).stake(stakeAmount2)).to.be.revertedWith(
-            "UserManager: Stake limit hit"
-        );
+        await expect(userManager.connect(MEMBER1).stake(stakeAmount2)).to.be.revertedWith("StakeLimitReached()");
         userManager.connect(MEMBER1).stake(stakeAmount3);
     });
 
@@ -131,14 +127,12 @@ describe("User Manager Contract", () => {
         //not enough effective stakers
         await userManager.connect(MEMBER1).updateTrust(BOB.address, trustAmount);
         await userManager.connect(MEMBER2).updateTrust(BOB.address, trustAmount);
-        await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith(
-            "UserManager: not enough effective stakers"
-        );
+        await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith("NotEnoughStakers()");
         //balance not enough
         await userManager.connect(MEMBER3).updateTrust(BOB.address, trustAmount);
         await userManager.setNewMemberFee(parseEther("1000000000000"));
         await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith(
-            "UserManager: balance not enough"
+            "ERC20: burn amount exceeds allowance"
         );
 
         //register member
@@ -148,9 +142,7 @@ describe("User Manager Contract", () => {
         isMember.should.eq(true);
 
         //Cannot register twice
-        await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith(
-            "UserManager: address is already member"
-        );
+        await expect(userManager.connect(BOB).registerMember(BOB.address)).to.be.revertedWith("NoExistingMember()");
     });
 
     it("Add trust and apply for new member with permit", async () => {
@@ -224,9 +216,9 @@ describe("User Manager Contract", () => {
     });
 
     it("Credit limit", async () => {
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        await userManager.setCreditLimitModel(creditLimitByMedian.address);
+        const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
+        sumOfTrust = await SumOfTrust.deploy(3);
+        await userManager.setCreditLimitModel(sumOfTrust.address);
         const vouchAmount1 = parseEther("1");
         const vouchAmount2 = parseEther("100");
         const vouchAmount3 = parseEther("200");
@@ -245,22 +237,22 @@ describe("User Manager Contract", () => {
 
         //MEMBER1 1, MEMBER2 100, MEMBER3 200
         let creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(vouchAmount2.toString());
+        creditLimit.toString().should.eq(vouchAmount1.add(vouchAmount2).add(vouchAmount3).toString());
 
         //MEMBER1 1 MEMBER2 100, MEMBER3 200, MEMBER4 200
         await userManager.connect(MEMBER4).updateTrust(BOB.address, vouchAmount3);
         creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(vouchAmount2.toString()); //because MEMBER4 stake amount is 0
+        creditLimit.toString().should.eq(parseEther("301").toString()); //because MEMBER4 stake amount is 0, so = 1 + 100 + 200
         await erc20.connect(MEMBER4).approve(userManager.address, parseEther("1000"));
         await userManager.connect(MEMBER4).stake(parseEther("1000"));
         creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(parseEther("150").toString()); //(100+200)/2*10**18
+        creditLimit.toString().should.eq(parseEther("501").toString());
 
         //MEMBER1 100, MEMBER2 100, MEMBER3 200
         await userManager.connect(MEMBER1).updateTrust(BOB.address, vouchAmount2);
         await userManager.connect(BOB).cancelVouch(MEMBER4.address, BOB.address);
         creditLimit = await userManager.getCreditLimit(BOB.address);
-        creditLimit.toString().should.eq(vouchAmount2.toString());
+        creditLimit.toString().should.eq(parseEther("400").toString());
 
         let locked = await userManager.getLockedStake(MEMBER1.address, BOB.address);
         locked.toString().should.eq("0");
@@ -271,7 +263,7 @@ describe("User Manager Contract", () => {
 
         await userManager.updateLockedData(BOB.address, parseEther("100000"), true);
 
-        //creditLimitByMedian, limit is 100, max locked is vouching
+        //sumOfTrust, limit is 100, max locked is vouching
         locked = await userManager.getLockedStake(MEMBER1.address, BOB.address);
         locked.toString().should.eq(parseEther("100").toString());
         locked2 = await userManager.getLockedStake(MEMBER2.address, BOB.address);
@@ -281,10 +273,6 @@ describe("User Manager Contract", () => {
     });
 
     it("Test member cancel connection", async () => {
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        await userManager.setCreditLimitModel(creditLimitByMedian.address);
-
         const vouchAmount1 = parseEther("1");
         const vouchAmount2 = parseEther("100");
         const vouchAmount3 = parseEther("200");
@@ -301,23 +289,13 @@ describe("User Manager Contract", () => {
         await userManager.connect(MEMBER3).updateTrust(BOB.address, vouchAmount3);
 
         await expect(userManager.connect(BOB).cancelVouch(MEMBER1.address, ALICE.address)).to.be.revertedWith(
-            "UserManager: Accept claims only from the staker or borrower"
+            "AuthFailed()"
         );
-
-        //mock borrow 1
-        await userManager.updateLockedData(BOB.address, 1, true);
-
-        await expect(userManager.connect(BOB).cancelVouch(MEMBER1.address, BOB.address)).to.be.revertedWith(
-            "UserManager: LockedStake is not zero"
-        );
-
-        //mock repay 1
-        await userManager.updateLockedData(BOB.address, 1, false);
 
         //in order to members[staker].creditLines[token].borrowerAddresses length > 1
         await userManager.connect(MEMBER1).updateTrust(ALICE.address, 1);
 
-        await creditLimitByMedian.setEffectNumber(0);
+        await sumOfTrust.setEffectNumber(0);
 
         await userManager.connect(BOB).cancelVouch(MEMBER1.address, BOB.address);
 
@@ -389,19 +367,17 @@ describe("User Manager Contract", () => {
     it("UpdateLockedData call auth", async () => {
         await expect(
             userManager.connect(MEMBER1).updateLockedData(BOB.address, parseEther("100000"), true)
-        ).to.be.revertedWith("UserManager: caller does not the market or admin");
+        ).to.be.revertedWith("AuthFailed()");
     });
 
     it("Trust self", async () => {
         await expect(userManager.connect(MEMBER1).updateTrust(MEMBER1.address, 1)).to.be.revertedWith(
-            "UserManager: Can't vouch for self"
+            "ErrorSelfVouching()"
         );
     });
 
     it("Trust only member", async () => {
-        await expect(userManager.connect(ALICE).updateTrust(MEMBER1.address, 1)).to.be.revertedWith(
-            "UserManager: caller does not have the Member role"
-        );
+        await expect(userManager.connect(ALICE).updateTrust(MEMBER1.address, 1)).to.be.revertedWith("AuthFailed()");
     });
 
     it("Trust amount cannot be less than the locked amount", async () => {
@@ -412,14 +388,7 @@ describe("User Manager Contract", () => {
 
         await userManager.updateLockedData(BOB.address, 10, true);
 
-        await expect(userManager.updateTrust(BOB.address, 1)).to.be.revertedWith(
-            "UserManager: trust amount cannot be less than the locked amount "
-        );
-    });
-
-    it("Cannot add member repeatedly", async () => {
-        await userManager.addMember(BOB.address);
-        await expect(userManager.addMember(BOB.address)).to.be.revertedWith("UserManager: address is already member");
+        await expect(userManager.updateTrust(BOB.address, 1)).to.be.revertedWith("TrustAmountTooLarge()");
     });
 
     it("Get locked stake when totalLockedStake > stakingAmount", async () => {
@@ -439,9 +408,6 @@ describe("User Manager Contract", () => {
         const amount = parseEther("1000");
         await erc20.connect(MEMBER1).approve(userManager.address, amount);
         await userManager.connect(MEMBER1).stake(amount);
-        await expect(userManager.connect(MEMBER1).withdrawRewards()).to.be.revertedWith(
-            "UserManager: not enough rewards"
-        );
         await unionToken.transfer(comptroller.address, amount);
         //mock transfer reward
         await comptroller.setRewardsInfo(unionToken.address, amount);
@@ -495,7 +461,7 @@ describe("User Manager Contract", () => {
         const stakeAmount = parseEther("1");
         await erc20.connect(BOB).approve(userManager.address, 0);
         await expect(userManager.connect(BOB).stake(stakeAmount)).to.be.revertedWith(
-            "UserManager: not enough allowance to stake"
+            "ERC20: transfer amount exceeds balance"
         );
     });
 
@@ -509,7 +475,7 @@ describe("User Manager Contract", () => {
         await userManager.updateLockedData(BOB.address, stakeAmount, true);
 
         await expect(userManager.connect(MEMBER1).unstake(parseEther("2000"))).to.be.revertedWith(
-            "UserManager: unstake balance is insufficient"
+            "InsufficientBalance()"
         );
     });
 
@@ -538,7 +504,7 @@ describe("User Manager Contract", () => {
         await userManager.connect(MEMBER1).stake(1000);
 
         await expect(userManager.connect(BOB).updateTotalFrozen(MEMBER1.address, false)).to.be.revertedWith(
-            "UserManager: caller does not the market or admin"
+            "AuthFailed()"
         );
 
         //isOverdue false totalFrozen <= amount
@@ -594,5 +560,13 @@ describe("User Manager Contract", () => {
 
         //Restore simulation settings
         await uToken.setIsOverdue(false);
+    });
+
+    it("set max stake amount", async () => {
+        const amount = parseEther("1");
+        await userManager.setMaxStakeAmount(amount);
+        const res = await userManager.maxStakeAmount();
+        res.should.eq(amount);
+        await expect(userManager.connect(MEMBER1).stake(parseEther("2"))).to.be.revertedWith("StakeLimitReached()");
     });
 });

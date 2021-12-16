@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -20,7 +20,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     using AddressUpgradeable for address;
 
     IMoneyMarketAdapter[] public moneyMarkets;
-    mapping(address => Market) public supportedMarkets;
+    mapping(address => bool) public supportedMarkets;
     address[] public supportedTokensList;
     //record admin or userManager balance
     mapping(address => mapping(address => uint256)) public balances; //1 user 2 token
@@ -29,20 +29,13 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     // slither-disable-next-line uninitialized-state
     uint256[] public withdrawSeq; // Priority sequence of money market indices for processing withdraws
 
-    struct Market {
-        bool isSupported;
-    }
-
     modifier checkMarketSupported(address token) {
-        require(isMarketSupported(token), "AssetManager: token not support");
+        require(isMarketSupported(token), "AssetManager: unsupported token");
         _;
     }
 
     modifier onlyAuth(address token) {
-        require(
-            _isUToken(msg.sender, token) || _isUserManager(msg.sender, token),
-            "AssetManager: sender must uToken or userManager"
-        );
+        require(_isUToken(msg.sender, token) || _isUserManager(msg.sender, token), "AssetManager: unauthed sender");
         _;
     }
 
@@ -69,12 +62,14 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     event LogRebalance(address tokenAddress, uint256[] percentages);
 
     function __AssetManager_init(address _marketRegistry) public initializer {
+        require(_marketRegistry != address(0), "AssetManager: marketRegistry can not be zero");
         Controller.__Controller_init(msg.sender);
         ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
         marketRegistry = _marketRegistry;
     }
 
     function setMarketRegistry(address _marketRegistry) external onlyAdmin {
+        require(_marketRegistry != address(0), "AssetManager: marketRegistry can not be zero");
         marketRegistry = _marketRegistry;
     }
 
@@ -96,53 +91,44 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
     /**
      *  @dev Returns the amount of the lending pool balance minus the amount of total staked.
      *  @param tokenAddress ERC20 token address
-     *  @return Amount can be borrowed
+     *  @return loanAmount Amount can be borrowed
      */
-    function getLoanableAmount(address tokenAddress) public view override returns (uint256) {
+    function getLoanableAmount(address tokenAddress) public view override returns (uint256 loanAmount) {
         uint256 poolBalance = getPoolBalance(tokenAddress);
-        if (poolBalance > totalPrincipal[tokenAddress]) return poolBalance - totalPrincipal[tokenAddress];
-        return 0;
+        loanAmount = poolBalance > totalPrincipal[tokenAddress] ? poolBalance - totalPrincipal[tokenAddress] : 0;
     }
 
     /**
      *  @dev Get the total amount of tokens deposited to all the integrated underlying protocols without side effects.
      *  @param tokenAddress ERC20 token address
-     *  @return Total market balance
+     *  @return tokenSupply Total market balance
      */
-    function totalSupply(address tokenAddress) public override returns (uint256) {
+    function totalSupply(address tokenAddress) public override returns (uint256 tokenSupply) {
+        tokenSupply = 0;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
-            for (uint256 i = 0; i < moneyMarkets.length; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
-                    continue;
+            uint256 moneyMarketsLength = moneyMarkets.length;
+            for (uint256 i = 0; i < moneyMarketsLength; i++) {
+                if (moneyMarkets[i].supportsToken(tokenAddress)) {
+                    tokenSupply += moneyMarkets[i].getSupply(tokenAddress);
                 }
-                tokenSupply += moneyMarkets[i].getSupply(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
     }
 
     /**
      *  @dev Get the total amount of tokens deposited to all the integrated underlying protocols, but without side effects. Safe to call anytime, but may not get the most updated number for the current block. Call totalSupply() for that purpose.
      *  @param tokenAddress ERC20 token address
-     *  @return Total market balance
+     *  @return tokenSupply Total market balance
      */
-    function totalSupplyView(address tokenAddress) public view override returns (uint256) {
+    function totalSupplyView(address tokenAddress) public view override returns (uint256 tokenSupply) {
+        tokenSupply = 0;
         if (isMarketSupported(tokenAddress)) {
-            uint256 tokenSupply = 0;
-            for (uint256 i = 0; i < moneyMarkets.length; i++) {
-                if (!moneyMarkets[i].supportsToken(tokenAddress)) {
-                    continue;
+            uint256 moneyMarketsLength = moneyMarkets.length;
+            for (uint256 i = 0; i < moneyMarketsLength; i++) {
+                if (moneyMarkets[i].supportsToken(tokenAddress)) {
+                    tokenSupply += moneyMarkets[i].getSupplyView(tokenAddress);
                 }
-                tokenSupply += moneyMarkets[i].getSupplyView(tokenAddress);
             }
-
-            return tokenSupply;
-        } else {
-            return 0;
         }
     }
 
@@ -152,7 +138,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @return Whether is supported
      */
     function isMarketSupported(address tokenAddress) public view override returns (bool) {
-        return supportedMarkets[tokenAddress].isSupported;
+        return supportedMarkets[tokenAddress];
     }
 
     /**
@@ -170,7 +156,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         returns (bool)
     {
         IERC20Upgradeable poolToken = IERC20Upgradeable(token);
-        require(amount > 0, "AssetManager: amount can not be zero");
+        require(amount > 0, "AssetManager: amount cant be 0");
 
         if (!_isUToken(msg.sender, token)) {
             balances[msg.sender][token] += amount;
@@ -179,10 +165,11 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
 
         bool remaining = true;
         if (isMarketSupported(token)) {
+            uint256 moneyMarketsLength = moneyMarkets.length;
             // assumption: markets are arranged in order of decreasing liquidity
             // iterate markets till floors are filled
             // floors define minimum amount to maintain confidence in liquidity
-            for (uint256 i = 0; i < moneyMarkets.length && remaining; i++) {
+            for (uint256 i = 0; i < moneyMarketsLength && remaining; i++) {
                 IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
 
                 if (!moneyMarket.supportsToken(token)) continue;
@@ -197,13 +184,12 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
             // iterate markets in reverse to optimize for yield
             // do this only if floors are filled i.e. min liquidity satisfied
             // dposit in the market where ceiling is not being exceeded
-            for (uint256 j = moneyMarkets.length; j > 0 && remaining; j--) {
+            for (uint256 j = moneyMarketsLength; j > 0 && remaining; j--) {
                 IMoneyMarketAdapter moneyMarket = moneyMarkets[j - 1];
                 if (!moneyMarket.supportsToken(token)) continue;
 
                 uint256 supply = moneyMarket.getSupply(token);
                 uint256 ceiling = moneyMarket.ceilingMap(token);
-                if (ceiling <= supply) continue;
                 if (supply + amount > ceiling) continue;
 
                 poolToken.safeTransferFrom(msg.sender, address(moneyMarket), amount);
@@ -233,7 +219,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         address account,
         uint256 amount
     ) external override whenNotPaused nonReentrant onlyAuth(token) returns (bool) {
-        require(_checkSenderBalance(msg.sender, token, amount), "AssetManager: balance not enough to withdraw");
+        require(_checkSenderBalance(msg.sender, token, amount), "AssetManager: balance too low");
 
         uint256 remaining = amount;
 
@@ -246,8 +232,9 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         }
 
         if (isMarketSupported(token)) {
+            uint256 withdrawSeqLength = withdrawSeq.length;
             // iterate markets according to defined sequence and withdraw
-            for (uint256 i = 0; i < withdrawSeq.length && remaining > 0; i++) {
+            for (uint256 i = 0; i < withdrawSeqLength && remaining > 0; i++) {
                 IMoneyMarketAdapter moneyMarket = moneyMarkets[withdrawSeq[i]];
                 if (!moneyMarket.supportsToken(token)) continue;
 
@@ -281,11 +268,34 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param tokenAddress ERC20 token address
      */
     function addToken(address tokenAddress) external override onlyAdmin {
-        require(!supportedMarkets[tokenAddress].isSupported, "AssetManager: token is exist");
+        require(!supportedMarkets[tokenAddress], "AssetManager: token exists");
         supportedTokensList.push(tokenAddress);
-        supportedMarkets[tokenAddress].isSupported = true;
+        supportedMarkets[tokenAddress] = true;
 
         approveAllMarketsMax(tokenAddress);
+    }
+
+    /**
+     *  @dev Remove a ERC20 token to support in AssetManager
+     *  @param tokenAddress ERC20 token address
+     */
+    function removeToken(address tokenAddress) external override onlyAdmin {
+        bool isExist = false;
+        uint256 index;
+        uint256 supportedTokensLength = supportedTokensList.length;
+        for (uint256 i = 0; i < supportedTokensLength; i++) {
+            if (tokenAddress == address(supportedTokensList[i])) {
+                isExist = true;
+                index = i;
+                break;
+            }
+        }
+
+        if (isExist) {
+            supportedTokensList[index] = supportedTokensList[supportedTokensLength - 1];
+            supportedTokensList.pop();
+            supportedMarkets[tokenAddress] = false;
+        }
     }
 
     /**
@@ -294,7 +304,8 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      */
     function approveAllMarketsMax(address tokenAddress) public override onlyAdmin {
         IERC20Upgradeable poolToken = IERC20Upgradeable(tokenAddress);
-        for (uint256 i = 0; i < moneyMarkets.length; i++) {
+        uint256 moneyMarketsLength = moneyMarkets.length;
+        for (uint256 i = 0; i < moneyMarketsLength; i++) {
             poolToken.safeApprove(address(moneyMarkets[i]), 0);
             poolToken.safeApprove(address(moneyMarkets[i]), type(uint256).max);
         }
@@ -306,18 +317,45 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      */
     function addAdapter(address adapterAddress) external override onlyAdmin {
         bool isExist = false;
-        for (uint256 i = 0; i < moneyMarkets.length; i++) {
+        uint256 moneyMarketsLength = moneyMarkets.length;
+        for (uint256 i = 0; i < moneyMarketsLength; i++) {
             if (adapterAddress == address(moneyMarkets[i])) isExist = true;
         }
 
-        if (!isExist) moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
+        if (!isExist) {
+            moneyMarkets.push(IMoneyMarketAdapter(adapterAddress));
+            withdrawSeq.push(moneyMarkets.length - 1);
+        }
 
         approveAllTokensMax(adapterAddress);
     }
 
+    /**
+     *  @dev Remove a adapter for the underlying lending protocol
+     *  @param adapterAddress adapter address
+     */
+    function removeAdapter(address adapterAddress) external override onlyAdmin {
+        bool isExist = false;
+        uint256 index;
+        uint256 moneyMarketsLength = moneyMarkets.length;
+        for (uint256 i = 0; i < moneyMarketsLength; i++) {
+            if (adapterAddress == address(moneyMarkets[i])) {
+                isExist = true;
+                index = i;
+                break;
+            }
+        }
+
+        if (isExist) {
+            moneyMarkets[index] = moneyMarkets[moneyMarketsLength - 1];
+            moneyMarkets.pop();
+        }
+    }
+
     function overwriteAdapters(address[] calldata adapters) external onlyAdmin {
-        moneyMarkets = new IMoneyMarketAdapter[](adapters.length);
-        for (uint256 i = 0; i < adapters.length; i++) {
+        uint256 adaptersLength = adapters.length;
+        moneyMarkets = new IMoneyMarketAdapter[](adaptersLength);
+        for (uint256 i = 0; i < adaptersLength; i++) {
             moneyMarkets[i] = IMoneyMarketAdapter(adapters[i]);
         }
     }
@@ -327,7 +365,8 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param adapterAddress Address of adaptor for money market
      */
     function approveAllTokensMax(address adapterAddress) public override onlyAdmin {
-        for (uint256 i = 0; i < supportedTokensList.length; i++) {
+        uint256 supportedTokensLength = supportedTokensList.length;
+        for (uint256 i = 0; i < supportedTokensLength; i++) {
             IERC20Upgradeable poolToken = IERC20Upgradeable(supportedTokensList[i]);
             poolToken.safeApprove(adapterAddress, 0);
             poolToken.safeApprove(adapterAddress, type(uint256).max);
@@ -361,36 +400,42 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         onlyAdmin
     {
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
-        require(percentages.length + 1 == moneyMarkets.length, "AssetManager: percentages error");
+        uint256 moneyMarketsLength = moneyMarkets.length;
+        uint256 percentagesLength = percentages.length;
+        require(percentagesLength + 1 == moneyMarketsLength, "AssetManager: percentages error");
 
-        for (uint256 i = 0; i < moneyMarkets.length; i++) {
-            if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+        for (uint256 i = 0; i < moneyMarketsLength; i++) {
+            IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+            if (!moneyMarket.supportsToken(tokenAddress)) {
                 continue;
             }
-            moneyMarkets[i].withdrawAll(tokenAddress, address(this));
+            moneyMarket.withdrawAll(tokenAddress, address(this));
         }
 
         uint256 tokenSupply = token.balanceOf(address(this));
 
-        for (uint256 i = 0; i < percentages.length; i++) {
-            if (!moneyMarkets[i].supportsToken(tokenAddress)) {
+        for (uint256 i = 0; i < percentagesLength; i++) {
+            IMoneyMarketAdapter moneyMarket = moneyMarkets[i];
+            if (!moneyMarket.supportsToken(tokenAddress)) {
                 continue;
             }
             uint256 amountToDeposit = (tokenSupply * percentages[i]) / 10000;
             if (amountToDeposit == 0) {
                 continue;
             }
-            token.safeTransfer(address(moneyMarkets[i]), amountToDeposit);
-            moneyMarkets[i].deposit(tokenAddress);
+            token.safeTransfer(address(moneyMarket), amountToDeposit);
+            moneyMarket.deposit(tokenAddress);
         }
 
         uint256 remainingTokens = token.balanceOf(address(this));
-        if (moneyMarkets[moneyMarkets.length - 1].supportsToken(tokenAddress) && remainingTokens > 0) {
-            token.safeTransfer(address(moneyMarkets[moneyMarkets.length - 1]), remainingTokens);
-            moneyMarkets[moneyMarkets.length - 1].deposit(tokenAddress);
+        IMoneyMarketAdapter lastMoneyMarket = moneyMarkets[moneyMarketsLength - 1];
+        if (lastMoneyMarket.supportsToken(tokenAddress) && remainingTokens > 0) {
+            token.safeTransfer(address(lastMoneyMarket), remainingTokens);
+            lastMoneyMarket.deposit(tokenAddress);
         }
 
-        require(token.balanceOf(address(this)) == 0, "AssetManager: there are remaining funds in the fund pool");
+        //In order to prevent dust from being stored in the market
+        require(token.balanceOf(address(this)) < 10000, "AssetManager: there are remaining funds in the fund pool");
 
         emit LogRebalance(tokenAddress, percentages);
     }
@@ -401,7 +446,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
      *  @param recipient Recipient address
      */
     function claimTokens(address tokenAddress, address recipient) external override onlyAdmin {
-        require(recipient != address(0), "AsstManager: recipient can not be zero");
+        require(recipient != address(0), "AssetManager:recipient cant be 0");
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
         uint256 balance = token.balanceOf(address(this));
         token.safeTransfer(recipient, balance);

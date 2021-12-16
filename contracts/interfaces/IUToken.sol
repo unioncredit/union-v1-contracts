@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 /**
  *  @title UToken Interface
@@ -10,7 +10,7 @@ interface IUToken {
      *  @dev Returns the remaining amount that can be borrowed from the market.
      *  @return Remaining total amount
      */
-    function getRemainingLoanSize() external view returns (uint256);
+    function getRemainingDebtCeiling() external view returns (uint256);
 
     /**
      *  @dev Get the borrowed principle
@@ -54,24 +54,6 @@ interface IUToken {
     function calculatingFee(uint256 amount) external view returns (uint256);
 
     /**
-     *  @dev Get member loan data
-     *  @param member Member address
-     *  @return Loan
-     */
-    function getLoan(address member)
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            address,
-            uint256,
-            int256,
-            bool,
-            uint256
-        );
-
-    /**
      *  @dev Calculating member's borrowed interest
      *  @param account Member address
      *  @return Interest amount
@@ -100,11 +82,18 @@ interface IUToken {
     function setDebtCeiling(uint256 debtCeiling_) external;
 
     /**
+     *  @dev Update the max loan size
+     *  Accept claims only from the admin
+     *  @param maxBorrow_ Max loan amount per user
+     */
+    function setMaxBorrow(uint256 maxBorrow_) external;
+
+    /**
      *  @dev Update the minimum loan size
      *  Accept claims only from the admin
-     *  @param minLoan_ Minimum loan amount per user
+     *  @param minBorrow_ Minimum loan amount per user
      */
-    function setMinLoan(uint256 minLoan_) external;
+    function setMinBorrow(uint256 minBorrow_) external;
 
     /**
      *  @dev Change loan overdue duration, based on the number of blocks
@@ -120,6 +109,24 @@ interface IUToken {
      */
     function setInterestRateModel(address newInterestRateModel) external;
 
+    function setReserveFactor(uint256 reserveFactorMantissa_) external;
+
+    function supplyRatePerBlock() external returns (uint256);
+
+    function accrueInterest() external returns (bool);
+
+    function balanceOfUnderlying(address owner) external returns (uint256);
+
+    function mint(uint256 mintAmount) external;
+
+    function redeem(uint256 redeemTokens) external;
+
+    function redeemUnderlying(uint256 redeemAmount) external;
+
+    function addReserves(uint256 addAmount) external;
+
+    function removeReserves(address receiver, uint256 reduceAmount) external;
+
     /**
      *  @dev Borrowing from the market
      *  Accept claims only from the member
@@ -132,10 +139,18 @@ interface IUToken {
      *  @dev Repay the loan
      *  Accept claims only from the member
      *  Updated member lastPaymentEpoch only when the repayment amount is greater than interest
-     *  @param account Borrower address
      *  @param amount Repay amount
      */
-    function repay(address account, uint256 amount) external;
+    function repayBorrow(uint256 amount) external;
+
+    /**
+     *  @dev Repay the loan
+     *  Accept claims only from the member
+     *  Updated member lastPaymentEpoch only when the repayment amount is greater than interest
+     *  @param borrower Borrower address
+     *  @param amount Repay amount
+     */
+    function repayBorrowBehalf(address borrower, uint256 amount) external;
 
     /**
      *  @dev Update borrower overdue info

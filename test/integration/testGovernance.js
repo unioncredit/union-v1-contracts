@@ -1,11 +1,26 @@
 const {ethers, upgrades, waffle} = require("hardhat");
 const {parseEther} = ethers.utils;
-const {waitNBlocks, encodeParameters, etherUnsigned, increaseTime} = require("../../utils");
+const {waitNBlocks, etherUnsigned, increaseTime} = require("../../utils");
 
 require("chai").should();
 
+const initialVotingDelay = 2;
+const initialVotingPeriod = 5760;
+const initialProposalThreshold = "50000000000000000000000";
+
 describe("Governance Contract", async () => {
     before(async () => {
+        await network.provider.request({
+            method: "hardhat_reset",
+            params: [
+                {
+                    forking: {
+                        jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
+                        blockNumber: 12542012
+                    }
+                }
+            ]
+        });
         [ADMIN, proxyAdmin] = await ethers.getSigners();
 
         console.log("Creating proxy instance of ERC20...");
@@ -17,10 +32,15 @@ describe("Governance Contract", async () => {
         console.log(`ERC20 proxy created at ${erc20Proxy.address}`);
         await erc20Proxy.mint(ADMIN.address, parseEther("10000000"));
 
-        console.log("Creating proxy instance of CreditLimitByMedian.sol...");
-        const CreditLimitByMedian = await ethers.getContractFactory("CreditLimitByMedian");
-        creditLimitByMedian = await CreditLimitByMedian.deploy(3);
-        console.log(`CreditLimitByMedian proxy created at ${creditLimitByMedian.address}`);
+        console.log("Creating proxy instance of Timelock.sol...");
+        const Timelock = await ethers.getContractFactory("TimelockController");
+        timlockProxy = await Timelock.deploy(etherUnsigned(7 * 24 * 60 * 60), [ADMIN.address], [ADMIN.address]);
+        console.log(`Timelock proxy created at ${timlockProxy.address}`);
+
+        console.log("Creating proxy instance of SumOfTrust.sol...");
+        const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
+        sumOfTrust = await SumOfTrust.deploy(3);
+        console.log(`SumOfTrust proxy created at ${sumOfTrust.address}`);
 
         console.log("Creating proxy instance of FixedInterestRateModel.sol...");
         //The interest rate is set to 0 to prevent interference
@@ -32,7 +52,7 @@ describe("Governance Contract", async () => {
         const block = await waffle.provider.getBlock("latest");
         const time = block.timestamp;
         const UnionToken = await ethers.getContractFactory("UnionToken");
-        unionTokenProxy = await UnionToken.deploy("Union Token", "UNION", parseInt(time) + 10);
+        unionTokenProxy = await UnionToken.deploy("Union Token", "UNION", timlockProxy.address, parseInt(time) + 10);
         console.log(`UnionToken proxy created at ${unionTokenProxy.address}`);
 
         console.log("Creating proxy instance of MarketRegistry.sol...");
@@ -66,7 +86,7 @@ describe("Governance Contract", async () => {
                 assetManagerProxy.address,
                 unionTokenProxy.address,
                 erc20Proxy.address,
-                creditLimitByMedian.address,
+                sumOfTrust.address,
                 comptroller.address,
                 ADMIN.address
             ],
@@ -78,14 +98,15 @@ describe("Governance Contract", async () => {
         //Handling fee is set to 0
         await userManagerProxy.setNewMemberFee(0);
 
-        console.log("Creating proxy instance of Timelock.sol...");
-        const Timelock = await ethers.getContractFactory("TimelockController");
-        timlockProxy = await Timelock.deploy(etherUnsigned(7 * 24 * 60 * 60), [ADMIN.address], [ADMIN.address]);
-        console.log(`Timelock proxy created at ${timlockProxy.address}`);
-
         console.log("Creating proxy instance of Governor.sol...");
-        const Governor = await ethers.getContractFactory("UnionGovernorMock");
-        governanceProxy = await Governor.deploy(unionTokenProxy.address, timlockProxy.address);
+        const Governor = await ethers.getContractFactory("UnionGovernor");
+        governanceProxy = await Governor.deploy(
+            unionTokenProxy.address,
+            timlockProxy.address,
+            initialVotingDelay,
+            initialVotingPeriod,
+            initialProposalThreshold
+        );
         console.log(`Governor proxy created at ${governanceProxy.address}`);
         await timlockProxy.grantRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), governanceProxy.address);
         await timlockProxy.grantRole(ethers.utils.id("PROPOSER_ROLE"), governanceProxy.address);
@@ -94,12 +115,11 @@ describe("Governance Contract", async () => {
         await timlockProxy.renounceRole(ethers.utils.id("PROPOSER_ROLE"), ADMIN.address);
         await timlockProxy.renounceRole(ethers.utils.id("EXECUTOR_ROLE"), ADMIN.address);
 
-        const UErc20 = await ethers.getContractFactory("UErc20");
-        const uErc20 = await UErc20.deploy("UToken", "UToken");
         uTokenProxy = await upgrades.deployProxy(
             await ethers.getContractFactory("UToken"),
             [
-                uErc20.address,
+                "UToken",
+                "UToken",
                 erc20Proxy.address,
                 "1000000000000000000",
                 "500000000000000000",
@@ -112,10 +132,9 @@ describe("Governance Contract", async () => {
             ],
             {
                 initializer:
-                    "__UToken_init(address,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
+                    "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)"
             }
         );
-        await uErc20.transferOwnership(uTokenProxy.address);
         await marketRegistryProxy.addUToken(erc20Proxy.address, uTokenProxy.address);
         await erc20Proxy.approve(assetManagerProxy.address, parseEther("10000"));
         await userManagerProxy.addAdmin(timlockProxy.address);
@@ -144,7 +163,7 @@ describe("Governance Contract", async () => {
         const proposalId = await governanceProxy.latestProposalIds(ADMIN.address);
 
         const votingDelay = await governanceProxy.votingDelay();
-        await waitNBlocks(parseInt(votingDelay));
+        await waitNBlocks(parseInt(votingDelay) + 10);
 
         res = await governanceProxy.state(proposalId);
         res.toString().should.eq("1");

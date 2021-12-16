@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 pragma abicoder v1;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -51,6 +51,16 @@ abstract contract LendingPool {
         );
 }
 
+abstract contract AMarket {
+    function claimRewards(
+        address[] calldata assets,
+        uint256 amount,
+        address to
+    ) external virtual;
+
+    function getRewardsBalance(address[] memory assets, address user) external view virtual returns (uint256);
+}
+
 /**
  * @title AaveAdapter
  *  @dev The implementation of Aave.Finance MoneyMarket that integrates with AssetManager.
@@ -63,6 +73,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     address public assetManager;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
+    AMarket public market;
     LendingPool public lendingPool;
 
     modifier checkTokenSupported(address tokenAddress) {
@@ -75,10 +86,15 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         _;
     }
 
-    function __AaveAdapter_init(address _assetManager, LendingPool _lendingPool) public initializer {
+    function __AaveAdapter_init(
+        address _assetManager,
+        LendingPool _lendingPool,
+        AMarket _market
+    ) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
         lendingPool = _lendingPool;
+        market = _market;
     }
 
     function setAssetManager(address _assetManager) external onlyAdmin {
@@ -86,10 +102,12 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     }
 
     function setFloor(address tokenAddress, uint256 floor) external onlyAdmin {
+        require(tokenAddress != address(0), "AaveAdapter: tokenAddress can not be zero");
         floorMap[tokenAddress] = floor;
     }
 
     function setCeiling(address tokenAddress, uint256 ceiling) external onlyAdmin {
+        require(tokenAddress != address(0), "AaveAdapter: tokenAddress can not be zero");
         ceilingMap[tokenAddress] = ceiling;
     }
 
@@ -160,10 +178,16 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         return _supportsToken(tokenAddress);
     }
 
-    function _supportsToken(address tokenAddress) internal view returns (bool) {
+    function claimRewards(address tokenAddress) external override onlyAdmin {
         address aTokenAddress = tokenToAToken[tokenAddress];
+        address[] memory assets = new address[](1);
+        assets[0] = aTokenAddress;
+        uint256 rewards = market.getRewardsBalance(assets, address(this));
+        market.claimRewards(assets, rewards, msg.sender);
+    }
 
-        return aTokenAddress != address(0);
+    function _supportsToken(address tokenAddress) internal view returns (bool) {
+        return tokenToAToken[tokenAddress] != address(0);
     }
 
     function _claimTokens(address tokenAddress, address recipient) private {

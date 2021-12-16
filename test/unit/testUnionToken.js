@@ -50,7 +50,7 @@ describe("UnionToken Contract", () => {
         // console.log({mintingAllowedAfter})
 
         const UnionToken = await ethers.getContractFactory("UnionToken");
-        unionToken = await UnionToken.deploy("Union Token", "UNION", mintingAllowedAfter);
+        unionToken = await UnionToken.deploy("Union Token", "UNION", ADMIN.address, mintingAllowedAfter);
         await waitNBlocks(10);
     };
 
@@ -62,10 +62,17 @@ describe("UnionToken Contract", () => {
             isAdmin.should.eq(false);
         });
 
-        it("Mint transaction from Bob should fail", async () => {
+        it("Mint transaction from Bob should fail and after set minter to Bob should success", async () => {
             await expect(unionToken.connect(BOB).mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith(
-                "Ownable: caller is not the owner"
+                "no auth"
             );
+            await expect(unionToken.setPendingMinter(ethers.constants.AddressZero)).to.be.revertedWith(
+                "address not be zero"
+            );
+            await unionToken.setPendingMinter(BOB.address);
+            await unionToken.connect(BOB).acceptMinter();
+            await expect(unionToken.mint(ADMIN.address, parseEther("10000000"))).to.be.revertedWith("no auth");
+            unionToken.connect(BOB).mint(ADMIN.address, parseEther("10000000"));
         });
     });
 
@@ -292,7 +299,7 @@ describe("UnionToken Contract", () => {
             res.toString().should.eq("0");
 
             res = await unionToken.getPriorVotes(BOB.address, blockNumber + 1);
-            res.toString().should.eq("100000000000000000000000000");
+            res.toString().should.eq(parseEther("1000000000"));
         });
 
         it("returns the latest block if >= last checkpoint block", async () => {
@@ -300,7 +307,7 @@ describe("UnionToken Contract", () => {
             await waitNBlocks(2);
             let blockNumber = await ethers.provider.getBlockNumber();
             let res = await unionToken.getPriorVotes(BOB.address, blockNumber - 1);
-            res.toString().should.eq("100000000000000000000000000");
+            res.toString().should.eq(parseEther("1000000000"));
         });
     });
 
@@ -323,40 +330,40 @@ describe("UnionToken Contract", () => {
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
-            (blockOffset = 1), (votes = "100000000000000000000000000");
+            (blockOffset = 1), (votes = "1000000000000000000000000000");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
             await unionToken.connect(ADMIN).transfer(ALICE.address, "10");
             await waitNBlocks(interval);
 
-            (blockOffset = txBlock + interval), (votes = "100000000000000000000000000");
+            (blockOffset = txBlock + interval), (votes = "1000000000000000000000000000");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
-            (blockOffset = txBlock + interval + 1), (votes = "99999999999999999999999990");
+            (blockOffset = txBlock + interval + 1), (votes = "999999999999999999999999990");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
             await unionToken.connect(ADMIN).transfer(ALICE.address, "10");
             await waitNBlocks(interval);
 
-            (blockOffset = 2 * (txBlock + interval)), (votes = "99999999999999999999999990");
+            (blockOffset = 2 * (txBlock + interval)), (votes = "999999999999999999999999990");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
-            (blockOffset = 2 * (txBlock + interval) + 1), (votes = "99999999999999999999999980");
+            (blockOffset = 2 * (txBlock + interval) + 1), (votes = "999999999999999999999999980");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
             await unionToken.connect(ALICE).transfer(ADMIN.address, "20");
             await waitNBlocks(interval);
 
-            (blockOffset = 3 * (txBlock + interval)), (votes = "99999999999999999999999980");
+            (blockOffset = 3 * (txBlock + interval)), (votes = "999999999999999999999999980");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
 
-            (blockOffset = 3 * (txBlock + interval) + 1), (votes = "100000000000000000000000000");
+            (blockOffset = 3 * (txBlock + interval) + 1), (votes = "1000000000000000000000000000");
             res = await unionToken.getPriorVotes(BOB.address, startBlockNumber + blockOffset);
             res.toString().should.eq(votes);
         });

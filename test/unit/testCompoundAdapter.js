@@ -9,7 +9,7 @@ describe("CompoundAdapter Contract", async () => {
 
     const RATE = ethers.utils.parseEther("0.01");
     before(async () => {
-        [ADMIN, ASSET_MANAGER, ASSET_MANAGER_2] = await ethers.getSigners();
+        [ADMIN, ASSET_MANAGER, ASSET_MANAGER_2, COMPTROLLER] = await ethers.getSigners();
 
         erc20 = await upgrades.deployProxy(await ethers.getContractFactory("FaucetERC20"), ["Dai Stablecoin", "DAI"], {
             initializer: "__FaucetERC20_init(string,string)"
@@ -27,8 +27,8 @@ describe("CompoundAdapter Contract", async () => {
     beforeEach(async () => {
         compoundAdapter = await upgrades.deployProxy(
             await ethers.getContractFactory("CompoundAdapter"),
-            [ASSET_MANAGER.address],
-            {initializer: "__CompoundAdapter_init(address)"}
+            [ASSET_MANAGER.address, COMPTROLLER.address],
+            {initializer: "__CompoundAdapter_init(address, address)"}
         );
 
         await compoundAdapter.mapTokenToCToken(erc20.address, marketMock.address);

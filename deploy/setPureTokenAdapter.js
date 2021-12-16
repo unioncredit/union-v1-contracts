@@ -1,4 +1,4 @@
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const {execute, read} = deployments;
@@ -11,7 +11,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     if (
         !(
             (await read("PureTokenAdapter", {from: deployer}, "ceilingMap", DAI)) ===
-            configs[chainId]["PureTokenAdapter"]["pureTokenCeiling"]
+            configs[chainId]["PureTokenAdapter"]["ceiling"]
         )
     ) {
         tx = await execute(
@@ -19,14 +19,14 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
             {from: deployer},
             "setCeiling",
             DAI,
-            configs[chainId]["PureTokenAdapter"]["pureTokenCeiling"]
+            configs[chainId]["PureTokenAdapter"]["ceiling"]
         );
         console.log("PureTokenAdapter setCeiling, tx is:", tx.transactionHash);
     }
     if (
         !(
             (await read("PureTokenAdapter", {from: deployer}, "floorMap", DAI)) ===
-            configs[chainId]["PureTokenAdapter"]["pureTokenFloor"]
+            configs[chainId]["PureTokenAdapter"]["floor"]
         )
     ) {
         tx = await execute(
@@ -34,11 +34,10 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
             {from: deployer},
             "setFloor",
             DAI,
-            configs[chainId]["PureTokenAdapter"]["pureTokenFloor"]
+            configs[chainId]["PureTokenAdapter"]["floor"]
         );
         console.log("PureTokenAdapter setFloor, tx is:", tx.transactionHash);
     }
     console.log("setPureTokenAdapter end");
 };
 module.exports.tags = ["PureTokenAdapter"];
-module.exports.runAtTheEnd = true;

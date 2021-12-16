@@ -1,4 +1,4 @@
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const {execute, read} = deployments;
@@ -10,13 +10,15 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
             network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
         const cDAI =
-            network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["cDAI"];
+            network.name === "hardhat"
+                ? (await deployments.get("FaucetERC20")).address
+                : configs[chainId]["CompoundAdapter"]["cDAI"];
 
         console.log("setCompoundAdapter start");
         if (
             !(
                 (await read("CompoundAdapter", {from: deployer}, "ceilingMap", DAI)) ===
-                configs[chainId]["CompoundAdapter"]["compoundTokenCeiling"]
+                configs[chainId]["CompoundAdapter"]["ceiling"]
             )
         ) {
             tx = await execute(
@@ -24,14 +26,14 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
                 {from: deployer},
                 "setCeiling",
                 DAI,
-                configs[chainId]["CompoundAdapter"]["compoundTokenCeiling"]
+                configs[chainId]["CompoundAdapter"]["ceiling"]
             );
             console.log("CompoundAdapter setCeiling, tx is:", tx.transactionHash);
         }
         if (
             !(
                 (await read("CompoundAdapter", {from: deployer}, "floorMap", DAI)) ===
-                configs[chainId]["CompoundAdapter"]["compoundTokenFloor"]
+                configs[chainId]["CompoundAdapter"]["floor"]
             )
         ) {
             tx = await execute(
@@ -39,7 +41,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
                 {from: deployer},
                 "setFloor",
                 DAI,
-                configs[chainId]["CompoundAdapter"]["compoundTokenFloor"]
+                configs[chainId]["CompoundAdapter"]["floor"]
             );
             console.log("CompoundAdapter, setFloor, tx is:", tx.transactionHash);
         }
@@ -51,4 +53,3 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
 };
 module.exports.tags = ["CompoundAdapter"];
-module.exports.runAtTheEnd = true;

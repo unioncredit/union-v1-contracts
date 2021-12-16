@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 /**
  * @title MoneyMarketAdapter Interface
@@ -58,4 +58,6 @@ interface IMoneyMarketAdapter {
      * @param tokenAddress The address of token whose ceiling is being fetched
      */
     function ceilingMap(address tokenAddress) external view returns (uint256);
+
+    function claimRewards(address tokenAddress) external;
 }

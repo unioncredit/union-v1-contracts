@@ -1,4 +1,4 @@
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, deployments, getChainId, network}) => {
     const {deploy} = deployments;
@@ -6,20 +6,19 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const chainId = await getChainId();
 
-    const uErc20 = await deployments.get("UErc20");
-
-    const params = configs[chainId]["UToken"];
+    const params = configs[chainId]["UDai"];
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
-    await deploy("UToken", {
+    await deploy("UDai", {
         from: deployer,
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
                 methodName: "__UToken_init",
                 args: [
-                    uErc20.address,
+                    params["name"],
+                    params["symbol"],
                     DAI,
                     params.initialExchangeRateMantissa,
                     params.reserveFactorMantissa,
@@ -35,5 +34,4 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         log: true
     });
 };
-module.exports.tags = ["UToken"];
-module.exports.dependencies = ["UErc20"];
+module.exports.tags = ["UDai"];

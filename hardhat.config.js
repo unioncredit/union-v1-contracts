@@ -1,14 +1,18 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("@openzeppelin/hardhat-upgrades");
 require("hardhat-gas-reporter");
+require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("solidity-coverage");
 require("dotenv").config();
+
+// tasks
+require("./tasks/gasDelta");
+require("./tasks/accounts");
 
 module.exports = {
     networks: {
@@ -16,11 +20,6 @@ module.exports = {
             accounts: {
                 mnemonic: "test test test test test test test test test test test junk"
             },
-            forking: {
-                url: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
-                blockNumber: 12542012
-            },
-            hardfork: "berlin",
             allowUnlimitedContractSize: true
         },
         rinkeby: {
@@ -34,6 +33,12 @@ module.exports = {
             accounts: {
                 mnemonic: process.env.MNEMONIC_TEST
             }
+        },
+        mainnet: {
+            url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID,
+            accounts: {
+                mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+            }
         }
     },
     solidity: {
@@ -43,7 +48,7 @@ module.exports = {
                 settings: {
                     optimizer: {
                         enabled: true,
-                        runs: 200
+                        runs: 100
                     },
                     evmVersion: "istanbul"
                 }
@@ -60,6 +65,9 @@ module.exports = {
         currency: "USD",
         gasPrice: 100,
         coinmarketcap: process.env.COINMARKETCAP_API_KEY
+    },
+    contractSizer: {
+        runOnCompile: true
     },
     namedAccounts: {
         deployer: {

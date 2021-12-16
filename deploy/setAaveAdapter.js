@@ -1,4 +1,4 @@
-const configs = require("../deployConfig.json");
+const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const {execute, read} = deployments;
@@ -45,4 +45,3 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
 };
 module.exports.tags = ["AaveAdapter"];
-module.exports.runAtTheEnd = true;

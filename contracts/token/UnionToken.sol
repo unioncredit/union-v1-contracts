@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.4;
+pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20VotesComp.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
@@ -28,14 +28,26 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
     /// @notice The timestamp after which minting may occur
     uint256 public mintingAllowedAfter;
 
-    uint256 public constant INIT_CIRCULATING = 100000000 * 10**18;
+    uint256 public constant INIT_CIRCULATING = 1000000000 * 10**18; // 1B
 
     /// @notice Cap on the percentage of totalSupply that can be minted at each mint
-    uint256 public constant mintCap = 4;
+    uint256 public constant mintCap = 2;
+
+    address public minter;
+    address public pendingMinter;
+
+    event MinterChange(address oldMinter, address newMinter);
+    event NewPendingMinter(address oldPendingMinter, address newPendingMinter);
+
+    modifier onlyMinter() {
+        require(minter == msg.sender, "no auth");
+        _;
+    }
 
     constructor(
         string memory name,
         string memory symbol,
+        address minter_,
         uint256 mintingAllowedAfter_
     ) ERC20(name, symbol) ERC20Permit(name) {
         require(mintingAllowedAfter_ >= block.timestamp, "minting can only begin after deployment");
@@ -47,10 +59,34 @@ contract UnionToken is ERC20VotesComp, ERC20Burnable, Whitelistable {
 
         mintingAllowedAfter = mintingAllowedAfter_;
         whitelistEnabled = false;
+        _setMinter(minter_);
         whitelist(msg.sender);
     }
 
-    function mint(address dst, uint256 amount) external onlyOwner returns (bool) {
+    function setPendingMinter(address newPendingMinter) external onlyMinter {
+        require(newPendingMinter != address(0), "address not be zero");
+        _setPendingMinter(newPendingMinter);
+    }
+
+    function acceptMinter() external {
+        require(msg.sender == pendingMinter && pendingMinter != address(0), "no auth");
+        _setMinter(pendingMinter);
+        _setPendingMinter(address(0));
+    }
+
+    function _setMinter(address newMinter) private {
+        address oldMinter = minter;
+        minter = newMinter;
+        emit MinterChange(oldMinter, newMinter);
+    }
+
+    function _setPendingMinter(address newPendingMinter) private {
+        address oldPendingMinter = pendingMinter;
+        pendingMinter = newPendingMinter;
+        emit NewPendingMinter(oldPendingMinter, newPendingMinter);
+    }
+
+    function mint(address dst, uint256 amount) external onlyMinter returns (bool) {
         require(amount <= (totalSupply() * mintCap) / 100, "exceeded mint cap");
 
         _mint(dst, amount);
