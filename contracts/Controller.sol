@@ -3,16 +3,13 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /**
  * @title Controller component
  * @dev For easy access to any core components
  */
-abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpgradeable {
-    bytes32 public constant ROLE_ADMIN = keccak256("ROLE_ADMIN");
-
-    mapping(address => address) private _admins;
+abstract contract Controller is Initializable, UUPSUpgradeable {
+    mapping(address => bool) private _admins;
     // slither-disable-next-line uninitialized-state
     bool private _paused;
     // slither-disable-next-line uninitialized-state
@@ -27,6 +24,8 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
      * @dev Emitted when the pause is lifted by a pauser (`account`).
      */
     event Unpaused(address account);
+
+    event AdminChanged(address account, bool isAdmin);
 
     /**
      * @dev Modifier to make a function callable only when the contract is not paused.
@@ -45,7 +44,7 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
     }
 
     modifier onlyAdmin() {
-        require(hasRole(ROLE_ADMIN, msg.sender), "Controller: not admin");
+        require(_admins[msg.sender], "Controller: not auth");
         _;
     }
 
@@ -58,9 +57,8 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
     function __Controller_init(address admin_) public initializer {
         require(admin_ != address(0), "Controller: address zero");
         _paused = false;
-        _admins[admin_] = admin_;
+        _admins[admin_] = true;
         __UUPSUpgradeable_init();
-        _setupRole(ROLE_ADMIN, admin_);
         pauseGuardian = admin_;
     }
 
@@ -71,7 +69,7 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
      * @param account Account address
      */
     function isAdmin(address account) public view returns (bool) {
-        return hasRole(ROLE_ADMIN, account);
+        return _admins[account];
     }
 
     /**
@@ -80,10 +78,8 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
      */
     function addAdmin(address account) public onlyAdmin {
         require(account != address(0), "Controller: address zero");
-        require(_admins[account] == address(0), "Controller: admin already existed");
-
-        _admins[account] = account;
-        _setupRole(ROLE_ADMIN, account);
+        _admins[account] = true;
+        emit AdminChanged(account, true);
     }
 
     /**
@@ -98,8 +94,8 @@ abstract contract Controller is Initializable, UUPSUpgradeable, AccessControlUpg
      * @dev Renouce the admin from the sender's address
      */
     function renounceAdmin() public {
-        renounceRole(ROLE_ADMIN, msg.sender);
-        delete _admins[msg.sender];
+        _admins[msg.sender] = false;
+        emit AdminChanged(msg.sender, false);
     }
 
     /**

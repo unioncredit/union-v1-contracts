@@ -270,7 +270,7 @@ describe("AssetManager Contract", async () => {
         it("Non admin Alice should not be able to overwrite adapter order", async () => {
             await expect(
                 assetManager.connect(ALICE).overwriteAdapters([compoundAdapter.address, compoundAdapter2.address])
-            ).to.be.revertedWith("Controller: not admi");
+            ).to.be.revertedWith("Controller: not auth");
         });
     });
 });

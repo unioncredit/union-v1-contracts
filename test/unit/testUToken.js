@@ -96,7 +96,7 @@ describe("UToken Contract", async () => {
         let assetManagerNew = await uToken.assetManager();
         assetManagerNew.should.eq(assetManager.address);
         await expect(uToken.connect(alice).setAssetManager(assetManager.address)).to.be.revertedWith(
-            "Controller: not admin"
+            "Controller: not auth"
         );
         await uToken.setAssetManager(assetManager.address);
         assetManagerNew = await uToken.assetManager();
@@ -105,7 +105,7 @@ describe("UToken Contract", async () => {
         let userManagerNew = await uToken.userManager();
         userManagerNew.should.eq(userManager.address);
         await expect(uToken.connect(alice).setUserManager(userManager.address)).to.be.revertedWith(
-            "Controller: not admin"
+            "Controller: not auth"
         );
 
         await uToken.setUserManager(userManager.address);
@@ -114,42 +114,42 @@ describe("UToken Contract", async () => {
 
         let originationFeeNew = await uToken.originationFee();
         originationFeeNew.toString().should.eq(originationFee.toString());
-        await expect(uToken.connect(alice).setOriginationFee(0)).to.be.revertedWith("Controller: not admin");
+        await expect(uToken.connect(alice).setOriginationFee(0)).to.be.revertedWith("Controller: not auth");
         await uToken.setOriginationFee(0);
         userManagerNew = await uToken.originationFee();
         userManagerNew.toString().should.eq("0");
 
         let debtCeilingNew = await uToken.debtCeiling();
         debtCeilingNew.toString().should.eq(debtCeiling.toString());
-        await expect(uToken.connect(alice).setDebtCeiling(0)).to.be.revertedWith("Controller: not admin");
+        await expect(uToken.connect(alice).setDebtCeiling(0)).to.be.revertedWith("Controller: not auth");
         await uToken.setDebtCeiling(0);
         debtCeilingNew = await uToken.debtCeiling();
         debtCeilingNew.toString().should.eq("0");
 
         let minBorrowNew = await uToken.minBorrow();
         minBorrowNew.toString().should.eq(minBorrow.toString());
-        await expect(uToken.connect(alice).setMinBorrow(0)).to.be.revertedWith("Controller: not admin");
+        await expect(uToken.connect(alice).setMinBorrow(0)).to.be.revertedWith("Controller: not auth");
         await uToken.setMinBorrow(0);
         minBorrowNew = await uToken.minBorrow();
         minBorrowNew.toString().should.eq("0");
 
         let maxBorrowNew = await uToken.maxBorrow();
         maxBorrowNew.toString().should.eq(maxBorrow.toString());
-        await expect(uToken.connect(alice).setMaxBorrow(0)).to.be.revertedWith("Controller: not admin");
+        await expect(uToken.connect(alice).setMaxBorrow(0)).to.be.revertedWith("Controller: not auth");
         await uToken.setMaxBorrow(0);
         maxBorrowNew = await uToken.maxBorrow();
         maxBorrowNew.toString().should.eq("0");
 
         let overdueBlocksNew = await uToken.overdueBlocks();
         overdueBlocksNew.toString().should.eq(overdueBlocks.toString());
-        await expect(uToken.connect(alice).setOverdueBlocks(0)).to.be.revertedWith("Controller: not admin");
+        await expect(uToken.connect(alice).setOverdueBlocks(0)).to.be.revertedWith("Controller: not auth");
         await uToken.setOverdueBlocks(0);
         overdueBlocksNew = await uToken.overdueBlocks();
         overdueBlocksNew.toString().should.eq("0");
 
         let reserveFactorMantissaNew = await uToken.reserveFactorMantissa();
         reserveFactorMantissaNew.toString().should.eq(reserveFactorMantissa.toString());
-        await expect(uToken.connect(alice).setReserveFactor(0)).to.be.revertedWith("Controller: not admin");
+        await expect(uToken.connect(alice).setReserveFactor(0)).to.be.revertedWith("Controller: not auth");
         await uToken.setReserveFactor(0);
         reserveFactorMantissaNew = await uToken.reserveFactorMantissa();
         reserveFactorMantissaNew.toString().should.eq("0");
@@ -157,7 +157,7 @@ describe("UToken Contract", async () => {
         let interestRateModelNew = await uToken.interestRateModel();
         interestRateModelNew.should.eq(fixedInterestRateModel.address);
         await expect(uToken.connect(alice).setInterestRateModel(ethers.constants.AddressZero)).to.be.revertedWith(
-            "Controller: not admin"
+            "Controller: not auth"
         );
         await expect(uToken.setInterestRateModel(ethers.constants.AddressZero)).to.be.reverted;
         let fixedInterestRateModelNew = await FixedInterestRateModel.deploy(borrowInterestPerBlock);
@@ -398,7 +398,7 @@ describe("UToken Contract", async () => {
         totalReserves.toString().should.eq(expectedTotalReserves.toString());
 
         await expect(uToken.connect(alice).removeReserves(alice.address, expectedTotalReserves)).to.be.revertedWith(
-            "Controller: not admin"
+            "Controller: not auth"
         );
 
         const erc20BalanceBefore = await erc20.balanceOf(alice.address);
