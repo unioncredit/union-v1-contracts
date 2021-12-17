@@ -7,6 +7,8 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
+    console.log("setAssetManager start");
+
     tx = await execute(
         "AssetManager",
         {from: deployer},
@@ -30,7 +32,6 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
 
     if (configs[chainId]["AaveAdapter"]) {
-        console.log("setAssetManager start");
         tx = await execute(
             "AssetManager",
             {from: deployer},
@@ -46,14 +47,6 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
         tx = await execute("AssetManager", {from: deployer}, "addToken", DAI);
         console.log("AssetManager addToken, tx is:", tx.transactionHash);
     }
-
-    // tx = await execute(
-    //     "AssetManager",
-    //     {from: deployer},
-    //     "changeWithdrawSequence",
-    //     configs[chainId]["AssetManager"]["newSeq"]
-    // );
-    // console.log("AssetManager changeWithdrawSequence, tx is:", tx.transactionHash);
 
     console.log("setAssetManager end");
 };
