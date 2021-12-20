@@ -47,24 +47,78 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 totalLockedStake;
     }
 
+    /**
+     *  @dev Max number of addresses a single account can trust
+     */
     uint256 public constant MAX_TRUST_LIMIT = 100;
-    uint256 public maxStakeAmount;
-    address public stakingToken;
-    address public unionToken;
-    address public assetManager;
-    IUToken public uToken;
-    ICreditLimitModel public creditLimitModel;
-    IComptroller public comptroller;
-    uint256 public newMemberFee; // New member application fee
 
+    /**
+     *  @dev Max amount that can be staked of the staking token
+     */
+    uint256 public maxStakeAmount;
+
+    /**
+     *  @dev The staking token that is staked in the comptroller
+     */
+    address public stakingToken;
+
+    /**
+     *  @dev Address of the UNION token contract
+     */
+    address public unionToken;
+
+    /**
+     *  @dev Address of the asset manager contract
+     */
+    address public assetManager;
+
+    /**
+     *  @dev uToken contract
+     */
+    IUToken public uToken;
+
+    /**
+     *  @dev Credit Limit Model contract
+     */
+    ICreditLimitModel public creditLimitModel;
+
+    /**
+     *  @dev Comptroller contract
+     */
+    IComptroller public comptroller;
+
+    /**
+     *  @dev New member fee
+     */
+    uint256 public newMemberFee;
+
+    /**
+     *  @dev Total amount of staked staked token
+     */
     // slither-disable-next-line constable-states
     uint256 public override totalStaked;
+
+    /**
+     *  @dev Total frozen
+     */
     // slither-disable-next-line constable-states
     uint256 public override totalFrozen;
+
+    /**
+     *  @dev Union members
+     */
     mapping(address => Member) private members;
+
+    /**
+     *  @dev Mapping of stakers to staking amount
+     */
     // slither-disable-next-line uninitialized-state
-    mapping(address => uint256) public stakers; //1 user address 2 amount
-    mapping(address => uint256) public memberFrozen; //1 user address 2 frozen amount
+    mapping(address => uint256) public stakers;
+
+    /**
+     *  @dev Mapping of member address to amount frozen
+     */
+    mapping(address => uint256) public memberFrozen;
 
     error AddressZero();
     error AmountZero();
@@ -188,18 +242,33 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         maxStakeAmount = 5000e18;
     }
 
+    /**
+     * @dev Set the max amount that a user can stake
+     * Emits {LogSetMaxStakeAmount} event
+     * @param maxStakeAmount_ The max stake amount
+     */
     function setMaxStakeAmount(uint256 maxStakeAmount_) public onlyAdmin {
         uint256 oldMaxStakeAmount = maxStakeAmount;
         maxStakeAmount = maxStakeAmount_;
         emit LogSetMaxStakeAmount(oldMaxStakeAmount, maxStakeAmount);
     }
 
+    /**
+     * @dev set the UToken contract address
+     * Emits {LogSetUToken} event
+     * @param uToken_ UToken contract address
+     */
     function setUToken(address uToken_) public onlyAdmin {
         if (uToken_ == address(0)) revert AddressZero();
         uToken = IUToken(uToken_);
         emit LogSetUToken(uToken_);
     }
 
+    /**
+     * @dev set New Member fee
+     * Emits {LogSetNewMemberFee} event
+     * @param amount New member fee amount
+     */
     function setNewMemberFee(uint256 amount) public onlyAdmin {
         uint256 oldMemberFee = newMemberFee;
         newMemberFee = amount;
@@ -208,7 +277,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     /**
      *  @dev Change the credit limit model
-     *  Accept claims only from the admin
+     *  Only accepts calls from the admin
      *  @param newCreditLimitModel New credit limit model address
      */
     function setCreditLimitModel(address newCreditLimitModel) public override onlyAdmin {
@@ -434,7 +503,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     /**
      *  @dev Add member
-     *  Accept claims only from the admin
+     *  Only accepts calls from the admin
+     *  Emit {LogAddMember} event
      *  @param account Member address
      */
     function addMember(address account) public override onlyAdmin {
@@ -444,6 +514,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     /**
      *  @dev Update the trust amount for exisitng members.
+     *  Emits {LogUpdateTrust} event
      *  @param borrower_ Account address
      *  @param trustAmount Trust amount
      */
@@ -501,6 +572,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     /**
      *  @dev Stop vouch for other member.
+     *  Only callable by a member when the contract is not paused
+     *  Emit {LogCancelVouch} event
      *  @param staker Staker address
      *  @param borrower borrower address
      */
@@ -550,6 +623,15 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         emit LogCancelVouch(staker, borrower);
     }
 
+    /**
+     *  @dev Apply for a membership using a signed permit
+     *  @param newMember New member address
+     *  @param value Amount approved by permit
+     *  @param deadline Timestamp for when the permit expires
+     *  @param v secp256k1 signature part
+     *  @param r secp256k1 signature part
+     *  @param s secp256k1 signature part
+     */
     function registerMemberWithPermit(
         address newMember,
         uint256 value,
@@ -565,6 +647,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     /**
      *  @dev Apply for membership, and burn UnionToken as application fees
+     *  Emits {LogRegisterMember} event
      *  @param newMember New member address
      */
     function registerMember(address newMember) public override whenNotPaused {
@@ -589,6 +672,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         emit LogRegisterMember(msg.sender, newMember);
     }
 
+    /**
+     *  @dev Updates locked amounts for this borrowers stakers
+     *  @param amount Amount being locked
+     *  @param isBorrow if this is a borrow or a repayment
+     */
     function updateLockedData(
         address borrower,
         uint256 amount,
@@ -635,8 +723,9 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     /**
-     *  @dev Stake
-     *  @param amount Amount
+     *  @dev Stake staking token to earn rewards from the comptroller
+     *  Emits a {LogStake} event.
+     *  @param amount Amount to stake
      */
     function stake(uint256 amount) public override whenNotPaused nonReentrant {
         IERC20Upgradeable erc20Token = IERC20Upgradeable(stakingToken);
@@ -660,7 +749,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
     /**
      *  @dev stakeWithPermit
-     *  @param amount Amount
+     *  @param amount Amount to stake
+     *  @param nonce Nonce
+     *  @param expiry Timestamp for when the permit expires
+     *  @param v secp256k1 signature part
+     *  @param r secp256k1 signature part
+     *  @param s secp256k1 signature part
      */
     function stakeWithPermit(
         uint256 amount,
@@ -677,8 +771,9 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     /**
-     *  @dev Unstake
-     *  @param amount Amount
+     *  @dev Unstake staking token from comptroller
+     *  Emits {LogUnstake} event
+     *  @param amount Amount to unstake
      */
     function unstake(uint256 amount) external override whenNotPaused nonReentrant {
         IERC20Upgradeable erc20Token = IERC20Upgradeable(stakingToken);
@@ -724,7 +819,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         }
     }
 
-    //Only supports sumOfTrust
+    /**
+     *  @dev Write off a borrowers debt
+     *  Emits {LogDebtWriteOff} event
+     *  @param borrower address of borrower
+     *  @param amount amount to writeoff
+     */
     function debtWriteOff(address borrower, uint256 amount) public {
         if (amount == 0) revert AmountZero();
         if (amount > totalStaked) revert ExceedsTotalStaked();
@@ -770,6 +870,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         _updateTotalFrozen(account, isOverdue);
     }
 
+    /**
+     *  @dev Batch update total Frozen
+     *  @param accounts array of accounts to update frozen for
+     *  @param isOverdues array of bools to determine if the account is overdue
+     */
     function batchUpdateTotalFrozen(address[] calldata accounts, bool[] calldata isOverdues)
         external
         override
@@ -818,6 +923,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         }
     }
 
+    /**
+     * @dev get frozen coin age
+     * @param staker address of the staker
+     * @param pastBlocks
+     */
     function getFrozenCoinAge(address staker, uint256 pastBlocks) public view override returns (uint256) {
         uint256 totalFrozenCoinAge = 0;
 
