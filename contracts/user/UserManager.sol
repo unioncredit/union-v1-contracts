@@ -926,7 +926,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     /**
      * @dev get frozen coin age
      * @param staker address of the staker
-     * @param pastBlocks
+     * @param pastBlocks past blocks
      */
     function getFrozenCoinAge(address staker, uint256 pastBlocks) public view override returns (uint256) {
         uint256 totalFrozenCoinAge = 0;
