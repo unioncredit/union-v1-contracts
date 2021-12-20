@@ -92,8 +92,8 @@ var configs = {
             cComptroller: ""
         },
         AaveAdapter: {
-            aaveTokenCeiling: "1000000000000000000000000",
-            aaveTokenFloor: "10000000000000000000000"
+            ceiling: "1000000000000000000000000",
+            floor: "10000000000000000000000"
         },
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"
