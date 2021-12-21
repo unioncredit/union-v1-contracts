@@ -40,7 +40,10 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
             );
             console.log("AaveAdapter setFloor, tx is:", tx.transactionHash);
         }
-
+        if (!(await read("AaveAdapter", {from: deployer}, "tokenToAToken", DAI))) {
+            tx = await execute("AaveAdapter", {from: deployer}, "mapTokenToAToken", DAI);
+            console.log("AaveAdapter mapTokenToAToken, tx is:", tx.transactionHash);
+        }
         console.log("setAaveAdapter end");
     }
 };
