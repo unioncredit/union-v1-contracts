@@ -47,7 +47,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 totalLockedStake;
     }
 
-    uint256 public constant MAX_TRUST_LIMIT = 100;
+    uint256 public constant MAX_TRUST_LIMIT = 25;
     uint256 public maxStakeAmount;
     address public stakingToken;
     address public unionToken;
