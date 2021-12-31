@@ -26,7 +26,21 @@ async function main() {
         pureAdapter.interface.encodeFunctionData("setFloor(address,uint256)", [daiAddress, pureFloor]),
         comptroller.interface.encodeFunctionData("setHalfDecayPoint(uint256)", [halfDecayPoint])
     ];
-    const msg = "adapter and decay rate parameter changes";
+    const msg = `
+    UIP001: adapter and decay rate parameter changes
+
+Proposal
+1.Raise the AAVE adapter ceiling to 500k
+2.Raise the Compound Adapter Ceiling to 500k
+3.Raise the Pure Adapter floor to 100k
+4.Set the Half_Decay_Point to 1,000,000 (One Million)
+
+Part1: Adapters
+The goal with the adapters is to have as many tx's be drawn from the more gas efficient pure token adapter, while having the majority of undrawn funds earning interest in money markets.
+
+Part2: Comptroller
+In order to increase the rate of decentralization and distribute voting power during this launch period, we are proposing increasing the Half_Decay_Point to 1 Million. Effectively doubling the rate of UNION per block.
+    `;
 
     return {targets, values, calldatas, msg};
 }

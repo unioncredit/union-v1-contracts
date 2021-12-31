@@ -1,6 +1,6 @@
 const hre = require("hardhat");
 const {ethers, getChainId} = hre;
-const getProposeParams = require("../proposes/mainnet/499.js");
+const getProposeParams = require("../proposes/mainnet/UIP001.js");
 
 const checkFileExist = path => {
     try {

@@ -6,7 +6,7 @@
 const {ethers} = require("hardhat");
 const {parseEther} = ethers.utils;
 const {waitNBlocks, increaseTime} = require("../../utils");
-const getProposeParams = require("../../proposes/mainnet/499.js");
+const getProposeParams = require("../../proposes/mainnet/UIP001.js");
 
 require("chai").should();
 
@@ -25,7 +25,7 @@ const pureFloor = parseEther("100000");
 const halfDecayPoint = 1000000;
 
 let governanceProxy, unionToken, aaveAdapter, compoundAdapter, pureAdapter, comptroller;
-describe("Proposal #499", async () => {
+describe("Proposal UIP001", async () => {
     before(async () => {
         await network.provider.request({
             method: "hardhat_reset",
