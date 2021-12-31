@@ -20,7 +20,7 @@ const pureAdapterAddress = "0x62DD06026F5f8e874eEfF362b1280CD9A2057b7d";
 const comptrollerAddress = "0x216dE4089dCdD7B95BC34BdCe809669C788a9A5d";
 const aaveCeil = parseEther("500000");
 const compoundCeil = parseEther("500000");
-const pureCeil = parseEther("100000");
+const pureFloor = parseEther("100000");
 const halfDecayPoint = 1000000;
 
 let governanceProxy, unionToken, aaveAdapter, compoundAdapter, pureAdapter, comptroller;
@@ -73,7 +73,7 @@ describe("Proposal #499", async () => {
         const calldatas = [
             aaveAdapter.interface.encodeFunctionData("setCeiling(address,uint256)", [daiAddress, aaveCeil]),
             compoundAdapter.interface.encodeFunctionData("setCeiling(address,uint256)", [daiAddress, compoundCeil]),
-            pureAdapter.interface.encodeFunctionData("setCeiling(address,uint256)", [daiAddress, pureCeil]),
+            pureAdapter.interface.encodeFunctionData("setFloor(address,uint256)", [daiAddress, pureFloor]),
             comptroller.interface.encodeFunctionData("setHalfDecayPoint(uint256)", [halfDecayPoint])
         ];
 
@@ -120,8 +120,8 @@ describe("Proposal #499", async () => {
         const compoundCeilRes = await compoundAdapter.ceilingMap(daiAddress);
         compoundCeilRes.should.eq(compoundCeil);
 
-        const pureCeilRes = await pureAdapter.ceilingMap(daiAddress);
-        pureCeilRes.should.eq(pureCeil);
+        const pureFloorRes = await pureAdapter.floorMap(daiAddress);
+        pureFloorRes.should.eq(pureFloor);
 
         const halfDecayPointRes = await comptroller.halfDecayPoint();
         halfDecayPointRes.should.eq(halfDecayPoint);
