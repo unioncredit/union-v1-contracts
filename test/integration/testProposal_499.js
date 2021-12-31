@@ -6,6 +6,7 @@
 const {ethers} = require("hardhat");
 const {parseEther} = ethers.utils;
 const {waitNBlocks, increaseTime} = require("../../utils");
+const getProposeParams = require("../../proposes/mainnet/499.js");
 
 require("chai").should();
 
@@ -65,27 +66,14 @@ describe("Proposal #499", async () => {
         pureAdapter = await ethers.getContractAt("PureTokenAdapter", pureAdapterAddress);
         comptroller = await ethers.getContractAt("Comptroller", comptrollerAddress);
         unionToken = await ethers.getContractAt("UnionToken", unionTokenAddress);
+
+        await unionToken.connect(unionSigner).delegate(defaultAccount.address);
     });
 
     it("Propose", async () => {
-        const targets = [aaveAdapterAddress, compoundAdapterAddress, pureAdapterAddress, comptrollerAddress];
-        const values = ["0", "0", "0", "0"];
-        const calldatas = [
-            aaveAdapter.interface.encodeFunctionData("setCeiling(address,uint256)", [daiAddress, aaveCeil]),
-            compoundAdapter.interface.encodeFunctionData("setCeiling(address,uint256)", [daiAddress, compoundCeil]),
-            pureAdapter.interface.encodeFunctionData("setFloor(address,uint256)", [daiAddress, pureFloor]),
-            comptroller.interface.encodeFunctionData("setHalfDecayPoint(uint256)", [halfDecayPoint])
-        ];
+        const {targets, values, calldatas, msg} = await getProposeParams();
 
-        await unionToken.connect(unionSigner).delegate(defaultAccount.address);
-        await waitNBlocks(2);
-
-        await governanceProxy["propose(address[],uint256[],bytes[],string)"](
-            targets,
-            values,
-            calldatas,
-            "adapter and decay rate parameter changes"
-        );
+        await governanceProxy["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
     });
 
     it("Cast vote", async () => {
