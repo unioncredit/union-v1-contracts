@@ -1,6 +1,13 @@
 const hre = require("hardhat");
 const {ethers, getChainId} = hre;
-const getProposeParams = require("../proposes/mainnet/UIP001.js");
+
+const propose_id = "UIP001";
+
+const networks = {
+    1: "mainnet",
+    42: "kovan",
+    31337: "hardhat"
+};
 
 const checkFileExist = path => {
     try {
@@ -10,14 +17,9 @@ const checkFileExist = path => {
     }
 };
 
-const networks = {
-    1: "mainnet",
-    42: "kovan",
-    31337: "hardhat"
-};
-
 (async () => {
     const chainId = await getChainId();
+    const getProposeParams = checkFileExist(`../proposes/${networks[chainId]}/${propose_id}.js`);
 
     const governorPath = `../deployments/${networks[chainId]}/UnionGovernor.json`;
     const governorParams = checkFileExist(governorPath);
