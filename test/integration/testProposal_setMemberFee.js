@@ -1,8 +1,3 @@
-//Raise the AAVE adapter ceiling to 500k
-//Raise the Compound Adapter Ceiling to 500k
-//Raise the Pure Adapter floor to 100k
-//Set the Half_Decay_Point to 1,000,000 (One Million)
-
 const {ethers} = require("hardhat");
 const {parseEther} = ethers.utils;
 const {waitNBlocks, increaseTime} = require("../../utils");
@@ -13,18 +8,10 @@ require("chai").should();
 const ethUser = "0x07f0eb0c571B6cFd90d17b5de2cc51112Fb95915"; //An address with eth
 const unionUser = "0x0fb99055fcdd69b711f6076be07b386aa2718bc6"; //An address with union
 const unionTokenAddress = "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C";
-const daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f";
 const governorAddress = "0x011e5846975c6463a8c6337EECF3cbF64e328884";
-const aaveAdapterAddress = "0xE8c77A541c933Aa1320Aa2f89a61f91130e4012d";
-const compoundAdapterAddress = "0x303CbdADF370F6bBa79651f680498E829cB860D5";
-const pureAdapterAddress = "0x62DD06026F5f8e874eEfF362b1280CD9A2057b7d";
-const comptrollerAddress = "0x216dE4089dCdD7B95BC34BdCe809669C788a9A5d";
-const aaveCeil = parseEther("500000");
-const compoundCeil = parseEther("500000");
-const pureFloor = parseEther("100000");
-const halfDecayPoint = 1000000;
+const userManagerAddress = "0x49c910Ba694789B58F53BFF80633f90B8631c195";
 
-let governanceProxy, unionToken, aaveAdapter, compoundAdapter, pureAdapter, comptroller;
+let governanceProxy, unionToken;
 describe("Proposal SetMemberFee", async () => {
     before(async () => {
         await network.provider.request({
@@ -61,13 +48,8 @@ describe("Proposal SetMemberFee", async () => {
         });
 
         governanceProxy = await ethers.getContractAt("UnionGovernor", governorAddress);
-        aaveAdapter = await ethers.getContractAt("AaveAdapter", aaveAdapterAddress);
-        compoundAdapter = await ethers.getContractAt("CompoundAdapter", compoundAdapterAddress);
-        pureAdapter = await ethers.getContractAt("PureTokenAdapter", pureAdapterAddress);
-        comptroller = await ethers.getContractAt("Comptroller", comptrollerAddress);
-        unionToken = await ethers.getContractAt("UnionToken", unionTokenAddress);
 
-        userManager = await ethers.getContractAt("UserManager", "0x49c910Ba694789B58F53BFF80633f90B8631c195");
+        unionToken = await ethers.getContractAt("UnionToken", unionTokenAddress);
 
         await unionToken.connect(unionSigner).delegate(defaultAccount.address);
     });
@@ -110,22 +92,10 @@ describe("Proposal SetMemberFee", async () => {
         console.log(res.toString());
 
         await governanceProxy["execute(uint256)"](proposalId);
-        // await tx.wait();
-        // console.log({tx});
+
+        const userManager = await ethers.getContractAt("UserManager", userManagerAddress);
 
         const fee = await userManager.newMemberFee();
         console.log({fee: fee.toString()});
-
-        // const aaveCeilRes = await aaveAdapter.ceilingMap(daiAddress);
-        // aaveCeilRes.should.eq(aaveCeil);
-
-        // const compoundCeilRes = await compoundAdapter.ceilingMap(daiAddress);
-        // compoundCeilRes.should.eq(compoundCeil);
-
-        // const pureFloorRes = await pureAdapter.floorMap(daiAddress);
-        // pureFloorRes.should.eq(pureFloor);
-
-        // const halfDecayPointRes = await comptroller.halfDecayPoint();
-        // halfDecayPointRes.should.eq(halfDecayPoint);
     });
 });
