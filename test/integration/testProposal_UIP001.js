@@ -6,7 +6,7 @@
 const {ethers} = require("hardhat");
 const {parseEther} = ethers.utils;
 const {waitNBlocks, increaseTime} = require("../../utils");
-const getProposeParams = require("../../proposes/mainnet/UIP001.js");
+const getProposalParams = require("../../proposes/mainnet/UIP001.js");
 
 require("chai").should();
 
@@ -71,7 +71,7 @@ describe("Proposal UIP001", async () => {
     });
 
     it("Propose", async () => {
-        const {targets, values, calldatas, msg} = await getProposeParams();
+        const {targets, values, calldatas, msg} = await getProposalParams();
 
         await governanceProxy["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
     });

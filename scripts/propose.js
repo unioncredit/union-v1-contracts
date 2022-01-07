@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const {ethers, getChainId, getNamedAccounts} = hre;
+const {ethers, getChainId} = hre;
 
 const propose_id = "UIP001";
 
@@ -19,8 +19,7 @@ const checkFileExist = path => {
 
 (async () => {
     const chainId = await getChainId();
-    const {deployer} = await getNamedAccounts();
-    const getProposeParams = checkFileExist(`../proposes/${networks[chainId]}/${propose_id}.js`);
+    const getProposalParams = checkFileExist(`../proposes/${networks[chainId]}/${propose_id}.js`);
 
     const governorPath = `../deployments/${networks[chainId]}/UnionGovernor.json`;
     const governorParams = checkFileExist(governorPath);
@@ -36,7 +35,7 @@ const checkFileExist = path => {
         }
     }
 
-    const {targets, values, calldatas, msg} = await getProposeParams();
+    const {targets, values, calldatas, msg} = await getProposalParams();
 
     const keccak256 = ethers.utils.keccak256;
     let myBuffer = [];
