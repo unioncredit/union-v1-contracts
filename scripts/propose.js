@@ -1,5 +1,5 @@
 const hre = require("hardhat");
-const {ethers, getChainId} = hre;
+const {ethers, getChainId, getNamedAccounts} = hre;
 
 const propose_id = "UIP001";
 
@@ -18,6 +18,7 @@ const checkFileExist = path => {
 };
 
 (async () => {
+    const {deployer} = await getNamedAccounts();
     const chainId = await getChainId();
     const getProposalParams = checkFileExist(`../proposes/${networks[chainId]}/${propose_id}.js`);
 
