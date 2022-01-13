@@ -23,7 +23,8 @@ var configs = {
             floor: parseUnits("25000"),
             ceiling: parseUnits("100000"),
             market: "0xd784927Ff2f95ba542BfC824c8a8a98F3495f6b5",
-            lendingPool: "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9"
+            lendingPool: "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9",
+            aDAI: "0x028171bCA77440897B824Ca71D1c56caC55b68A3"
         },
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
@@ -92,8 +93,8 @@ var configs = {
             cComptroller: ""
         },
         AaveAdapter: {
-            aaveTokenCeiling: "1000000000000000000000000",
-            aaveTokenFloor: "10000000000000000000000"
+            ceiling: "1000000000000000000000000",
+            floor: "10000000000000000000000"
         },
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"

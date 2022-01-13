@@ -4,6 +4,7 @@ const {ethers, getChainId} = hre;
 const configs = require("../deployConfig.js");
 
 const networks = {
+    1: "mainnet",
     42: "kovan",
     31337: "hardhat"
 };
@@ -120,7 +121,7 @@ const checkCompoundAdapter = async chainId => {
 const checkAaveAdapter = async chainId => {
     const path = `../deployments/${networks[chainId]}/AaveAdapter.json`;
     const params = checkFileExist(path);
-    const compoundAdapter = await ethers.getContractAt("AaveAdapter", params.address);
+    const aaveAdapter = await ethers.getContractAt("AaveAdapter", params.address);
 
     let DAI;
     if (chainId != 31337) {
@@ -129,22 +130,22 @@ const checkAaveAdapter = async chainId => {
         const erc20 = checkFileExist(`../deployments/${networks[chainId]}/FaucetERC20.json`);
         DAI = erc20.address;
     }
-    const ceiling = await compoundAdapter.ceilingMap(DAI);
+    const ceiling = await aaveAdapter.ceilingMap(DAI);
     if (parseFloat(ceiling) != parseFloat(configs[chainId]["AaveAdapter"]["ceiling"])) {
         throw new Error("AaveAdapter setCeiling error");
     }
 
-    const floor = await compoundAdapter.floorMap(DAI);
+    const floor = await aaveAdapter.floorMap(DAI);
     if (parseFloat(floor) != parseFloat(configs[chainId]["AaveAdapter"]["floor"])) {
         throw new Error("AaveAdapter setFloor error");
     }
 
-    const cToken = await compoundAdapter.tokenToCToken(DAI);
-    if (cToken.toLowerCase() != configs[chainId]["AaveAdapter"]["cDAI"]?.toLowerCase()) {
+    const aToken = await aaveAdapter.tokenToAToken(DAI);
+    if (aToken.toLowerCase() != configs[chainId]["AaveAdapter"]["aDAI"]?.toLowerCase()) {
         throw new Error("AaveAdapter setCToken error");
     }
 
-    const assetManager = await compoundAdapter.assetManager();
+    const assetManager = await aaveAdapter.assetManager();
     const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
     if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
         throw new Error("AaveAdapter set assetManager error");

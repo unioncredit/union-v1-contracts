@@ -10,6 +10,7 @@
         "deployTest": "yarn hardhat deploy --write true --reset --network hardhat",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "setAuth": "yarn hardhat run scripts/setAuth.js --network",
+        "propose": "yarn hardhat run scripts/propose.js --network",
         "coverage": "yarn hardhat coverage",
         "lint": "yarn solhint contracts/**/*.sol",
         "prettier:solidity": "npx prettier --write contracts/**/*.sol",

@@ -4,6 +4,7 @@ const {ethers, getNamedAccounts, getChainId} = hre;
 const configs = require("../deployConfig.js");
 
 const networks = {
+    1: "mainnet",
     42: "kovan",
     31337: "hardhat"
 };
@@ -100,7 +101,7 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
     }
 };
 
-const setUnionToken = async (chainId, timelockAddress, admin) => {
+const setUnionToken = async (chainId, admin) => {
     const unionTokenPath = `../deployments/${networks[chainId]}/UnionToken.json`;
     const unionTokenParams = checkFileExist(unionTokenPath);
     const unionToken = await ethers.getContractAt("UnionToken", unionTokenParams.address);
@@ -237,7 +238,7 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
     await setCompoundAdapter(chainId, timelockAddress, admin, guardian);
     await setPureTokenAdapter(chainId, timelockAddress, admin, guardian);
     await setComptroller(chainId, timelockAddress, admin, guardian);
-    await setUnionToken(chainId, timelockAddress, admin);
+    await setUnionToken(chainId, admin);
     await setFixedInterestRateModel(chainId, admin);
     await setSumOfTrust(chainId, admin);
     await setTreasury(chainId, admin);
