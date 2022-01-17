@@ -38,8 +38,8 @@
     "homepage": "https://github.com/unioncredit/union-v1-contracts#readme",
     "dependencies": {
         "@openzeppelin/cli": "2.8.2",
-        "@openzeppelin/contracts": "^4.4",
-        "@openzeppelin/contracts-upgradeable": "^4.4",
+        "@openzeppelin/contracts": "^4.4.2",
+        "@openzeppelin/contracts-upgradeable": "^4.4.2",
         "@openzeppelin/test-helpers": "0.5.4",
         "@openzeppelin/upgrades": "2.8.0",
         "cli-table3": "^0.6.0",
