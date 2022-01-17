@@ -1,12 +1,27 @@
+name: test uip proposals
+
 on:
     push:
         branches:
             - "uip/**"
 jobs:
-    print_context:
+    buildAndSimulate:
+        name: Build and Simulate
         runs-on: ubuntu-latest
         steps:
-            - env:
-                  EVENT_CONTEXT: ${{ toJSON(github.event) }}
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 14
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Simulate on mainnet
               run: |
-                  echo $EVENT_CONTEXT
+                  npm run test proposals/**/testProposal.js
+              env:
+                  COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  INFURA_ID: ${{ secrets.INFURA_ID }}
+                  MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
