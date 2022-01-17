@@ -15,11 +15,11 @@ jobs:
                   node-version: 14
 
             - name: Install Dependencies
-              run: npm install
+              run: yarn
 
             - name: Simulate on mainnet
               run: |
-                  npm run test proposals/**/testProposal.js
+                  yarn test --deploy-fixture proposals/**/testProposal.js
               env:
                   COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
