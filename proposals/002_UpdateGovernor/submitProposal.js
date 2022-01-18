@@ -46,5 +46,5 @@ const {ethers, getChainId, getNamedAccounts} = require("hardhat");
         throw new Error("proposal already exists");
     }
 
-    // await governor["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
+    await governor["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
 })();
