@@ -2,9 +2,9 @@ const {ethers, deployments, getChainId} = require("hardhat");
 
 async function deployNewGovernor() {
     const configs = {
-        initialVotingDelay: "6575",
-        initialVotingPeriod: "19725",
-        initialProposalThreshold: ethers.utils.parseUnits("10000000")
+        initialVotingDelay: "6575", // in blocks, 1 day
+        initialVotingPeriod: "19725", // in blocks, 3 days
+        initialProposalThreshold: ethers.utils.parseUnits("10000000") // 10M Union
     };
 
     const chainId = await getChainId();

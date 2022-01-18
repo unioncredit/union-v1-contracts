@@ -1,23 +1,15 @@
 const {ethers, deployments, getChainId} = require("hardhat");
 const {parseUnits} = ethers.utils;
 const {waitNBlocks, increaseTime} = require("../../utils");
-const {
-    getProposalParams,
-    ADMIN_ROLE,
-    PROPOSER_ROLE,
-    EXECUTOR_ROLE,
-    timelockAddress,
-    governorAddress
-} = require("./proposal_mainnet.js");
+const {getProposalParams, ADMIN_ROLE, PROPOSER_ROLE, EXECUTOR_ROLE} = require("./proposal.js");
 const deployNewGovernor = require("./deployNewGovernor.js");
 require("chai").should();
 
 const ethUser = "0x07f0eb0c571B6cFd90d17b5de2cc51112Fb95915"; //An address with eth
 const unionUser = "0x0fb99055fcdd69b711f6076be07b386aa2718bc6"; //An address with union
-const unionTokenAddress = "0x5Dfe42eEA70a3e6f93EE54eD9C321aF07A85535C";
 
 let governorProxy, newGovernorAddress, timelock, unionToken;
-describe("Update Governor", async () => {
+describe("Test Swap Governor", async () => {
     before(async () => {
         await network.provider.request({
             method: "hardhat_reset",
@@ -52,12 +44,12 @@ describe("Update Governor", async () => {
             value: parseUnits("10")
         });
 
+        const chainId = await getChainId();
+        const {governorAddress, timelockAddress, unionTokenAddress} = require(`./addresses.js`)(chainId);
+        console.log({governorAddress, timelockAddress, unionTokenAddress});
         governorProxy = await ethers.getContractAt("UnionGovernor", governorAddress);
-
-        unionToken = await ethers.getContractAt("UnionToken", unionTokenAddress);
-
         timelock = await ethers.getContractAt("TimelockController", timelockAddress);
-
+        unionToken = await ethers.getContractAt("UnionToken", unionTokenAddress);
         await unionToken.connect(unionSigner).delegate(defaultAccount.address);
 
         // deploy new governor
@@ -66,8 +58,12 @@ describe("Update Governor", async () => {
     });
 
     it("Propose", async () => {
-        const {targets, values, calldatas, msg} = await getProposalParams(newGovernorAddress);
-        // console.log({targets, values, calldatas, msg});
+        const {targets, values, calldatas, msg} = await getProposalParams({
+            newGovernorAddress,
+            timelockAddress: timelock.address,
+            governorAddress: governorProxy.address
+        });
+        console.log({targets, values, calldatas, msg});
 
         await governorProxy["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
     });
@@ -107,8 +103,8 @@ describe("Update Governor", async () => {
         (await timelock.hasRole(ADMIN_ROLE, newGovernorAddress)).should.eq(true);
         (await timelock.hasRole(PROPOSER_ROLE, newGovernorAddress)).should.eq(true);
         (await timelock.hasRole(EXECUTOR_ROLE, newGovernorAddress)).should.eq(true);
-        (await timelock.hasRole(ADMIN_ROLE, governorAddress)).should.eq(false);
-        (await timelock.hasRole(PROPOSER_ROLE, governorAddress)).should.eq(false);
-        (await timelock.hasRole(EXECUTOR_ROLE, governorAddress)).should.eq(false);
+        (await timelock.hasRole(ADMIN_ROLE, governorProxy.address)).should.eq(false);
+        (await timelock.hasRole(PROPOSER_ROLE, governorProxy.address)).should.eq(false);
+        (await timelock.hasRole(EXECUTOR_ROLE, governorProxy.address)).should.eq(false);
     });
 });
