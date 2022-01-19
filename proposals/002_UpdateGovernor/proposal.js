@@ -45,8 +45,22 @@ async function getProposalParams({timelockAddress, governorAddress, newGovernorA
     return {targets, values, calldatas, msg};
 }
 
+async function getNewGovernorProposalParams({userManagerAddress}) {
+    const userManager = await ethers.getContractAt("UserManager", userManagerAddress);
+
+    const targets = [userManagerAddress];
+    const values = ["0"];
+    const sigs = ["setNewMemberFee(uint256)"];
+    const calldatas = [ethers.utils.defaultAbiCoder.encode(["uint256"], [ethers.utils.parseUnits("0.1")])];
+    const msg = `Change New Member Fee to 0.1 Union`;
+    console.log("Proposal contents");
+    console.log({targets, values, sigs, calldatas, msg});
+    return {targets, values, sigs, calldatas, msg};
+}
+
 module.exports = {
     getProposalParams,
+    getNewGovernorProposalParams,
     ADMIN_ROLE,
     PROPOSER_ROLE,
     EXECUTOR_ROLE

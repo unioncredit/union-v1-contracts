@@ -1,14 +1,20 @@
 const {ethers, deployments, getChainId} = require("hardhat");
 const {parseUnits} = ethers.utils;
 const {waitNBlocks, increaseTime} = require("../../utils");
-const {getProposalParams, ADMIN_ROLE, PROPOSER_ROLE, EXECUTOR_ROLE} = require("./proposal.js");
+const {
+    getProposalParams,
+    getNewGovernorProposalParams,
+    ADMIN_ROLE,
+    PROPOSER_ROLE,
+    EXECUTOR_ROLE
+} = require("./proposal.js");
 const deployNewGovernor = require("./deployNewGovernor.js");
 require("chai").should();
 
 const ethUser = "0x07f0eb0c571B6cFd90d17b5de2cc51112Fb95915"; //An address with eth
 const unionUser = "0x0fb99055fcdd69b711f6076be07b386aa2718bc6"; //An address with union
 
-let governorProxy, newGovernorAddress, timelock, unionToken;
+let governorProxy, newGovernorAddress, _userManagerAddress, timelock, unionToken;
 describe("Test Swap Governor", async () => {
     before(async () => {
         await network.provider.request({
@@ -45,13 +51,14 @@ describe("Test Swap Governor", async () => {
         });
 
         const chainId = await getChainId();
-        const {governorAddress, timelockAddress, unionTokenAddress} = require(`./addresses.js`)(chainId);
-        console.log({governorAddress, timelockAddress, unionTokenAddress});
+        const {governorAddress, timelockAddress, unionTokenAddress, userManagerAddress} =
+            require(`./addresses.js`)(chainId);
+        console.log({governorAddress, timelockAddress, unionTokenAddress, userManagerAddress});
         governorProxy = await ethers.getContractAt("UnionGovernor", governorAddress);
         timelock = await ethers.getContractAt("TimelockController", timelockAddress);
         unionToken = await ethers.getContractAt("UnionToken", unionTokenAddress);
         await unionToken.connect(unionSigner).delegate(defaultAccount.address);
-
+        _userManagerAddress = userManagerAddress;
         // deploy new governor
         newGovernorAddress = await deployNewGovernor();
         console.log({newGovernorAddress});
@@ -63,7 +70,6 @@ describe("Test Swap Governor", async () => {
             timelockAddress: timelock.address,
             governorAddress: governorProxy.address
         });
-        console.log({targets, values, calldatas, msg});
 
         await governorProxy["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
     });
@@ -106,5 +112,23 @@ describe("Test Swap Governor", async () => {
         (await timelock.hasRole(ADMIN_ROLE, governorProxy.address)).should.eq(false);
         (await timelock.hasRole(PROPOSER_ROLE, governorProxy.address)).should.eq(false);
         (await timelock.hasRole(EXECUTOR_ROLE, governorProxy.address)).should.eq(false);
+    });
+
+    it("Vote with new govnernor", async () => {
+        const {targets, values, sigs, calldatas, msg} = await getNewGovernorProposalParams({
+            userManagerAddress: _userManagerAddress
+        });
+
+        const newGovernor = await ethers.getContractAt("UnionGovernor", newGovernorAddress);
+
+        console.log({newGovernor: newGovernor.address});
+        // Test Compound compatible propose() function
+        await newGovernor["propose(address[],uint256[],string[],bytes[],string)"](
+            targets,
+            values,
+            sigs,
+            calldatas,
+            msg
+        );
     });
 });
