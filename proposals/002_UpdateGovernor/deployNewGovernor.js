@@ -15,14 +15,13 @@ async function deployNewGovernor() {
 
     const {deploy} = deployments;
 
-    const unionToken = await deployments.get("UnionToken");
-    const timelock = await deployments.get("TimelockController");
+    const {timelockAddress, unionTokenAddress} = require(`./addresses.js`)(chainId);
 
     const deployResult = await deploy("UnionGovernor", {
         from: deployer,
         args: [
-            unionToken.address,
-            timelock.address,
+            unionTokenAddress,
+            timelockAddress,
             configs.initialVotingDelay,
             configs.initialVotingPeriod,
             configs.initialProposalThreshold
@@ -31,8 +30,8 @@ async function deployNewGovernor() {
     });
 
     const governor = await ethers.getContractAt("UnionGovernor", deployResult.address);
-    unionToken.address.should.eq(await governor.token());
-    timelock.address.should.eq(await governor.timelock());
+    unionTokenAddress.should.eq(await governor.token());
+    timelockAddress.should.eq(await governor.timelock());
     configs.initialVotingDelay.should.eq(await governor.votingDelay());
     configs.initialVotingPeriod.should.eq(await governor.votingPeriod());
     configs.initialProposalThreshold.eq(await governor.proposalThreshold());
