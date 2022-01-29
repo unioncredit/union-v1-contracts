@@ -16,6 +16,7 @@ async function deployNewGovernor() {
     const {deploy} = deployments;
 
     const {timelockAddress, unionTokenAddress} = require(`./addresses.js`)(chainId);
+    console.log({timelockAddress, unionTokenAddress});
 
     const deployResult = await deploy("UnionGovernor", {
         from: deployer,
@@ -28,13 +29,17 @@ async function deployNewGovernor() {
         ],
         log: true
     });
+    console.log({deployResult: deployResult.address});
 
-    const governor = await ethers.getContractAt("UnionGovernor", deployResult.address);
-    unionTokenAddress.should.eq(await governor.token());
-    timelockAddress.should.eq(await governor.timelock());
-    configs.initialVotingDelay.should.eq(await governor.votingDelay());
-    configs.initialVotingPeriod.should.eq(await governor.votingPeriod());
-    configs.initialProposalThreshold.eq(await governor.proposalThreshold());
+    if (require.main != module) {
+        // for testing scripts
+        const governor = await ethers.getContractAt("UnionGovernor", deployResult.address);
+        unionTokenAddress.should.eq(await governor.token());
+        timelockAddress.should.eq(await governor.timelock());
+        configs.initialVotingDelay.should.eq(await governor.votingDelay());
+        configs.initialVotingPeriod.should.eq(await governor.votingPeriod());
+        configs.initialProposalThreshold.eq(await governor.proposalThreshold());
+    }
 
     return deployResult.address;
 }
