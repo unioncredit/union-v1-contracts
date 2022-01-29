@@ -35,8 +35,8 @@ async function getProposalParams({timelockAddress, governorAddress, newGovernorA
 
 # Proposals
 
-1. Set timelock controller to use new governor.
-2. Revoke the old governor's roles from timelock.
+1. Set timelock controller to use the new governor.
+2. Revoke the old governor from timelock.
 
     `;
     console.log("Proposal contents");
