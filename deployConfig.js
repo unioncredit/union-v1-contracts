@@ -216,6 +216,132 @@ var configs = {
             initialVotingPeriod: "274", // 1 hr
             initialProposalThreshold: parseUnits("10000000")
         }
+    },
+    4: {
+        Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
+        Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
+        DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+        AssetManager: {
+            newSeq: [0, 1]
+        },
+        PureTokenAdapter: {
+            floor: parseUnits("50000"),
+            ceiling: parseUnits("1000000000")
+        },
+        CompoundAdapter: {
+            floor: parseUnits("25000"),
+            ceiling: parseUnits("100000"),
+            cComptroller: "0x2eaa9d77ae4d8f9cdd9faacd44016e746485bddb",
+            cDAI: "0x6d7f0754ffeb405d23c51ce938289d4835be3b14"
+        },
+        FixedInterestRateModel: {
+            interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
+        },
+        UDai: {
+            name: "uDAI",
+            symbol: "uDAI",
+            initialExchangeRateMantissa: parseUnits("1"), // 100%,
+            reserveFactorMantissa: parseUnits("1"), // 100%
+            originationFee: parseUnits("0.005"), // 0.5%
+            debtCeiling: parseUnits("250000"),
+            maxBorrow: parseUnits("25000"),
+            minBorrow: parseUnits("100"), // 100 dai
+            overdueBlocks: "197250" // in blocks, 30 days
+        },
+        SumOfTrust: {
+            effectiveNumber: "3"
+        },
+        UnionToken: {
+            name: "Union Token",
+            symbol: "UNION",
+            mintingAllowedAfter: "1766361600", // 2025/12/22 00:00:00 GMT+0000
+            comptrollerAmount: parseUnits("9000000"), //9m
+            amountForTreasuryVester: parseUnits("150000000"), //150m
+            amountForTreasury: parseUnits("40000000") //40m
+        },
+        TreasuryVester: {
+            vestingAmount: parseUnits("150000000"), //150m
+            vestingBegin: "1671667200", // 2022/12/22 00:00:00 GMT+0000
+            vestingCliff: "1671667200", // 2022/12/22 00:00:00 GMT+0000
+            vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
+        },
+        Treasury: {
+            dripStart: "", // in blocks, leave empty to use the current block number
+            dripRate: parseUnits("1"),
+            dripAmount: parseUnits("20000000") //20m
+        },
+        TimelockController: {
+            minDelay: "300" // in seconds, 1 day
+        },
+        UserManager: {
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "10",
+            initialVotingPeriod: "20",
+            initialProposalThreshold: parseUnits("10000000")
+        }
+    },
+    421611: {
+        Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
+        AssetManager: {
+            newSeq: [0]
+        },
+        PureTokenAdapter: {
+            floor: parseUnits("50000"),
+            ceiling: parseUnits("1000000000")
+        },
+        FixedInterestRateModel: {
+            interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
+        },
+        UDai: {
+            name: "uDAI",
+            symbol: "uDAI",
+            initialExchangeRateMantissa: parseUnits("1"), // 100%,
+            reserveFactorMantissa: parseUnits("1"), // 100%
+            originationFee: parseUnits("0.005"), // 0.5%
+            debtCeiling: parseUnits("250000"),
+            maxBorrow: parseUnits("25000"),
+            minBorrow: parseUnits("100"), // 100 dai
+            overdueBlocks: "197250" // in blocks, 30 days
+        },
+        SumOfTrust: {
+            effectiveNumber: "3"
+        },
+        UnionToken: {
+            name: "Union Token",
+            symbol: "UNION",
+            mintingAllowedAfter: "1766361600", // 2025/12/22 00:00:00 GMT+0000
+            comptrollerAmount: parseUnits("9000000"), //9m
+            amountForTreasuryVester: parseUnits("150000000"), //150m
+            amountForTreasury: parseUnits("40000000") //40m
+        },
+        TreasuryVester: {
+            vestingAmount: parseUnits("150000000"), //150m
+            vestingBegin: "1671667200", // 2022/12/22 00:00:00 GMT+0000
+            vestingCliff: "1671667200", // 2022/12/22 00:00:00 GMT+0000
+            vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
+        },
+        Treasury: {
+            dripStart: "", // in blocks, leave empty to use the current block number
+            dripRate: parseUnits("1"),
+            dripAmount: parseUnits("20000000") //20m
+        },
+        TimelockController: {
+            minDelay: "86400" // in seconds, 1 day
+        },
+        UserManager: {
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "6575",
+            initialVotingPeriod: "19725",
+            initialProposalThreshold: parseUnits("10000000")
+        }
     }
 };
 

@@ -5,8 +5,10 @@ const configs = require("../deployConfig.js");
 
 const networks = {
     1: "mainnet",
+    4: "rinkeby",
     42: "kovan",
-    31337: "hardhat"
+    31337: "hardhat",
+    421611: "arbitrumRinkeby"
 };
 
 const checkFileExist = path => {

@@ -34,6 +34,12 @@ module.exports = {
                 mnemonic: process.env.MNEMONIC_TEST
             }
         },
+        arbitrumRinkeby: {
+            url: "https://rinkeby.arbitrum.io/rpc",
+            accounts: {
+                mnemonic: process.env.MNEMONIC_TEST
+            }
+        },
         mainnet: {
             url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID,
             accounts: {
