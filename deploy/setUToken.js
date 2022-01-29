@@ -23,5 +23,5 @@ module.exports = async ({getNamedAccounts}) => {
     }
     console.log("setUToken end");
 };
-module.exports.tags = ["UTokenSetting"];
+module.exports.tags = ["UTokenSetting", "Arbitrum"];
 module.exports.dependencies = ["AssetManager", "FixedInterestRateModel", "UserManager"];

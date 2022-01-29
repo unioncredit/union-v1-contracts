@@ -8,8 +8,12 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
+    const unionTokenAddress =
+        network.name === "arbitrumRinkeby"
+            ? configs[chainId]["UnionToken"]["address"]
+            : (await deployments.get("UnionToken")).address;
+
     const assetManager = await deployments.get("AssetManager");
-    const unionToken = await deployments.get("UnionToken");
     const creditLimitModel = await deployments.get("SumOfTrust");
     const comptroller = await deployments.get("Comptroller");
 
@@ -21,7 +25,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
                 methodName: "__UserManager_init",
                 args: [
                     assetManager.address,
-                    unionToken.address,
+                    unionTokenAddress,
                     DAI,
                     creditLimitModel.address,
                     comptroller.address,
@@ -32,5 +36,5 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         log: true
     });
 };
-module.exports.tags = ["UserManager"];
+module.exports.tags = ["UserManager", "Arbitrum"];
 module.exports.dependencies = ["AssetManager", "UnionToken", "SumOfTrust", "Comptroller"];

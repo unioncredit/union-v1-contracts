@@ -11,5 +11,5 @@ module.exports = async ({getNamedAccounts}) => {
     }
     console.log("setUserManager end");
 };
-module.exports.tags = ["UserManagerSetting"];
+module.exports.tags = ["UserManagerSetting", "Arbitrum"];
 module.exports.dependencies = ["UserManager", "UDai"];

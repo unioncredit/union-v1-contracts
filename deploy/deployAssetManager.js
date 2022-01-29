@@ -16,5 +16,5 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         log: true
     });
 };
-module.exports.tags = ["AssetManager"];
+module.exports.tags = ["AssetManager", "Arbitrum"];
 module.exports.dependencies = ["DAI", "MarketRegistry"]; // this ensure the XX script above is executed first, so `deployments.get('XX')` succeeds

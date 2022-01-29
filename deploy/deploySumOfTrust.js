@@ -12,4 +12,4 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         log: true
     });
 };
-module.exports.tags = ["SumOfTrust"];
+module.exports.tags = ["SumOfTrust", "Arbitrum"];

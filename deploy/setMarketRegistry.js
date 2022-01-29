@@ -40,5 +40,5 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
     console.log("setMarketRegistry end");
 };
-module.exports.tags = ["MarketRegistrySetting"];
+module.exports.tags = ["MarketRegistrySetting", "Arbitrum"];
 module.exports.dependencies = ["MarketRegistry", "UDai", "UserManager"];
