@@ -9,7 +9,10 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     const uToken = await deployments.get("UDai");
 
-    const userManager = await deployments.get("UserManager");
+    const userManager =
+        network.name === "arbitrumRinkeby"
+            ? await deployments.get("UserManagerArbi")
+            : await deployments.get("UserManager");
 
     console.log("setMarketRegistry start");
 

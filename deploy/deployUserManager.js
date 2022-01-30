@@ -17,7 +17,8 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
     const creditLimitModel = await deployments.get("SumOfTrust");
     const comptroller = await deployments.get("Comptroller");
 
-    await deploy("UserManager", {
+    const UserManagerContract = network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
+    await deploy(UserManagerContract, {
         from: deployer,
         proxy: {
             proxyContract: "UUPSProxy",
