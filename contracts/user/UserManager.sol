@@ -842,7 +842,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     /**
      *  @dev Max number of vouches for a member can get, for ddos protection
      */
-    function _maxTrust() internal virtual returns (uint256) {
+    function _maxTrust() internal pure virtual returns (uint256) {
         return 25;
     }
 }

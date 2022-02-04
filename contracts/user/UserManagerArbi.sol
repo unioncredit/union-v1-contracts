@@ -35,7 +35,7 @@ contract UserManagerArbi is UserManager {
     /**
      *  @dev Max number of vouches for a member can get, for ddos protection
      */
-    function _maxTrust() internal virtual override returns (uint256) {
+    function _maxTrust() internal pure virtual override returns (uint256) {
         return 50;
     }
 }
