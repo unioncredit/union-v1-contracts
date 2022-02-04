@@ -290,6 +290,8 @@ var configs = {
         Guardian: "0x497C20fEd24D61C7506EF2500065e4fd662f3779",
         Admin: "0x497C20fEd24D61C7506EF2500065e4fd662f3779",
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
+        Timelock: "0xE2Ca72AF3eEF8620F2cE33A467c99eB41e90C640", // L2 address for rinkeby timelock 0xd1B972Af3eeF8620f2cE33a467c99eB41E90b52F
+        UnionToken: "0x9EB8287ED1B0a56c0D7F6f20bc538A0aEFe9Acb3", // L2 address for rinkeby Union 0xBd3a3c823A7442193BE5Ca8005D98F0599Cc8bD5
         AssetManager: {
             newSeq: [0]
         },
@@ -314,37 +316,9 @@ var configs = {
         SumOfTrust: {
             effectiveNumber: "3"
         },
-        UnionToken: {
-            address: "0x9EB8287ED1B0a56c0D7F6f20bc538A0aEFe9Acb3",
-            name: "Union Token",
-            symbol: "UNION",
-            mintingAllowedAfter: "1766361600", // 2025/12/22 00:00:00 GMT+0000
-            comptrollerAmount: parseUnits("9000000"), //9m
-            amountForTreasuryVester: parseUnits("150000000"), //150m
-            amountForTreasury: parseUnits("40000000") //40m
-        },
-        TreasuryVester: {
-            vestingAmount: parseUnits("150000000"), //150m
-            vestingBegin: "1671667200", // 2022/12/22 00:00:00 GMT+0000
-            vestingCliff: "1671667200", // 2022/12/22 00:00:00 GMT+0000
-            vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
-        },
-        Treasury: {
-            dripStart: "", // in blocks, leave empty to use the current block number
-            dripRate: parseUnits("1"),
-            dripAmount: parseUnits("20000000") //20m
-        },
-        TimelockController: {
-            minDelay: "86400" // in seconds, 1 day
-        },
         UserManager: {
             maxStakeAmount: parseUnits("5000"),
             newMemberFee: parseUnits("1")
-        },
-        UnionGovernor: {
-            initialVotingDelay: "6575",
-            initialVotingPeriod: "19725",
-            initialProposalThreshold: parseUnits("10000000")
         }
     }
 };

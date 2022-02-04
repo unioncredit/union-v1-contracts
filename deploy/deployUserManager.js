@@ -10,7 +10,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const unionTokenAddress =
         network.name === "arbitrumRinkeby"
-            ? configs[chainId]["UnionToken"]["address"]
+            ? configs[chainId]["UnionToken"]
             : (await deployments.get("UnionToken")).address;
 
     const assetManager = await deployments.get("AssetManager");

@@ -9,7 +9,7 @@ module.exports = async ({getNamedAccounts, deployments, network, getChainId}) =>
 
     const unionTokenAddress =
         network.name === "arbitrumRinkeby"
-            ? configs[chainId]["UnionToken"]["address"]
+            ? configs[chainId]["UnionToken"]
             : (await deployments.get("UnionToken")).address;
     const marketRegistry = await deployments.get("MarketRegistry");
 
