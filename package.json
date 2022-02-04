@@ -5,10 +5,10 @@
     "scripts": {
         "compile": "yarn hardhat compile",
         "test": "yarn hardhat test",
-        "unitTest": "yarn hardhat test test/unit/*",
+        "test:unit": "yarn hardhat test test/unit/*",
+        "test:deploy": "yarn hardhat deploy --write true --reset --network hardhat",
         "deploy": "yarn hardhat deploy --network",
         "deploy:arbitrum": "yarn hardhat deploy --tags Arbitrum --network",
-        "deployTest": "yarn hardhat deploy --write true --reset --network hardhat",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "setAuth": "yarn hardhat run scripts/setAuth.js --network",
         "propose": "yarn hardhat run scripts/propose.js --network",
