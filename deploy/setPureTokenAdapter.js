@@ -40,4 +40,4 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
     console.log("setPureTokenAdapter end");
 };
-module.exports.tags = ["PureTokenAdapter"];
+module.exports.tags = ["PureTokenAdapter", "Arbitrum"];

@@ -4,12 +4,14 @@ module.exports = async ({getNamedAccounts}) => {
 
     const uToken = await deployments.get("UDai");
 
+    const UserManagerContract = network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
+
     console.log("setUserManager start");
-    if (!((await read("UserManager", {from: deployer}, "uToken")) === uToken.address)) {
-        tx = await execute("UserManager", {from: deployer}, "setUToken", uToken.address);
+    if (!((await read(UserManagerContract, {from: deployer}, "uToken")) === uToken.address)) {
+        tx = await execute(UserManagerContract, {from: deployer}, "setUToken", uToken.address);
         console.log("setUToken tx is:", tx.transactionHash);
     }
     console.log("setUserManager end");
 };
-module.exports.tags = ["UserManagerSetting"];
+module.exports.tags = ["UserManagerSetting", "Arbitrum"];
 module.exports.dependencies = ["UserManager", "UDai"];

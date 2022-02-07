@@ -1,3 +1,5 @@
+const {deployments} = require("hardhat");
+
 module.exports = async ({getNamedAccounts}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
@@ -6,7 +8,12 @@ module.exports = async ({getNamedAccounts}) => {
 
     const fixedInterestRateModel = await deployments.get("FixedInterestRateModel");
 
-    const userManager = await deployments.get("UserManager");
+    const userManager =
+        network.name === "arbitrumRinkeby"
+            ? await deployments.get("UserManagerArbi")
+            : await deployments.get("UserManager");
+
+    console.log({userManager: userManager.address});
 
     console.log("setUToken start");
     if (!((await read("UDai", {from: deployer}, "assetManager")) === assetManager.address)) {
@@ -23,5 +30,5 @@ module.exports = async ({getNamedAccounts}) => {
     }
     console.log("setUToken end");
 };
-module.exports.tags = ["UTokenSetting"];
+module.exports.tags = ["UTokenSetting", "Arbitrum"];
 module.exports.dependencies = ["AssetManager", "FixedInterestRateModel", "UserManager"];

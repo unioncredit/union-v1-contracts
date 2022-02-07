@@ -34,4 +34,4 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         log: true
     });
 };
-module.exports.tags = ["UDai"];
+module.exports.tags = ["UDai", "Arbitrum"];
