@@ -56,6 +56,7 @@
         "@nomiclabs/hardhat-waffle": "^2.0.1",
         "@openzeppelin/hardhat-upgrades": "^1.8.0",
         "@openzeppelin/test-environment": "^0.1.8",
+        "arb-ts": "^1.0.2",
         "chai": "^4.2.0",
         "codecov": "^3.7.1",
         "eth-permit": "^0.1.9",
