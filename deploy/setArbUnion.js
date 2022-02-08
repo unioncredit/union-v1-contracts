@@ -1,7 +1,8 @@
 const {deployments} = require("hardhat");
 
-module.exports = async ({getNamedAccounts}) => {
+module.exports = async ({getNamedAccounts, network}) => {
     if (network.name === "arbitrumRinkeby") {
+        console.log("set ArbUnion start");
         const {deployer} = await getNamedAccounts();
         const {execute, read} = deployments;
         const comptroller = await deployments.get("Comptroller");
@@ -15,6 +16,7 @@ module.exports = async ({getNamedAccounts}) => {
             tx = await execute("ArbUnion", {from: deployer}, "enableWhitelist");
             console.log("ArbUnion enableWhitelist, tx is:", tx.transactionHash);
         }
+        console.log("set ArbUnion end");
     }
 };
 module.exports.tags = ["ArbUnionSetting", "Arbitrum"];

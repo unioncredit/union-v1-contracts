@@ -1,7 +1,7 @@
 const {network} = require("@openzeppelin/cli");
 const configs = require("../deployConfig.js");
 
-module.exports = async ({getNamedAccounts, deployments}) => {
+module.exports = async ({getNamedAccounts, deployments, network}) => {
     if (network.name === "arbitrumRinkeby") {
         const {deploy} = deployments;
         const {deployer} = await getNamedAccounts();

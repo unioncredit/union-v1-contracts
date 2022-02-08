@@ -9,7 +9,7 @@ module.exports = async ({getNamedAccounts, deployments, network, getChainId}) =>
 
     const unionTokenAddress =
         network.name === "arbitrumRinkeby"
-            ? configs[chainId]["UnionToken"]
+            ? configs[chainId]["ArbUnion"]
             : (await deployments.get("UnionToken")).address;
     const marketRegistry = await deployments.get("MarketRegistry");
 
@@ -26,4 +26,4 @@ module.exports = async ({getNamedAccounts, deployments, network, getChainId}) =>
     });
 };
 module.exports.tags = ["Comptroller", "Arbitrum"];
-module.exports.dependencies = ["UnionToken", "MarketRegistry"];
+module.exports.dependencies = ["UnionToken", "MarketRegistry", "ArbUnion"];

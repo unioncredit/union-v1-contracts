@@ -293,7 +293,7 @@ var configs = {
         Admin: "0x497C20fEd24D61C7506EF2500065e4fd662f3779",
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
         Timelock: "0xE2Ca72AF3eEF8620F2cE33A467c99eB41e90C640", // L2 address for rinkeby timelock 0xd1B972Af3eeF8620f2cE33a467c99eB41E90b52F
-        UnionToken: "0x9EB8287ED1B0a56c0D7F6f20bc538A0aEFe9Acb3", // L2 address for rinkeby Union 0xBd3a3c823A7442193BE5Ca8005D98F0599Cc8bD5
+        ArbUnion: "0x2583713e5373BeF68754544EeF97b550ffe716C5",
         ArbUnionWrapper: "0xf5FAaC2191f0a17162Fd1E672c89556038b7dabc",
         ArbL2Gateway: "0x9b014455AcC2Fe90c52803849d0002aeEC184a06",
         AssetManager: {
