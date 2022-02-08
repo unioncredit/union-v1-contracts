@@ -55,6 +55,7 @@ Union is an upgradeable system. Each deployed contract is actually a "Proxy" tha
 | CompoundAdapter  | [0xa7f64787603eb4fcaE868AF13146BC900F09541F](https://rinkeby.etherscan.io/address/0xa7f64787603eb4fcaE868AF13146BC900F09541F) | ✅          |
 | PureTokenAdapter | [0x97E92f00144D3C5B5d365147e0A44962d9E57f15](https://rinkeby.etherscan.io/address/0x97E92f00144D3C5B5d365147e0A44962d9E57f15) | ✅          |
 | UnionToken       | [0xBd3a3c823A7442193BE5Ca8005D98F0599Cc8bD5](https://rinkeby.etherscan.io/address/0xBd3a3c823A7442193BE5Ca8005D98F0599Cc8bD5) | ❌          |
+| ArbUnionWrapper  | [0xf5FAaC2191f0a17162Fd1E672c89556038b7dabc](https://rinkeby.etherscan.io/address/0xf5FAaC2191f0a17162Fd1E672c89556038b7dabc) | ❌          |
 | Governor         | [0x0f991cD13a3D4e384fc303355e4f09913eEd3023](https://rinkeby.etherscan.io/address/0x0f991cD13a3D4e384fc303355e4f09913eEd3023) | ❌          |
 | Timelock         | [0xd1B972Af3eeF8620f2cE33a467c99eB41E90b52F](https://rinkeby.etherscan.io/address/0xd1B972Af3eeF8620f2cE33a467c99eB41E90b52F) | ❌          |
 | Treasury         | [0x7103C2Ef543De2258F1e6a0a5637331d2C5C29b9](https://rinkeby.etherscan.io/address/0x7103C2Ef543De2258F1e6a0a5637331d2C5C29b9) | ❌          |
@@ -66,13 +67,14 @@ Union is an upgradeable system. Each deployed contract is actually a "Proxy" tha
 
 | Contract         | Address                                                                                                                      | Upgradeable |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| UserManagerArbi  | [0x0204b04bC002399bDCD430F64b569c1FE425321A](https://testnet.arbiscan.io/address/0x0204b04bC002399bDCD430F64b569c1FE425321A) | ✅          |
+| UserManagerArbi  | [0xEBe26f3b7f7CE717da9C6989E5964CC4DAf5fC6B](https://testnet.arbiscan.io/address/0xEBe26f3b7f7CE717da9C6989E5964CC4DAf5fC6B) | ✅          |
 | MarketRegistry   | [0x6b4Dc4eE7cBFc540Bb0009389a24b28cbcAAFe0d](https://testnet.arbiscan.io/address/0x6b4Dc4eE7cBFc540Bb0009389a24b28cbcAAFe0d) | ✅          |
-| Comptroller      | [0x504e718a0560d6A263778333F11bB71DC28f94D9](https://testnet.arbiscan.io/address/0x504e718a0560d6A263778333F11bB71DC28f94D9) | ✅          |
+| Comptroller      | [0x195754d1027C9802cD6817F9116F49b98801Ff25](https://testnet.arbiscan.io/address/0x195754d1027C9802cD6817F9116F49b98801Ff25) | ✅          |
 | uDAI             | [0x786DD512AAB82ACC3ccb7a47cfF1555B06c61348](https://testnet.arbiscan.io/address/0x786DD512AAB82ACC3ccb7a47cfF1555B06c61348) | ✅          |
 | AssetManager     | [0xC20d73F59708fF69179A6c759687862E83827850](https://testnet.arbiscan.io/address/0xC20d73F59708fF69179A6c759687862E83827850) | ✅          |
 | PureTokenAdapter | [0xEC5f6355D6e4695dE32d2633608EeCdDB185c52a](https://testnet.arbiscan.io/address/0xEC5f6355D6e4695dE32d2633608EeCdDB185c52a) | ✅          |
-| DAI (Rinkeby)    | [0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14](https://testnet.arbiscan.io/address/0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14) | ❌          |
+| ArbUnion         | [0x2583713e5373BeF68754544EeF97b550ffe716C5](https://testnet.arbiscan.io/address/0x2583713e5373BeF68754544EeF97b550ffe716C5) | ❌          |
+| DAI (Arbitrum)   | [0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14](https://testnet.arbiscan.io/address/0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14) | ❌          |
 
 # Setup
 
