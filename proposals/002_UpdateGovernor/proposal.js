@@ -31,12 +31,12 @@ async function getProposalParams({timelockAddress, governorAddress, newGovernorA
 
 # Prerequisites
 
-1. New governor deployed at: ${newGovernorAddress}.
+- New governor deployed at: ${newGovernorAddress}.
 
 # Proposals
 
-1. Set timelock controller to use the new governor.
-2. Revoke the old governor from timelock.
+- Set timelock controller to use the new governor.
+- Revoke the old governor from timelock.
 
     `;
     console.log("Proposal contents");
