@@ -102,6 +102,7 @@ contract ArbUnionWrapper is ERC20, Whitelistable {
 
         IGatewayRouter(router).setGateway{value: gas2}(gateway, maxGas, gasPriceBid, maxSubmissionCostForRouter);
 
+        // slither-disable-next-line reentrancy-eth
         shouldRegisterGateway = prev;
     }
 
