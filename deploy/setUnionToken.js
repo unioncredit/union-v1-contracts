@@ -1,3 +1,4 @@
+const {deployments} = require("hardhat");
 const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, getChainId}) => {
@@ -61,7 +62,19 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
         );
         console.log("UnionToken transfer treasuryVester, tx is:", tx.transactionHash);
     }
+
+    if (network.name === "rinkeby" || network.name === "mainnet") {
+        const arbUnionWrapper = await deployments.get("ArbUnionWrapper");
+        if (!(await read("UnionToken", {from: deployer}, "isWhitelisted", arbUnionWrapper.address))) {
+            tx = await execute("UnionToken", {from: deployer}, "whitelist", arbUnionWrapper.address);
+            console.log("UnionToken whitelist arbUnionWrapper, tx is:", tx.transactionHash);
+        }
+        if (!(await read("ArbUnionWrapper", {from: deployer}, "whitelistEnabled"))) {
+            tx = await execute("ArbUnionWrapper", {from: deployer}, "enableWhitelist");
+            console.log("ArbUnionWrapper enableWhitelist, tx is:", tx.transactionHash);
+        }
+    }
     console.log("setUnionToken end");
 };
 module.exports.tags = ["UnionTokenSetting"];
-module.exports.dependencies = ["UnionToken", "Comptroller", "TreasuryVester"];
+module.exports.dependencies = ["UnionToken", "Comptroller", "TreasuryVester", "UnionWrapper"];

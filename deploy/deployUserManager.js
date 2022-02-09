@@ -10,7 +10,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const unionTokenAddress =
         network.name === "arbitrumRinkeby"
-            ? configs[chainId]["UnionToken"]
+            ? configs[chainId]["ArbUnion"]
             : (await deployments.get("UnionToken")).address;
 
     const assetManager = await deployments.get("AssetManager");
@@ -38,4 +38,4 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
     });
 };
 module.exports.tags = ["UserManager", "Arbitrum"];
-module.exports.dependencies = ["AssetManager", "UnionToken", "SumOfTrust", "Comptroller"];
+module.exports.dependencies = ["AssetManager", "UnionToken", "SumOfTrust", "Comptroller", "ArbUnion"];

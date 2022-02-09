@@ -223,6 +223,8 @@ var configs = {
         Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+        ArbL1Router: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
+        ArbL1Gateway: "0x917dc9a69F65dC3082D518192cd3725E1Fa96cA2",
         AssetManager: {
             newSeq: [0, 1]
         },
@@ -291,7 +293,9 @@ var configs = {
         Admin: "0x497C20fEd24D61C7506EF2500065e4fd662f3779",
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
         Timelock: "0xE2Ca72AF3eEF8620F2cE33A467c99eB41e90C640", // L2 address for rinkeby timelock 0xd1B972Af3eeF8620f2cE33a467c99eB41E90b52F
-        UnionToken: "0x9EB8287ED1B0a56c0D7F6f20bc538A0aEFe9Acb3", // L2 address for rinkeby Union 0xBd3a3c823A7442193BE5Ca8005D98F0599Cc8bD5
+        ArbUnion: "0x2583713e5373BeF68754544EeF97b550ffe716C5",
+        ArbUnionWrapper: "0xf5FAaC2191f0a17162Fd1E672c89556038b7dabc",
+        ArbL2Gateway: "0x9b014455AcC2Fe90c52803849d0002aeEC184a06",
         AssetManager: {
             newSeq: [0]
         },
