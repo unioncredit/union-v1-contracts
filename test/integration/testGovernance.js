@@ -16,7 +16,7 @@ describe("Governance Contract", async () => {
                 {
                     forking: {
                         jsonRpcUrl: "https://eth-mainnet.alchemyapi.io/v2/" + process.env.ALCHEMY_API_KEY,
-                        blockNumber: 12542012
+                        blockNumber: 13845130 // UNION mainnet deployment
                     }
                 }
             ]

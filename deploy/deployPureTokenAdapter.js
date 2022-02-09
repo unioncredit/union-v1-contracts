@@ -14,5 +14,5 @@ module.exports = async ({getNamedAccounts, deployments}) => {
         log: true
     });
 };
-module.exports.tags = ["PureTokenAdapter"];
+module.exports.tags = ["PureTokenAdapter", "Arbitrum"];
 module.exports.dependencies = ["AssetManager"];

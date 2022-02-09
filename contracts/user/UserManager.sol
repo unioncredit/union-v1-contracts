@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: UNLICENSED
+//SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
@@ -47,7 +47,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 totalLockedStake;
     }
 
-    uint256 public constant MAX_TRUST_LIMIT = 25;
     uint256 public maxStakeAmount;
     address public stakingToken;
     address public unionToken;
@@ -61,7 +60,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     uint256 public override totalStaked;
     // slither-disable-next-line constable-states
     uint256 public override totalFrozen;
-    mapping(address => Member) private members;
+    mapping(address => Member) internal members;
     // slither-disable-next-line uninitialized-state
     mapping(address => uint256) public stakers; //1 user address 2 amount
     mapping(address => uint256) public memberFrozen; //1 user address 2 frozen amount
@@ -460,8 +459,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.staker = msg.sender;
         if (trustInfo.staker == borrower) revert ErrorSelfVouching();
         if (
-            members[borrower].creditLine.stakerAddresses.length >= MAX_TRUST_LIMIT ||
-            members[trustInfo.staker].creditLine.borrowerAddresses.length >= MAX_TRUST_LIMIT
+            members[borrower].creditLine.stakerAddresses.length >= _maxTrust() ||
+            members[trustInfo.staker].creditLine.borrowerAddresses.length >= _maxTrust()
         ) revert MaxTrustLimitReached();
         trustInfo.borrowerAddresses = members[trustInfo.staker].creditLine.borrowerAddresses;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
@@ -567,7 +566,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @dev Apply for membership, and burn UnionToken as application fees
      *  @param newMember New member address
      */
-    function registerMember(address newMember) public override whenNotPaused {
+    function registerMember(address newMember) public virtual override whenNotPaused {
         if (checkIsMember(newMember)) revert NoExistingMember();
 
         IUnionToken unionTokenContract = IUnionToken(unionToken);
@@ -838,5 +837,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         }
 
         return totalFrozenCoinAge;
+    }
+
+    /**
+     *  @dev Max number of vouches for a member can get, for ddos protection
+     */
+    function _maxTrust() internal pure virtual returns (uint256) {
+        return 25;
     }
 }

@@ -51,5 +51,5 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     console.log("setAssetManager end");
 };
 
-module.exports.tags = ["AssetManagerSetting"];
+module.exports.tags = ["AssetManagerSetting", "Arbitrum"];
 module.exports.dependencies = ["AaveAdapter", "CompoundAdapter", "PureTokenAdapter"];
