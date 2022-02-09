@@ -220,6 +220,9 @@ var configs = {
     },
     4: {
         // rinkeby
+        ArbConnector: {
+            destinationAddress: "0x195754d1027C9802cD6817F9116F49b98801Ff25" //l2 comptroller
+        },
         Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",

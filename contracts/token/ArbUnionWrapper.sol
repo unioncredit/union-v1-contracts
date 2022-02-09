@@ -34,25 +34,10 @@ contract ArbUnionWrapper is ERC20, Whitelistable {
         require(_token.balanceOf(address(msg.sender)) >= _amount, "Insufficient balance");
         _token.safeTransferFrom(msg.sender, address(this), _amount);
         _mint(msg.sender, _amount);
-        _approve(msg.sender, gateway, type(uint256).max);
-        return true;
-    }
+        if (allowance(msg.sender, gateway) < _amount) {
+            _approve(msg.sender, gateway, type(uint256).max);
+        }
 
-    function wrapAndBridge(
-        uint256 _amount,
-        uint256 _maxGas,
-        uint256 _gasPriceBid,
-        bytes calldata _data
-    ) external payable returns (bool) {
-        wrap(_amount);
-        IGatewayRouter(router).outboundTransfer{value: msg.value}(
-            address(this),
-            msg.sender,
-            _amount,
-            _maxGas,
-            _gasPriceBid,
-            _data
-        );
         return true;
     }
 

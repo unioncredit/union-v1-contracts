@@ -3,45 +3,43 @@ pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import {IGatewayRouter} from "../interfaces/IGatewayRouter.sol";
 
-interface IGatewayRouter {
-    function getGateway(address) external view returns (address);
+interface IArbUnionWrapper {
+    function router() external returns (address);
 
-    function outboundTransfer(
-        address,
-        address,
-        uint256,
-        uint256,
-        uint256,
-        bytes calldata _data
-    ) external payable returns (bytes memory);
+    function balanceOf(address) external returns (uint256);
+
+    function wrap(uint256) external returns (bool);
+
+    function unwrap(uint256) external returns (bool);
 }
 
-contract ArbConnector {
+contract ArbConnector is Ownable {
     using SafeERC20 for IERC20;
 
     IERC20 public immutable token;
-    IGatewayRouter public immutable l1GatewayRouter;
+    IArbUnionWrapper public immutable arbUnionWrapper;
     address public immutable destinationAddress;
 
     event LogDeposit(address indexed caller, address destination, uint256 amount);
 
     constructor(
         IERC20 token_,
-        IGatewayRouter l1GatewayRouter_,
+        IArbUnionWrapper arbUnionWrapper_,
         address destinationAddress_
     ) {
         token = token_;
+        arbUnionWrapper = arbUnionWrapper_;
         destinationAddress = destinationAddress_;
-        l1GatewayRouter = l1GatewayRouter_;
     }
 
     receive() external payable {}
 
     function approveToken() external {
-        address gatewayAddress = l1GatewayRouter.getGateway(address(token));
-        token.safeApprove(gatewayAddress, 0);
-        token.safeApprove(gatewayAddress, type(uint256).max);
+        token.safeApprove(address(arbUnionWrapper), 0);
+        token.safeApprove(address(arbUnionWrapper), type(uint256).max);
     }
 
     function deposit(
@@ -51,16 +49,32 @@ contract ArbConnector {
     ) external payable {
         uint256 amount = token.balanceOf(address(this));
         if (amount > 0) {
+            require(arbUnionWrapper.wrap(amount), "wrap failed");
+            uint256 transferAmount = arbUnionWrapper.balanceOf(address(this));
             bytes memory data = abi.encode(maxSubmissionCost, "");
-            l1GatewayRouter.outboundTransfer{value: msg.value}(
-                address(token),
+            address gatewayRouter = arbUnionWrapper.router();
+            IGatewayRouter(gatewayRouter).outboundTransfer{value: msg.value}(
+                address(arbUnionWrapper),
                 destinationAddress,
-                amount,
+                transferAmount,
                 maxGas,
                 gasPriceBid,
                 data
             );
+
             emit LogDeposit(msg.sender, destinationAddress, amount);
+        }
+    }
+
+    function claimTokens(address recipient) external onlyOwner {
+        require(recipient != address(0), "recipient cant be 0");
+        uint256 wBalance = arbUnionWrapper.balanceOf(address(this));
+        if (wBalance > 0) {
+            arbUnionWrapper.unwrap(wBalance);
+        }
+        uint256 balance = token.balanceOf(address(this));
+        if (balance > 0) {
+            token.safeTransfer(recipient, balance);
         }
     }
 }
