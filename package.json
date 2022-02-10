@@ -38,10 +38,10 @@
     },
     "homepage": "https://github.com/unioncredit/union-v1-contracts#readme",
     "dependencies": {
-        "@ethersproject/bytes": "^5.5.0",
+        "@ethersproject/bytes": "5.5.0",
         "@openzeppelin/cli": "2.8.2",
-        "@openzeppelin/contracts": "^4.4.2",
-        "@openzeppelin/contracts-upgradeable": "^4.4.2",
+        "@openzeppelin/contracts": "4.4.2",
+        "@openzeppelin/contracts-upgradeable": "4.4.2",
         "@openzeppelin/test-helpers": "0.5.4",
         "@openzeppelin/upgrades": "2.8.0",
         "arb-ts": "^1.0.2",
