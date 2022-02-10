@@ -21,18 +21,18 @@ contract ArbConnector is Ownable {
 
     IERC20 public immutable token;
     IArbUnionWrapper public immutable arbUnionWrapper;
-    address public immutable destinationAddress;
+    address public immutable target;
 
     event LogDeposit(address indexed caller, address destination, uint256 amount);
 
     constructor(
         IERC20 token_,
         IArbUnionWrapper arbUnionWrapper_,
-        address destinationAddress_
+        address target_
     ) {
         token = token_;
         arbUnionWrapper = arbUnionWrapper_;
-        destinationAddress = destinationAddress_;
+        target = target_;
     }
 
     receive() external payable {}
@@ -55,14 +55,14 @@ contract ArbConnector is Ownable {
             address gatewayRouter = arbUnionWrapper.router();
             IGatewayRouter(gatewayRouter).outboundTransfer{value: msg.value}(
                 address(arbUnionWrapper),
-                destinationAddress,
+                target,
                 transferAmount,
                 maxGas,
                 gasPriceBid,
                 data
             );
 
-            emit LogDeposit(msg.sender, destinationAddress, amount);
+            emit LogDeposit(msg.sender, target, amount);
         }
     }
 
