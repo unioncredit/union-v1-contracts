@@ -9,6 +9,7 @@
         "test:deploy": "yarn hardhat deploy --write true --reset --network hardhat",
         "deploy": "yarn hardhat deploy --network",
         "deploy:arbitrum": "yarn hardhat deploy --tags Arbitrum --network",
+        "registerArbUnion": "yarn hardhat run scripts/registerArbUnion.js --network",
         "checkDeploy": "yarn hardhat run scripts/checkDeploy.js --network",
         "setAuth": "yarn hardhat run scripts/setAuth.js --network",
         "propose": "yarn hardhat run scripts/propose.js --network",

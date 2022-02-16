@@ -9,7 +9,7 @@ module.exports = async ({getNamedAccounts}) => {
     const fixedInterestRateModel = await deployments.get("FixedInterestRateModel");
 
     const userManager =
-        network.name === "arbitrumRinkeby"
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
             ? await deployments.get("UserManagerArbi")
             : await deployments.get("UserManager");
 

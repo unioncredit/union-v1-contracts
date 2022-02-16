@@ -10,8 +10,8 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     console.log("setPureTokenAdapter start");
     if (
         !(
-            (await read("PureTokenAdapter", {from: deployer}, "ceilingMap", DAI)) ===
-            configs[chainId]["PureTokenAdapter"]["ceiling"]
+            (await read("PureTokenAdapter", {from: deployer}, "ceilingMap", DAI)).toString() ===
+            configs[chainId]["PureTokenAdapter"]["ceiling"].toString()
         )
     ) {
         tx = await execute(
@@ -25,8 +25,8 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
     if (
         !(
-            (await read("PureTokenAdapter", {from: deployer}, "floorMap", DAI)) ===
-            configs[chainId]["PureTokenAdapter"]["floor"]
+            (await read("PureTokenAdapter", {from: deployer}, "floorMap", DAI)).toString() ===
+            configs[chainId]["PureTokenAdapter"]["floor"].toString()
         )
     ) {
         tx = await execute(
