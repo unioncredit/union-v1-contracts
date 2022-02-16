@@ -15,7 +15,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
                 log: true
             });
 
-            tx = await execute("ArbConnector", {from: deployer}, "approveToken");
+            let tx = await execute("ArbConnector", {from: deployer}, "approveToken");
             console.log("ArbConnector approve, tx is:", tx.transactionHash);
 
             const admin = configs[chainId]["Admin"];
@@ -25,4 +25,5 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
     }
 };
 module.exports.tags = ["Connector"];
-module.exports.dependencies = ["UnionToken", "UnionWrapper"];
+// make sure not to deploy UnionToken again
+// module.exports.dependencies = ["UnionToken", "UnionWrapper"];

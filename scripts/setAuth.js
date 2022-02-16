@@ -96,7 +96,7 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
 };
 
 const setUnionToken = async (chainId, admin) => {
-    if (network.name !== "arbitrumRinkeby") {
+    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
         const unionToken = await ethers.getContract("UnionToken");
         if ((await unionToken.owner()) != admin) {
             tx = await unionToken.transferOwnership(admin);
@@ -122,7 +122,7 @@ const setSumOfTrust = async (chainId, admin) => {
 };
 
 const setTreasury = async (chainId, admin) => {
-    if (network.name !== "arbitrumRinkeby") {
+    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
         const treasury = await ethers.getContract("Treasury");
         if (admin && (await treasury.admin()) != admin && (await treasury.newAdmin()) != admin) {
             tx = await treasury.changeAdmin(admin);

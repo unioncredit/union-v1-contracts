@@ -19,7 +19,8 @@
         "prettier:solidity": "npx prettier --write contracts/**/*.sol",
         "slither": "slither .",
         "gasReport": "CI=true yarn test:unit && mv gasReporterOutput.json gasReports/$(git rev-parse --short HEAD).json",
-        "gasDelta": "yarn hardhat gasDelta"
+        "gasDelta": "yarn hardhat gasDelta",
+        "verify": "yarn hardhat etherscan-verify --license MIT --force-license --network "
     },
     "repository": {
         "type": "git",

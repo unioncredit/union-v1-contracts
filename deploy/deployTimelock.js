@@ -6,7 +6,7 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
 
     const chainId = await getChainId();
 
-    if (network.name !== "arbitrumRinkeby") {
+    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
         await deploy("TimelockController", {
             from: deployer,
             args: [configs[chainId]["TimelockController"]["minDelay"], [deployer], [deployer]],

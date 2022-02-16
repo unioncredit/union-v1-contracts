@@ -5,7 +5,7 @@ module.exports = async ({getNamedAccounts, deployments, network}) => {
     const {deployer} = await getNamedAccounts();
     const chainId = await getChainId();
 
-    if (network.name !== "arbitrumRinkeby") {
+    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
         const timelockController = await deployments.get("TimelockController");
 
         await deploy("UnionToken", {
