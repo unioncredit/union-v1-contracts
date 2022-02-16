@@ -33,7 +33,7 @@ contract ArbConnector is Ownable {
         token.safeApprove(address(arbUnionWrapper), type(uint256).max);
     }
 
-    function deposit(
+    function bridge(
         uint256 maxGas,
         uint256 gasPriceBid,
         uint256 maxSubmissionCost
