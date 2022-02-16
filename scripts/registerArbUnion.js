@@ -1,20 +1,29 @@
 const {providers, Wallet} = require("ethers");
-const {ethers} = require("hardhat");
+const hre = require("hardhat");
+const {ethers, getChainId} = hre;
 const {Bridge} = require("arb-ts");
 
-const ArbUNION = "0x2583713e5373BeF68754544EeF97b550ffe716C5";
+const configs = require("../deployConfig.js");
 
 const walletPrivateKey = process.env.PRIVATE_KEY;
 
-const l1Provider = new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/" + process.env.INFURA_ID);
-const l2Provider = new providers.JsonRpcProvider("https://rinkeby.arbitrum.io/rpc");
-
-const l1Wallet = new Wallet(walletPrivateKey, l1Provider);
-const l2Wallet = new Wallet(walletPrivateKey, l2Provider);
-
-console.log({l1Wallet: l1Wallet.address});
-
 const main = async () => {
+    const chainId = await getChainId();
+    let l1Provider, l2Provider, ArbUNION;
+    if (chainId == 1) {
+        ArbUNION = configs[42161]["ArbUNION"];
+        l1Provider = new providers.JsonRpcProvider("https://mainnet.infura.io/v3/" + process.env.INFURA_ID);
+        l2Provider = new providers.JsonRpcProvider("https://arbitrum-mainnet.infura.io/v3/" + process.env.INFURA_ID);
+    } else if (chainId == 4) {
+        ArbUNION = configs[421611]["ArbUNION"];
+        l1Provider = new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/" + process.env.INFURA_ID);
+        l2Provider = new providers.JsonRpcProvider("https://rinkeby.arbitrum.io/rpc");
+    } else {
+        throw new Error("network not support");
+    }
+    const l1Wallet = new Wallet(walletPrivateKey, l1Provider);
+    const l2Wallet = new Wallet(walletPrivateKey, l2Provider);
+
     const bridge = await Bridge.init(l1Wallet, l2Wallet);
 
     /**

@@ -170,7 +170,7 @@ const setMarketRegistry = async (chainId, timelockAddress, admin, guardian) => {
 
 const setUserManager = async (chainId, timelockAddress, admin, guardian) => {
     const userManager =
-        network.name === "arbitrumRinkeby"
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
             ? await ethers.getContract("UserManagerArbi")
             : await ethers.getContract("UserManager");
     if (guardian && (await userManager.pauseGuardian()) != guardian) {
@@ -211,7 +211,7 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
     const chainId = await getChainId();
     console.log(`Setting permissions for network ${network.name} ...`);
     const timelockAddress =
-        network.name === "arbitrumRinkeby"
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
             ? configs[chainId]["Timelock"]
             : (await ethers.getContract("TimelockController")).address;
     console.log({timelockAddress});

@@ -220,7 +220,7 @@ var configs = {
     },
     4: {
         // rinkeby
-        ArbConnectorTarget: "0x195754d1027C9802cD6817F9116F49b98801Ff25", //l2 comptroller
+        ArbConnectorTarget: "0xDC42379473F629351e9bc59A8dd4785b20E21615", //l2 comptroller
         Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
@@ -288,14 +288,15 @@ var configs = {
             initialProposalThreshold: parseUnits("10000000")
         }
     },
+    42161: {},
     421611: {
         // arbitrum rinkeby
-        Guardian: "0x497C20fEd24D61C7506EF2500065e4fd662f3779",
-        Admin: "0x497C20fEd24D61C7506EF2500065e4fd662f3779",
+        Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
-        Timelock: "0xE2Ca72AF3eEF8620F2cE33A467c99eB41e90C640", // L2 address for rinkeby timelock 0xd1B972Af3eeF8620f2cE33a467c99eB41E90b52F
-        ArbUnion: "0x2583713e5373BeF68754544EeF97b550ffe716C5",
-        ArbUnionWrapper: "0xf5FAaC2191f0a17162Fd1E672c89556038b7dabc",
+        Timelock: "0x6D498eFD55D13775Ac99ccBA1395eF1ef17383C3", // L1 timelock on L2 address
+        ArbUnionWrapper: "0xb5f13dcaa7a95EF3A087F1D22e848bD58b3076Ba", // L1 ArbUnionWrapper
+        ArbUNION: "0x9e21ca9e50823F90eC1604477884cab5491eF0AB", // L2 ArbUNION
         ArbL2Gateway: "0x9b014455AcC2Fe90c52803849d0002aeEC184a06",
         AssetManager: {
             newSeq: [0]

@@ -9,15 +9,16 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
     const unionTokenAddress =
-        network.name === "arbitrumRinkeby"
-            ? configs[chainId]["ArbUnion"]
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+            ? (await deployments.get("ArbUnion")).address
             : (await deployments.get("UnionToken")).address;
 
     const assetManager = await deployments.get("AssetManager");
     const creditLimitModel = await deployments.get("SumOfTrust");
     const comptroller = await deployments.get("Comptroller");
 
-    const UserManagerContract = network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
+    const UserManagerContract =
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
     await deploy(UserManagerContract, {
         from: deployer,
         proxy: {

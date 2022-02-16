@@ -4,7 +4,8 @@ module.exports = async ({getNamedAccounts}) => {
 
     const uToken = await deployments.get("UDai");
 
-    const UserManagerContract = network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
+    const UserManagerContract =
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
 
     console.log("setUserManager start");
     if (!((await read(UserManagerContract, {from: deployer}, "uToken")) === uToken.address)) {
