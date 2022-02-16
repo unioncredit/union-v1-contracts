@@ -229,7 +229,7 @@ var configs = {
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
         ArbL1Router: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
         ArbL1Gateway: "0x917dc9a69F65dC3082D518192cd3725E1Fa96cA2",
-        ArbComptroller: "0xDC42379473F629351e9bc59A8dd4785b20E21615", //l2 comptroller
+        ArbComptroller: "0x792E4526F15432849879db96e03e9212eBD7775C", //l2 comptroller
         ArbUnion: "0x9e21ca9e50823F90eC1604477884cab5491eF0AB", // L2 union token
         AssetManager: {
             newSeq: [0, 1]
@@ -336,7 +336,7 @@ var configs = {
         Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
         Timelock: "0x6D498eFD55D13775Ac99ccBA1395eF1ef17383C3", // L1 timelock on L2 address
-        ArbUnionWrapper: "0xb5f13dcaa7a95EF3A087F1D22e848bD58b3076Ba", // L1 ArbUnionWrapper
+        ArbUnionWrapper: "0x2A35533E70aeB0b3e8309716227fA56aF9bD95C1", // L1 ArbUnionWrapper
         ArbL2Gateway: "0x9b014455AcC2Fe90c52803849d0002aeEC184a06",
         AssetManager: {
             newSeq: [0]
