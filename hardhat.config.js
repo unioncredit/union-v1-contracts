@@ -40,11 +40,21 @@ module.exports = {
                 mnemonic: process.env.MNEMONIC_TEST
             }
         },
+        arbitrum: {
+            url: "https://arb1.arbitrum.io/rpc",
+            accounts: process.env.PRIVATE_KEY
+                ? [process.env.PRIVATE_KEY]
+                : {
+                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+                  }
+        },
         mainnet: {
             url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID,
-            accounts: {
-                mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
-            }
+            accounts: process.env.PRIVATE_KEY
+                ? [process.env.PRIVATE_KEY]
+                : {
+                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+                  }
         }
     },
     solidity: {

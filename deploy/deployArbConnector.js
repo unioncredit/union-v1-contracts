@@ -8,10 +8,10 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         const unionToken = await deployments.get("UnionToken");
         const unionWrapper = await deployments.get("ArbUnionWrapper");
 
-        if (configs[chainId].ArbConnectorTarget) {
+        if (configs[chainId].ArbComptroller) {
             await deploy("ArbConnector", {
                 from: deployer,
-                args: [unionToken.address, unionWrapper.address, configs[chainId].ArbConnectorTarget],
+                args: [unionToken.address, unionWrapper.address, configs[chainId].ArbComptroller],
                 log: true
             });
 
@@ -24,5 +24,5 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         }
     }
 };
-module.exports.tags = ["ArbConnector"];
+module.exports.tags = ["Connector"];
 module.exports.dependencies = ["UnionToken", "UnionWrapper"];

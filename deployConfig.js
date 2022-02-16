@@ -6,6 +6,10 @@ var configs = {
         Guardian: "0x48ea9B2d86744E19321361Fa3C0D7bBE1F8D5a8E",
         Admin: "0xD83b4686e434B402c2Ce92f4794536962b2BE3E8",
         DAI: "0x6b175474e89094c44da98b954eedeac495271d0f",
+        ArbL1Router: "0x72Ce9c846789fdB6fC1f34aC4AD25Dd9ef7031ef",
+        ArbL1Gateway: "0xcEe284F754E854890e311e3280b767F80797180d",
+        ArbComptroller: "", //l2 comptroller
+        ArbUnion: "", // l2 union token
         AssetManager: {
             newSeq: [0, 1, 2]
         },
@@ -220,12 +224,13 @@ var configs = {
     },
     4: {
         // rinkeby
-        ArbConnectorTarget: "0xDC42379473F629351e9bc59A8dd4785b20E21615", //l2 comptroller
         Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
         ArbL1Router: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
         ArbL1Gateway: "0x917dc9a69F65dC3082D518192cd3725E1Fa96cA2",
+        ArbComptroller: "0xDC42379473F629351e9bc59A8dd4785b20E21615", //l2 comptroller
+        ArbUnion: "0x9e21ca9e50823F90eC1604477884cab5491eF0AB", // L2 union token
         AssetManager: {
             newSeq: [0, 1]
         },
@@ -288,7 +293,43 @@ var configs = {
             initialProposalThreshold: parseUnits("10000000")
         }
     },
-    42161: {},
+    42161: {
+        // arbitrum one
+        Guardian: "0x123e6014ae4e4409213f412052072b8A20c320f8",
+        Admin: "0xd3f60bE7B55EFEb9Bc5df4606C103814C4F4ead7",
+        DAI: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+        Timelock: "0xCce4321F377742C4B3FE458B270c2f271d32A5e9", // L2 address of the L1 timelock
+        ArbUnionWrapper: "", // L1 ArbUnionWrapper
+        ArbL2Gateway: "0x096760F208390250649E3e8763348E783AEF5562",
+        AssetManager: {
+            newSeq: [0]
+        },
+        PureTokenAdapter: {
+            floor: parseUnits("50000"),
+            ceiling: parseUnits("1000000000")
+        },
+        FixedInterestRateModel: {
+            interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
+        },
+        UDai: {
+            name: "uDAI",
+            symbol: "uDAI",
+            initialExchangeRateMantissa: parseUnits("1"), // 100%,
+            reserveFactorMantissa: parseUnits("1"), // 100%
+            originationFee: parseUnits("0.005"), // 0.5%
+            debtCeiling: parseUnits("250000"),
+            maxBorrow: parseUnits("25000"),
+            minBorrow: parseUnits("100"), // 100 dai
+            overdueBlocks: "197250" // in blocks, 30 days
+        },
+        SumOfTrust: {
+            effectiveNumber: "3"
+        },
+        UserManager: {
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        }
+    },
     421611: {
         // arbitrum rinkeby
         Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
@@ -296,7 +337,6 @@ var configs = {
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
         Timelock: "0x6D498eFD55D13775Ac99ccBA1395eF1ef17383C3", // L1 timelock on L2 address
         ArbUnionWrapper: "0xb5f13dcaa7a95EF3A087F1D22e848bD58b3076Ba", // L1 ArbUnionWrapper
-        ArbUNION: "0x9e21ca9e50823F90eC1604477884cab5491eF0AB", // L2 ArbUNION
         ArbL2Gateway: "0x9b014455AcC2Fe90c52803849d0002aeEC184a06",
         AssetManager: {
             newSeq: [0]

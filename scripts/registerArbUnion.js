@@ -9,13 +9,13 @@ const walletPrivateKey = process.env.PRIVATE_KEY;
 
 const main = async () => {
     const chainId = await getChainId();
-    let l1Provider, l2Provider, ArbUNION;
+    let l1Provider, l2Provider, ArbUnion;
     if (chainId == 1) {
-        ArbUNION = configs[42161]["ArbUNION"];
+        ArbUnion = configs[chainId]["ArbUnion"];
         l1Provider = new providers.JsonRpcProvider("https://mainnet.infura.io/v3/" + process.env.INFURA_ID);
-        l2Provider = new providers.JsonRpcProvider("https://arbitrum-mainnet.infura.io/v3/" + process.env.INFURA_ID);
+        l2Provider = new providers.JsonRpcProvider("https://arb1.arbitrum.io/rpc");
     } else if (chainId == 4) {
-        ArbUNION = configs[421611]["ArbUNION"];
+        ArbUnion = configs[chainId]["ArbUnion"];
         l1Provider = new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/" + process.env.INFURA_ID);
         l2Provider = new providers.JsonRpcProvider("https://rinkeby.arbitrum.io/rpc");
     } else {
@@ -57,7 +57,7 @@ const main = async () => {
     console.log({arbUnionWrapper: arbUnionWrapper.address});
 
     const registerTokenTx = await arbUnionWrapper.registerTokenOnL2(
-        ArbUNION,
+        ArbUnion,
         _submissionPriceWeiForCustomBridge,
         _submissionPriceWeiForRouter,
         maxGas,
@@ -68,7 +68,7 @@ const main = async () => {
     );
 
     const registerTokenRec = await registerTokenTx.wait();
-    console.log(`Registering ArbUNION txn confirmed on L1! 🙌 ${registerTokenRec.transactionHash}`);
+    console.log(`Registering ArbUnion txn confirmed on L1! 🙌 ${registerTokenRec.transactionHash}`);
 };
 
 main()
