@@ -18,7 +18,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
     const comptroller = await deployments.get("Comptroller");
 
     const UserManagerContract =
-        network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArbi" : "UserManager";
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArb" : "UserManager";
     await deploy(UserManagerContract, {
         from: deployer,
         proxy: {

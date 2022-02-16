@@ -12,7 +12,7 @@ module.exports = async ({getNamedAccounts, network}) => {
             console.log("ArbUnion whitelist comptroller, tx is:", tx.transactionHash);
         }
 
-        const userManager = await deployments.get("UserManagerArbi");
+        const userManager = await deployments.get("UserManagerArb");
         if (!(await read("ArbUnion", {from: deployer}, "isWhitelisted", userManager.address))) {
             tx = await execute("ArbUnion", {from: deployer}, "whitelist", userManager.address);
             console.log("ArbUnion whitelist UserManager, tx is:", tx.transactionHash);

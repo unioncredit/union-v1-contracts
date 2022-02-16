@@ -171,7 +171,7 @@ const setMarketRegistry = async (chainId, timelockAddress, admin, guardian) => {
 const setUserManager = async (chainId, timelockAddress, admin, guardian) => {
     const userManager =
         network.name === "arbitrum" || network.name === "arbitrumRinkeby"
-            ? await ethers.getContract("UserManagerArbi")
+            ? await ethers.getContract("UserManagerArb")
             : await ethers.getContract("UserManager");
     if (guardian && (await userManager.pauseGuardian()) != guardian) {
         tx = await userManager.setGuardian(guardian);

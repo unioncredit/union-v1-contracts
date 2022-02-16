@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../user/UserManagerArbi.sol";
+import "../user/UserManagerArb.sol";
 
-contract UserManagerArbiMock is UserManagerArbi {
+contract UserManagerArbMock is UserManagerArb {
     /**
      *  @dev Max number of vouches for a member can get, for ddos protection
      */

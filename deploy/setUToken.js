@@ -10,7 +10,7 @@ module.exports = async ({getNamedAccounts}) => {
 
     const userManager =
         network.name === "arbitrum" || network.name === "arbitrumRinkeby"
-            ? await deployments.get("UserManagerArbi")
+            ? await deployments.get("UserManagerArb")
             : await deployments.get("UserManager");
 
     console.log({userManager: userManager.address});

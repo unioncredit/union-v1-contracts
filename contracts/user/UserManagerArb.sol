@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "./UserManager.sol";
 
-contract UserManagerArbi is UserManager {
+contract UserManagerArb is UserManager {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     /**

@@ -6,7 +6,7 @@ const {signERC2612Permit} = require("eth-permit");
 
 const {parseEther} = require("ethers").utils;
 
-describe("User Manager Arbi Contract", () => {
+describe("Arbitrum User Manager Contract", () => {
     before(async function () {
         [ADMIN, ALICE, BOB, TOM, MEMBER1, MEMBER2, MEMBER3, MEMBER4, APP, PROXY_ADMIN] = await ethers.getSigners();
 
@@ -15,7 +15,7 @@ describe("User Manager Arbi Contract", () => {
         const ERC20 = await ethers.getContractFactory("FaucetERC20");
         SumOfTrust = await ethers.getContractFactory("SumOfTrust");
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
-        UserManager = await ethers.getContractFactory("UserManagerArbiMock");
+        UserManager = await ethers.getContractFactory("UserManagerArbMock");
         UToken = await ethers.getContractFactory("UTokenMock");
 
         assetManager = await upgrades.deployProxy(AssetManager, [], {
