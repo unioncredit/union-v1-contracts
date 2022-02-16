@@ -6,8 +6,8 @@ const ArbUNION = "0x2583713e5373BeF68754544EeF97b550ffe716C5";
 
 const walletPrivateKey = process.env.PRIVATE_KEY;
 
-const l1Provider = new providers.InfuraProvider("rinkeby", process.env.INFURA_ID);
-const l2Provider = new providers.InfuraProvider("arbitrum-rinkeby", process.env.INFURA_ID);
+const l1Provider = new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/" + process.env.INFURA_ID);
+const l2Provider = new providers.JsonRpcProvider("https://rinkeby.arbitrum.io/rpc");
 
 const l1Wallet = new Wallet(walletPrivateKey, l1Provider);
 const l2Wallet = new Wallet(walletPrivateKey, l2Provider);
