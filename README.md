@@ -23,6 +23,20 @@ Union is an upgradeable system. Each deployed contract is actually a "Proxy" tha
 | Timelock         | [0xBBD3321f377742c4b3fe458b270c2F271d3294D8](https://etherscan.io/address/0xBBD3321f377742c4b3fe458b270c2F271d3294D8) | ❌          |
 | Treasury         | [0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9](https://etherscan.io/address/0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9) | ❌          |
 | Treasury Vester  | [0x641DD6258cb3E948121B10ee51594Dc2A8549fe1](https://etherscan.io/address/0x641DD6258cb3E948121B10ee51594Dc2A8549fe1) | ❌          |
+| ArbUnion Wrapper | [0x1fed524867348eCeA0A4D9AEaE989794DbF8F631](https://etherscan.io/address/0x1fed524867348eCeA0A4D9AEaE989794DbF8F631) | ❌          |
+| Arb Connector    | [0xd8cA7C410B5780BdA6425D43869e5beC19233850](https://etherscan.io/address/0xd8cA7C410B5780BdA6425D43869e5beC19233850) | ❌          |
+
+## Arbitrum One
+
+| Contract         | Address                                                                                                              | Upgradeable |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------- | ----------- |
+| UserManagerArb   | [0xb07Bb7D95c8c57D0ac284957D56B62751a7e98B4](https://arbiscan.io/address/0xb07Bb7D95c8c57D0ac284957D56B62751a7e98B4) | ✅          |
+| MarketRegistry   | [0x82c7cA392644a6c66fcaF9d4efF89e6d875D58D9](https://arbiscan.io/address/0x82c7cA392644a6c66fcaF9d4efF89e6d875D58D9) | ✅          |
+| Comptroller      | [0x9610d516779F5Ce55e9faCbA703B9Fd84d7d59ce](https://arbiscan.io/address/0x9610d516779F5Ce55e9faCbA703B9Fd84d7d59ce) | ✅          |
+| uDAI             | [0x109b00A3473366f24C0D0103498d8d75d1AE40ae](https://arbiscan.io/address/0x109b00A3473366f24C0D0103498d8d75d1AE40ae) | ✅          |
+| AssetManager     | [0x7Aecd107Cb022e1DFd42cC43E9BA94C38BC83275](https://arbiscan.io/address/0x7Aecd107Cb022e1DFd42cC43E9BA94C38BC83275) | ✅          |
+| PureTokenAdapter | [0xdC3c984f2Ecb7Ee2540bb0B9EfE9540204cdAB57](https://arbiscan.io/address/0xdC3c984f2Ecb7Ee2540bb0B9EfE9540204cdAB57) | ✅          |
+| ArbUnion         | [0x125E905185198edB3eeb6C8A5bAf5B64adc4ABc4](https://arbiscan.io/address/0x125E905185198edB3eeb6C8A5bAf5B64adc4ABc4) | ❌          |
 
 ## Kovan
 
