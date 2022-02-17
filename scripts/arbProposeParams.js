@@ -9,7 +9,7 @@ const networks = {
     4: "rinkeby"
 };
 
-const maxGas = 100000;
+const maxGas = 275000;
 
 const encodeParameters = (types, values) => {
     const abi = new ethers.utils.AbiCoder();
@@ -47,6 +47,7 @@ async function main(types, params, destAddr, value, data, excessFeeRefundAddress
     const signature = "createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)";
     const l2CallValue = value;
     const maxSubmissionCost = submissionPriceWei;
+
     const calldata = encodeParameters(
         ["address", "uint256", "uint256", "address", "address", "uint256", "uint256", "bytes"],
         [

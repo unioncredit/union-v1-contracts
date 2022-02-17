@@ -1,10 +1,11 @@
 const hre = require("hardhat");
 const {ethers, getChainId, getNamedAccounts} = hre;
 
-const propose_id = "UIP001";
+const propose_id = "example";
 
 const networks = {
     1: "mainnet",
+    4: "rinkeby",
     42: "kovan",
     31337: "hardhat"
 };
@@ -36,26 +37,32 @@ const checkFileExist = path => {
         }
     }
 
-    const {targets, values, calldatas, msg} = await getProposalParams();
+    const {targets, values, signatures, calldatas, msg} = await getProposalParams();
 
-    const keccak256 = ethers.utils.keccak256;
-    let myBuffer = [];
-    let buffer = new Buffer.from(msg);
+    // const keccak256 = ethers.utils.keccak256;
+    // let myBuffer = [];
+    // let buffer = new Buffer.from(msg);
 
-    for (let i = 0; i < buffer.length; i++) {
-        myBuffer.push(buffer[i]);
-    }
+    // for (let i = 0; i < buffer.length; i++) {
+    //     myBuffer.push(buffer[i]);
+    // }
 
-    const proposalId = await governance["hashProposal(address[],uint256[],bytes[],bytes32)"](
+    // const proposalId = await governance["hashProposal(address[],uint256[],bytes[],bytes32)"](
+    //     targets,
+    //     values,
+    //     calldatas,
+    //     keccak256(myBuffer)
+    // );
+    // const deadline = await governance.proposalSnapshot(proposalId);
+    // if (deadline > 0) {
+    //     throw new Error("proposal already exists");
+    // }
+    const tx = await governance["propose(address[],uint256[],string[],bytes[],string)"](
         targets,
         values,
+        signatures,
         calldatas,
-        keccak256(myBuffer)
+        msg
     );
-    const deadline = await governance.proposalSnapshot(proposalId);
-    if (deadline > 0) {
-        throw new Error("proposal already exists");
-    }
-
-    await governance["propose(address[],uint256[],bytes[],string)"](targets, values, calldatas, msg);
+    console.log(tx);
 })();
