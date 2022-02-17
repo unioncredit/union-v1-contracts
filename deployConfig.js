@@ -316,7 +316,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UToken",
+            type: "UTokenArb",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -354,7 +354,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UToken",
+            type: "UTokenArb",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
