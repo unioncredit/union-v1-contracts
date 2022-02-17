@@ -16,20 +16,22 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
-                methodName: "__UToken_init",
-                args: [
-                    params["name"],
-                    params["symbol"],
-                    UToken,
-                    params.initialExchangeRateMantissa,
-                    params.reserveFactorMantissa,
-                    params.originationFee,
-                    params.debtCeiling,
-                    params.maxBorrow,
-                    params.minBorrow,
-                    params.overdueBlocks,
-                    deployer
-                ]
+                init: {
+                    methodName: "__UToken_init",
+                    args: [
+                        params["name"],
+                        params["symbol"],
+                        UToken,
+                        params.initialExchangeRateMantissa,
+                        params.reserveFactorMantissa,
+                        params.originationFee,
+                        params.debtCeiling,
+                        params.maxBorrow,
+                        params.minBorrow,
+                        params.overdueBlocks,
+                        deployer
+                    ]
+                }
             }
         },
         log: true

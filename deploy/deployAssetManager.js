@@ -9,12 +9,14 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
-                methodName: "__AssetManager_init",
-                args: [marketRegistry.address]
+                init: {
+                    methodName: "__AssetManager_init",
+                    args: [marketRegistry.address]
+                }
             }
         },
         log: true
     });
 };
 module.exports.tags = ["AssetManager", "Arbitrum"];
-module.exports.dependencies = ["DAI", "MarketRegistry"]; // this ensure the XX script above is executed first, so `deployments.get('XX')` succeeds
+module.exports.dependencies = ["DAI", "MarketRegistry"];
