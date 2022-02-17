@@ -18,8 +18,10 @@ module.exports = async ({getNamedAccounts, deployments, network, getChainId}) =>
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
-                methodName: "__Comptroller_init",
-                args: [unionTokenAddress, marketRegistry.address]
+                init: {
+                    methodName: "__Comptroller_init",
+                    args: [unionTokenAddress, marketRegistry.address]
+                }
             }
         },
         log: true

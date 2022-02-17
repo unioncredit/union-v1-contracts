@@ -26,4 +26,4 @@ module.exports = async ({getNamedAccounts, network}) => {
     }
 };
 module.exports.tags = ["ArbUnionSetting", "Arbitrum"];
-module.exports.dependencies = ["ArbUnion"];
+module.exports.dependencies = ["ArbUnion", "Comptroller", "UserManager"];

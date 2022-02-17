@@ -2,14 +2,19 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
+
 import {IArbToken} from "../interfaces/IArbToken.sol";
 import {Whitelistable} from "./Whitelistable.sol";
 
-contract ArbUnion is ERC20, Whitelistable, IArbToken {
+contract ArbUnion is ERC20, ERC20Permit, Whitelistable, IArbToken {
     address public immutable override l1Address;
     address public l2Gateway;
 
-    constructor(address _l2Gateway, address _l1TokenAddress) ERC20("Arbitrum UNION", "arbUNION") {
+    constructor(address _l2Gateway, address _l1TokenAddress)
+        ERC20("Arbitrum UNION", "arbUNION")
+        ERC20Permit("Arbitrum UNION")
+    {
         l2Gateway = _l2Gateway;
         l1Address = _l1TokenAddress;
         whitelistEnabled = false;

@@ -24,15 +24,17 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
-                methodName: "__UserManager_init",
-                args: [
-                    assetManager.address,
-                    unionTokenAddress,
-                    DAI,
-                    creditLimitModel.address,
-                    comptroller.address,
-                    deployer
-                ]
+                init: {
+                    methodName: "__UserManager_init",
+                    args: [
+                        assetManager.address,
+                        unionTokenAddress,
+                        DAI,
+                        creditLimitModel.address,
+                        comptroller.address,
+                        deployer
+                    ]
+                }
             }
         },
         log: true

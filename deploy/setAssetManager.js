@@ -9,15 +9,13 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     console.log("setAssetManager start");
 
-    tx = await execute(
-        "AssetManager",
-        {from: deployer},
-        "addAdapter",
-        (
-            await deployments.get("PureTokenAdapter")
-        ).address
-    );
-    console.log("AssetManager addAdapter PureTokenAdapter, tx is:", tx.transactionHash);
+    const pureTokenAdapter = await deployments.get("PureTokenAdapter");
+    const market0 = await read("AssetManager", {from: deployer}, "moneyMarkets", 0);
+    console.log(`money market #0: ${market0}`);
+    if (pureTokenAdapter.address != (await read("AssetManager", {from: deployer}, "moneyMarkets", 0))) {
+        tx = await execute("AssetManager", {from: deployer}, "addAdapter", pureTokenAdapter.address);
+        console.log("AssetManager addAdapter PureTokenAdapter, tx is:", tx.transactionHash);
+    }
 
     if (configs[chainId]["CompoundAdapter"]) {
         tx = await execute(
