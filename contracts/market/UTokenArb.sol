@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 import "./UToken.sol";
 
 contract UTokenArb is UToken {
-    function repayBorrowWithEip712Permit(
+    function repayBorrowWithERC20Permit(
         address borrower,
         uint256 amount,
         uint256 deadline,

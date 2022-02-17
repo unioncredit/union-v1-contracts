@@ -536,7 +536,7 @@ describe("User Manager Contract", () => {
             userManager.address,
             ethers.constants.MaxUint256.toString()
         );
-        await userManager.connect(MEMBER1).stakeWithEip712Permit(100, result.deadline, result.v, result.r, result.s);
+        await userManager.connect(MEMBER1).stakeWithERC20Permit(100, result.deadline, result.v, result.r, result.s);
     });
 
     it("Update overdue info", async () => {

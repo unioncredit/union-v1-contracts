@@ -677,10 +677,10 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     /**
-     *  @dev stakeWithEip712Permit
+     *  @dev stakeWithERC20Permit
      *  @param amount Amount
      */
-    function stakeWithEip712Permit(
+    function stakeWithERC20Permit(
         uint256 amount,
         uint256 deadline,
         uint8 v,

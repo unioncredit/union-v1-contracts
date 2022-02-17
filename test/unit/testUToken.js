@@ -729,7 +729,7 @@ describe("UToken Contract", async () => {
             );
             await uToken
                 .connect(alice)
-                .repayBorrowWithEip712Permit(alice.address, repayAmount, result.deadline, result.v, result.r, result.s);
+                .repayBorrowWithERC20Permit(alice.address, repayAmount, result.deadline, result.v, result.r, result.s);
             borrowed = await uToken.borrowBalanceView(alice.address);
             borrowed.toString().should.eq("0");
         });
