@@ -709,7 +709,7 @@ describe("UToken Contract", async () => {
             );
         });
 
-        it("Repay borrow with 721 permit", async () => {
+        it("Repay borrow with ERC20 permit", async () => {
             await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
             let borrowed = await uToken.borrowBalanceView(alice.address);
             borrowed.toString().should.not.eq("0");
@@ -725,7 +725,7 @@ describe("UToken Contract", async () => {
                 },
                 alice.address,
                 uToken.address,
-                ethers.constants.MaxUint256.toString()
+                repayAmount.toString()
             );
             await uToken
                 .connect(alice)

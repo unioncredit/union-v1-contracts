@@ -688,7 +688,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         bytes32 s
     ) public whenNotPaused {
         IERC20Permit erc20Token = IERC20Permit(stakingToken);
-        erc20Token.permit(msg.sender, address(this), type(uint256).max, deadline, v, r, s);
+        erc20Token.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
         stake(amount);
     }

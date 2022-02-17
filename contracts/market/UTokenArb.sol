@@ -14,7 +14,7 @@ contract UTokenArb is UToken {
         bytes32 s
     ) public whenNotPaused {
         IERC20Permit erc20Token = IERC20Permit(underlying);
-        erc20Token.permit(msg.sender, address(this), type(uint256).max, deadline, v, r, s);
+        erc20Token.permit(msg.sender, address(this), amount, deadline, v, r, s);
         _repayBorrowFresh(msg.sender, borrower, amount);
     }
 }

@@ -498,7 +498,7 @@ describe("User Manager Contract", () => {
             .stakeWithPermit(100, result.nonce, result.expiry, result.v, result.r, result.s);
     });
 
-    it("stake with Eip712 permit", async () => {
+    it("stake with ERC20 permit", async () => {
         const ERC20 = await ethers.getContractFactory("FaucetERC20_721");
         const erc20 = await upgrades.deployProxy(ERC20, ["Dai Stablecoin", "DAI"], {
             initializer: "__FaucetERC20_721_init(string,string)"
@@ -524,6 +524,7 @@ describe("User Manager Contract", () => {
         await userManager.addMember(MEMBER3.address);
         await userManager.addMember(MEMBER4.address);
         await erc20.connect(MEMBER1).approve(userManager.address, 0);
+        const stakeAmount = 100;
         const result = await signERC2612Permit(
             waffle.provider._hardhatNetwork.provider,
             {
@@ -534,9 +535,11 @@ describe("User Manager Contract", () => {
             },
             MEMBER1.address,
             userManager.address,
-            ethers.constants.MaxUint256.toString()
+            stakeAmount
         );
-        await userManager.connect(MEMBER1).stakeWithERC20Permit(100, result.deadline, result.v, result.r, result.s);
+        await userManager
+            .connect(MEMBER1)
+            .stakeWithERC20Permit(stakeAmount, result.deadline, result.v, result.r, result.s);
     });
 
     it("Update overdue info", async () => {
