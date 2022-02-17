@@ -229,8 +229,8 @@ var configs = {
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
         ArbL1Router: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
         ArbL1Gateway: "0x917dc9a69F65dC3082D518192cd3725E1Fa96cA2",
-        ArbComptroller: "0x792E4526F15432849879db96e03e9212eBD7775C", //l2 comptroller
-        ArbUnion: "0x9e21ca9e50823F90eC1604477884cab5491eF0AB", // L2 union token
+        ArbComptroller: "0xB9A7e04e6c75C718904F0De0F5Cc6a2728a3F50C", //l2 comptroller
+        ArbUnion: "0xb371fe920071F73ca81b4D57C72639480F3886a7", // L2 union token
         AssetManager: {
             newSeq: [0, 1]
         },
@@ -335,8 +335,8 @@ var configs = {
         Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
         Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
         DAI: "0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14",
-        Timelock: "0x6D498eFD55D13775Ac99ccBA1395eF1ef17383C3", // L1 timelock on L2 address
-        ArbUnionWrapper: "0x2A35533E70aeB0b3e8309716227fA56aF9bD95C1", // L1 ArbUnionWrapper
+        Timelock: "0x6D498eFD55D13775Ac99ccBA1395eF1ef17383C3", // L2 address of L1 timelock
+        ArbUnionWrapper: "0x4616b36Fb1c70a4aB05afb53eDA6E9d09efd1dC9", // L1 ArbUnionWrapper
         ArbL2Gateway: "0x9b014455AcC2Fe90c52803849d0002aeEC184a06",
         AssetManager: {
             newSeq: [0]

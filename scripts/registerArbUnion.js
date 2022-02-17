@@ -55,6 +55,7 @@ const main = async () => {
 
     const arbUnionWrapper = await ethers.getContract("ArbUnionWrapper");
     console.log({arbUnionWrapper: arbUnionWrapper.address});
+    console.log({ArbUnion});
 
     const registerTokenTx = await arbUnionWrapper.registerTokenOnL2(
         ArbUnion,

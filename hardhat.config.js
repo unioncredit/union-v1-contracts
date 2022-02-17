@@ -24,21 +24,27 @@ module.exports = {
         },
         rinkeby: {
             url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID,
-            accounts: {
-                mnemonic: process.env.MNEMONIC_TEST
-            }
+            accounts: process.env.PRIVATE_KEY
+                ? [process.env.PRIVATE_KEY]
+                : {
+                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+                  }
         },
         kovan: {
             url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID,
-            accounts: {
-                mnemonic: process.env.MNEMONIC_TEST
-            }
+            accounts: process.env.PRIVATE_KEY
+                ? [process.env.PRIVATE_KEY]
+                : {
+                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+                  }
         },
         arbitrumRinkeby: {
             url: "https://rinkeby.arbitrum.io/rpc",
-            accounts: {
-                mnemonic: process.env.MNEMONIC_TEST
-            }
+            accounts: process.env.PRIVATE_KEY
+                ? [process.env.PRIVATE_KEY]
+                : {
+                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+                  }
         },
         arbitrum: {
             url: "https://arb1.arbitrum.io/rpc",

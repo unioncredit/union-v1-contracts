@@ -2,7 +2,7 @@ const configs = require("../deployConfig.js");
 
 module.exports = async () => {
     if (network.name === "rinkeby" || network.name === "mainnet") {
-        const {deploy, execute} = deployments;
+        const {deploy, execute, read} = deployments;
         const {deployer} = await getNamedAccounts();
         const chainId = await getChainId();
 
@@ -13,9 +13,10 @@ module.exports = async () => {
             args: [configs[chainId]["ArbL1Router"], configs[chainId]["ArbL1Gateway"], union.address],
             log: true
         });
-
-        const tx = await execute("ArbUnionWrapper", {from: deployer}, "enableWhitelist");
-        console.log("ArbUnionWrapper enableWhitelist, tx is:", tx.transactionHash);
+        if (!(await read("ArbUnionWrapper", {from: deployer}, "whitelistEnabled"))) {
+            const tx = await execute("ArbUnionWrapper", {from: deployer}, "enableWhitelist");
+            console.log("ArbUnionWrapper enableWhitelist, tx is:", tx.transactionHash);
+        }
     }
 };
 module.exports.tags = ["UnionWrapper"];
