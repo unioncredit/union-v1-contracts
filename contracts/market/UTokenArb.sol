@@ -1,7 +1,7 @@
-//SPDX-License-Identifier: UNLICENSED
+//SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "../interfaces/IEip712.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 import "./UToken.sol";
 
 contract UTokenArb is UToken {
@@ -13,7 +13,7 @@ contract UTokenArb is UToken {
         bytes32 r,
         bytes32 s
     ) public whenNotPaused {
-        IEip712 erc20Token = IEip712(underlying);
+        IERC20Permit erc20Token = IERC20Permit(underlying);
         erc20Token.permit(msg.sender, address(this), type(uint256).max, deadline, v, r, s);
         _repayBorrowFresh(msg.sender, borrower, amount);
     }

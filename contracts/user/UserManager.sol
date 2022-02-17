@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 
 import "../Controller.sol";
 import "../interfaces/IAssetManager.sol";
@@ -12,7 +13,6 @@ import "../interfaces/IUserManager.sol";
 import "../interfaces/IComptroller.sol";
 import "../interfaces/IUnionToken.sol";
 import "../interfaces/IDai.sol";
-import "../interfaces/IEip712.sol";
 import "../interfaces/IUToken.sol";
 
 /**
@@ -687,7 +687,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         bytes32 r,
         bytes32 s
     ) public whenNotPaused {
-        IEip712 erc20Token = IEip712(stakingToken);
+        IERC20Permit erc20Token = IERC20Permit(stakingToken);
         erc20Token.permit(msg.sender, address(this), type(uint256).max, deadline, v, r, s);
 
         stake(amount);
