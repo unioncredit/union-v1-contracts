@@ -524,4 +524,214 @@ describe("UToken Contract", async () => {
             "BorrowExceedCreditLimit()"
         );
     });
+
+    describe("UToken Contract use 721 token", async () => {
+        before(async () => {
+            [admin, alice, bob, staker1, staker2, staker3] = await ethers.getSigners();
+
+            erc20 = await upgrades.deployProxy(
+                await ethers.getContractFactory("FaucetERC20_721"),
+                ["Dai Stablecoin", "DAI"], // exact name needed for signature verifaction
+                {initializer: "__FaucetERC20_721_init(string,string)"}
+            );
+
+            const UnionToken = await ethers.getContractFactory("UnionTokenMock");
+            unionToken = await UnionToken.deploy("Union Token", "Union");
+
+            FixedInterestRateModel = await ethers.getContractFactory("FixedInterestRateModelMock");
+            fixedInterestRateModel = await FixedInterestRateModel.deploy(borrowInterestPerBlock);
+
+            marketRegistry = await upgrades.deployProxy(await ethers.getContractFactory("MarketRegistryMock"), [], {
+                initializer: "__MarketRegistryMock_init()"
+            });
+
+            comptroller = await upgrades.deployProxy(await ethers.getContractFactory("ComptrollerMock"), [], {
+                initializer: "__ComptrollerMock_init()"
+            });
+
+            assetManager = await upgrades.deployProxy(await ethers.getContractFactory("AssetManagerMock"), [], {
+                initializer: "__AssetManager_init()"
+            });
+
+            userManager = await upgrades.deployProxy(await ethers.getContractFactory("UserManagerMock"), [], {
+                initializer: "__UserManager_init()"
+            });
+
+            await unionToken.transfer(comptroller.address, ethers.utils.parseEther("1000"));
+
+            const amount = ethers.utils.parseEther("1000");
+            await erc20.mint(assetManager.address, ethers.utils.parseEther("20"));
+            await erc20.mint(alice.address, amount);
+            await erc20.mint(bob.address, amount);
+            await erc20.mint(staker1.address, amount);
+            await erc20.mint(staker2.address, amount);
+            await erc20.mint(staker3.address, amount);
+        });
+
+        beforeEach(async () => {
+            const UToken = await ethers.getContractFactory("UTokenArb");
+            uToken = await upgrades.deployProxy(
+                UToken,
+                [
+                    "uToken",
+                    "uToken",
+                    erc20.address,
+                    initialExchangeRateMantissa,
+                    reserveFactorMantissa,
+                    originationFee,
+                    debtCeiling,
+                    maxBorrow,
+                    minBorrow,
+                    overdueBlocks,
+                    admin.address
+                ],
+                {
+                    initializer:
+                        "__UToken_init(string,string,address,uint256,uint256,uint256,uint256,uint256,uint256,uint256,address)",
+                    unsafeAllowLinkedLibraries: true
+                }
+            );
+
+            await marketRegistry.deleteMarket(erc20.address);
+            await marketRegistry.addUToken(erc20.address, uToken.address);
+            await marketRegistry.addUserManager(erc20.address, userManager.address);
+            await uToken.setUserManager(userManager.address);
+            await uToken.setAssetManager(assetManager.address);
+            await uToken.setInterestRateModel(fixedInterestRateModel.address);
+        });
+
+        it("Get and set params", async () => {
+            let assetManagerNew = await uToken.assetManager();
+            assetManagerNew.should.eq(assetManager.address);
+            await expect(uToken.connect(alice).setAssetManager(assetManager.address)).to.be.revertedWith(
+                "Controller: not admin"
+            );
+            await uToken.setAssetManager(assetManager.address);
+            assetManagerNew = await uToken.assetManager();
+            assetManagerNew.should.eq(assetManager.address);
+
+            let userManagerNew = await uToken.userManager();
+            userManagerNew.should.eq(userManager.address);
+            await expect(uToken.connect(alice).setUserManager(userManager.address)).to.be.revertedWith(
+                "Controller: not admin"
+            );
+
+            await uToken.setUserManager(userManager.address);
+            userManagerNew = await uToken.userManager();
+            userManagerNew.should.eq(userManager.address);
+
+            let originationFeeNew = await uToken.originationFee();
+            originationFeeNew.toString().should.eq(originationFee.toString());
+            await expect(uToken.connect(alice).setOriginationFee(0)).to.be.revertedWith("Controller: not admin");
+            await uToken.setOriginationFee(0);
+            userManagerNew = await uToken.originationFee();
+            userManagerNew.toString().should.eq("0");
+
+            let debtCeilingNew = await uToken.debtCeiling();
+            debtCeilingNew.toString().should.eq(debtCeiling.toString());
+            await expect(uToken.connect(alice).setDebtCeiling(0)).to.be.revertedWith("Controller: not admin");
+            await uToken.setDebtCeiling(0);
+            debtCeilingNew = await uToken.debtCeiling();
+            debtCeilingNew.toString().should.eq("0");
+
+            let minBorrowNew = await uToken.minBorrow();
+            minBorrowNew.toString().should.eq(minBorrow.toString());
+            await expect(uToken.connect(alice).setMinBorrow(0)).to.be.revertedWith("Controller: not admin");
+            await uToken.setMinBorrow(0);
+            minBorrowNew = await uToken.minBorrow();
+            minBorrowNew.toString().should.eq("0");
+
+            let maxBorrowNew = await uToken.maxBorrow();
+            maxBorrowNew.toString().should.eq(maxBorrow.toString());
+            await expect(uToken.connect(alice).setMaxBorrow(0)).to.be.revertedWith("Controller: not admin");
+            await uToken.setMaxBorrow(0);
+            maxBorrowNew = await uToken.maxBorrow();
+            maxBorrowNew.toString().should.eq("0");
+
+            let overdueBlocksNew = await uToken.overdueBlocks();
+            overdueBlocksNew.toString().should.eq(overdueBlocks.toString());
+            await expect(uToken.connect(alice).setOverdueBlocks(0)).to.be.revertedWith("Controller: not admin");
+            await uToken.setOverdueBlocks(0);
+            overdueBlocksNew = await uToken.overdueBlocks();
+            overdueBlocksNew.toString().should.eq("0");
+
+            let reserveFactorMantissaNew = await uToken.reserveFactorMantissa();
+            reserveFactorMantissaNew.toString().should.eq(reserveFactorMantissa.toString());
+            await expect(uToken.connect(alice).setReserveFactor(0)).to.be.revertedWith("Controller: not admin");
+            await uToken.setReserveFactor(0);
+            reserveFactorMantissaNew = await uToken.reserveFactorMantissa();
+            reserveFactorMantissaNew.toString().should.eq("0");
+
+            let interestRateModelNew = await uToken.interestRateModel();
+            interestRateModelNew.should.eq(fixedInterestRateModel.address);
+            await expect(uToken.connect(alice).setInterestRateModel(ethers.constants.AddressZero)).to.be.revertedWith(
+                "Controller: not admin"
+            );
+            await expect(uToken.setInterestRateModel(ethers.constants.AddressZero)).to.be.reverted;
+            let fixedInterestRateModelNew = await FixedInterestRateModel.deploy(borrowInterestPerBlock);
+            await uToken.setInterestRateModel(fixedInterestRateModelNew.address);
+            interestRateModelNew = await uToken.interestRateModel();
+            interestRateModelNew.should.eq(fixedInterestRateModelNew.address);
+        });
+
+        it("Verify various borrow restrictions", async () => {
+            //mock isMember
+            await userManager.setIsMember(true);
+            await userManager.setCreditLimit(ethers.utils.parseEther("10"));
+
+            await expect(
+                uToken.connect(alice).borrow(minBorrow.sub(ethers.utils.parseEther("0.01")))
+            ).to.be.revertedWith("AmountLessMinBorrow()");
+
+            const remainingDebtCeiling = await uToken.getRemainingDebtCeiling();
+            await expect(
+                uToken.connect(alice).borrow(remainingDebtCeiling.add(ethers.utils.parseEther("1")))
+            ).to.be.revertedWith("AmountExceedGlobalMax()");
+
+            await expect(uToken.connect(alice).borrow(maxBorrow.add(ethers.utils.parseEther("1")))).to.be.revertedWith(
+                "AmountExceedMaxBorrow()"
+            );
+
+            const loanableAmount = await assetManager.getLoanableAmount(erc20.address);
+            await expect(
+                uToken.connect(alice).borrow(loanableAmount.add(ethers.utils.parseEther("1")))
+            ).to.be.revertedWith("InsufficientFundsLeft()");
+
+            const creditLimit = await userManager.getCreditLimit(alice.address);
+            await expect(
+                uToken.connect(alice).borrow(creditLimit.add(ethers.utils.parseEther("1")))
+            ).to.be.revertedWith("BorrowExceedCreditLimit()");
+
+            await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
+            await waitNBlocks(overdueBlocks);
+            await expect(uToken.connect(alice).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
+                "MemberIsOverdue()"
+            );
+        });
+
+        it("Repay borrow with 721 permit", async () => {
+            await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
+            let borrowed = await uToken.borrowBalanceView(alice.address);
+            borrowed.toString().should.not.eq("0");
+            const repayAmount = borrowed.add(ethers.utils.parseEther("0.001")); //In order to repay cleanly and avoid the interest incurred when repaying
+            await erc20.connect(alice).approve(uToken.address, repayAmount);
+            const result = await signERC2612Permit(
+                waffle.provider._hardhatNetwork.provider,
+                {
+                    name: "Dai Stablecoin",
+                    version: "1",
+                    chainId: "31337",
+                    verifyingContract: erc20.address
+                },
+                alice.address,
+                uToken.address,
+                ethers.constants.MaxUint256.toString()
+            );
+            await uToken
+                .connect(alice)
+                .repayBorrowWithEip712Permit(alice.address, repayAmount, result.deadline, result.v, result.r, result.s);
+            borrowed = await uToken.borrowBalanceView(alice.address);
+            borrowed.toString().should.eq("0");
+        });
+    });
 });

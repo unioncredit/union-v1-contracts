@@ -12,6 +12,7 @@ import "../interfaces/IUserManager.sol";
 import "../interfaces/IComptroller.sol";
 import "../interfaces/IUnionToken.sol";
 import "../interfaces/IDai.sol";
+import "../interfaces/IEip712.sol";
 import "../interfaces/IUToken.sol";
 
 /**
@@ -671,6 +672,23 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     ) public whenNotPaused {
         IDai erc20Token = IDai(stakingToken);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
+
+        stake(amount);
+    }
+
+    /**
+     *  @dev stakeWithEip712Permit
+     *  @param amount Amount
+     */
+    function stakeWithEip712Permit(
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public whenNotPaused {
+        IEip712 erc20Token = IEip712(stakingToken);
+        erc20Token.permit(msg.sender, address(this), type(uint256).max, deadline, v, r, s);
 
         stake(amount);
     }
