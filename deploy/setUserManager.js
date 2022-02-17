@@ -1,8 +1,11 @@
-module.exports = async ({getNamedAccounts}) => {
+const configs = require("../deployConfig.js");
+
+module.exports = async ({getNamedAccounts, getChainId}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
+    const chainId = await getChainId();
 
-    const uToken = await deployments.get("UDai");
+    const uToken = await deployments.get(configs[chainId]["UToken"]["type"]);
 
     const UserManagerContract =
         network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArb" : "UserManager";
@@ -15,4 +18,4 @@ module.exports = async ({getNamedAccounts}) => {
     console.log("setUserManager end");
 };
 module.exports.tags = ["UserManagerSetting", "Arbitrum"];
-module.exports.dependencies = ["UserManager", "UDai"];
+module.exports.dependencies = ["UserManager", "UToken"];

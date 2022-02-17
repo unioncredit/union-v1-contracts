@@ -7,7 +7,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
-    const uToken = await deployments.get("UDai");
+    const uToken = await deployments.get(configs[chainId]["UToken"]["type"]);
 
     const userManager =
         network.name === "arbitrum" || network.name === "arbitrumRinkeby"
@@ -44,4 +44,4 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     console.log("setMarketRegistry end");
 };
 module.exports.tags = ["MarketRegistrySetting", "Arbitrum"];
-module.exports.dependencies = ["MarketRegistry", "UDai", "UserManager"];
+module.exports.dependencies = ["MarketRegistry", "UToken", "UserManager"];

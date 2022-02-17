@@ -33,7 +33,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            type: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -103,7 +104,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"
         },
-        UDai: {
+        UToken: {
+            type: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: "1000000000000000000",
@@ -176,7 +178,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            type: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -247,7 +250,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            type: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -311,7 +315,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            type: "UToken",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -348,7 +353,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            type: "UToken",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,

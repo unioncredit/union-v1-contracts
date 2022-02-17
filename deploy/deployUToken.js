@@ -6,11 +6,12 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const chainId = await getChainId();
 
-    const params = configs[chainId]["UDai"];
+    const params = configs[chainId]["UToken"];
 
-    const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
+    const UToken =
+        network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
-    await deploy("UDai", {
+    await deploy(params.type, {
         from: deployer,
         proxy: {
             proxyContract: "UUPSProxy",
@@ -19,7 +20,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
                 args: [
                     params["name"],
                     params["symbol"],
-                    DAI,
+                    UToken,
                     params.initialExchangeRateMantissa,
                     params.reserveFactorMantissa,
                     params.originationFee,
@@ -34,4 +35,4 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         log: true
     });
 };
-module.exports.tags = ["UDai", "Arbitrum"];
+module.exports.tags = ["UToken", "Arbitrum"];
