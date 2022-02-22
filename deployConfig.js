@@ -227,8 +227,8 @@ var configs = {
     },
     4: {
         // rinkeby
-        Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
-        Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
+        Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
         ArbL1Router: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
         ArbL1Gateway: "0x917dc9a69F65dC3082D518192cd3725E1Fa96cA2",
