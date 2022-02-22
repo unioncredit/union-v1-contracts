@@ -52,7 +52,7 @@ contract ArbUnionWrapper is ERC20, Whitelistable {
     }
 
     /** Safety measure to transfer UNION to owner */
-    function transferDev() external onlyOwner returns (bool) {
+    function emergencyWithdraw() external onlyOwner returns (bool) {
         IERC20 token = IERC20(unionToken);
         uint256 balance = token.balanceOf(address(this));
         return token.transfer(msg.sender, balance);
