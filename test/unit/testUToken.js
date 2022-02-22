@@ -525,14 +525,14 @@ describe("UToken Contract", async () => {
         );
     });
 
-    describe("UToken Contract use 721 token", async () => {
+    describe("ERC20 UToken", async () => {
         before(async () => {
             [admin, alice, bob, staker1, staker2, staker3] = await ethers.getSigners();
 
             erc20 = await upgrades.deployProxy(
-                await ethers.getContractFactory("FaucetERC20_721"),
+                await ethers.getContractFactory("FaucetERC20_ERC20Permit"),
                 ["Dai Stablecoin", "DAI"], // exact name needed for signature verifaction
-                {initializer: "__FaucetERC20_721_init(string,string)"}
+                {initializer: "__FaucetERC20_ERC20Permit_init(string,string)"}
             );
 
             const UnionToken = await ethers.getContractFactory("UnionTokenMock");
@@ -569,7 +569,7 @@ describe("UToken Contract", async () => {
         });
 
         beforeEach(async () => {
-            const UToken = await ethers.getContractFactory("UTokenArb");
+            const UToken = await ethers.getContractFactory("UErc20");
             uToken = await upgrades.deployProxy(
                 UToken,
                 [

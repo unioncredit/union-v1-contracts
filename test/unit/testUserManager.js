@@ -499,9 +499,9 @@ describe("User Manager Contract", () => {
     });
 
     it("stake with ERC20 permit", async () => {
-        const ERC20 = await ethers.getContractFactory("FaucetERC20_721");
+        const ERC20 = await ethers.getContractFactory("FaucetERC20_ERC20Permit");
         const erc20 = await upgrades.deployProxy(ERC20, ["Dai Stablecoin", "DAI"], {
-            initializer: "__FaucetERC20_721_init(string,string)"
+            initializer: "__FaucetERC20_ERC20Permit_init(string,string)"
         });
         await erc20.mint(MEMBER1.address, parseEther("10000"));
         userManager = await upgrades.deployProxy(
