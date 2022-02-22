@@ -8,11 +8,12 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const params = configs[chainId]["UToken"];
 
-    const UToken =
+    const daiAddress =
         network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
-    await deploy(params.type, {
+    await deploy("UDai", {
         from: deployer,
+        contract: params.contract,
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
@@ -21,7 +22,7 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
                     args: [
                         params["name"],
                         params["symbol"],
-                        UToken,
+                        daiAddress,
                         params.initialExchangeRateMantissa,
                         params.reserveFactorMantissa,
                         params.originationFee,

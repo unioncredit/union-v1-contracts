@@ -190,8 +190,7 @@ const setUserManager = async (chainId, timelockAddress, admin, guardian) => {
 };
 
 const setUToken = async (chainId, timelockAddress, admin, guardian) => {
-    const uTokenType = configs[chainId]["UToken"]["type"];
-    const uToken = await ethers.getContract(uTokenType);
+    const uToken = await ethers.getContract("UDai");
     if (guardian && (await uToken.pauseGuardian()) != guardian) {
         tx = await uToken.setGuardian(guardian);
         console.log("UToken setGuardian, tx is:", tx.hash);

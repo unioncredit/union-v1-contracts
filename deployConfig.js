@@ -34,7 +34,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UDai",
+            contract: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -105,7 +105,7 @@ var configs = {
             interestRatePerBlock: "95129375951"
         },
         UToken: {
-            type: "UDai",
+            contract: "UTokenArb",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: "1000000000000000000",
@@ -179,7 +179,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UDai",
+            contract: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -251,7 +251,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UDai",
+            contract: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -316,7 +316,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UTokenArb",
+            contract: "UTokenArb",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -354,7 +354,7 @@ var configs = {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
         UToken: {
-            type: "UTokenArb",
+            contract: "UTokenArb",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,

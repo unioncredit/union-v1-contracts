@@ -195,8 +195,8 @@ const checkMarketRegistry = async chainId => {
     const params = checkFileExist(path);
     const marketRegistry = await ethers.getContractAt("MarketRegistry", params.address);
 
-    const uTokenType = configs[chainId]["UToken"]["type"];
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenType}.json`);
+    const uTokenContract = "UDai";
+    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenContract}.json`);
     const uTokens = await marketRegistry.getUTokens();
     let uTokenIsExist;
     for (let i = 0; i < uTokens.length; i++) {
@@ -348,7 +348,7 @@ const checkUnionToken = async chainId => {
 };
 
 const checkUserManager = async chainId => {
-    const uTokenType = configs[chainId]["UToken"]["type"];
+    const uTokenContract = "UDai";
     const path = `../deployments/${networks[chainId]}/UserManager.json`;
     const params = checkFileExist(path);
     const userManager = await ethers.getContractAt("UserManager", params.address);
@@ -372,7 +372,7 @@ const checkUserManager = async chainId => {
     if (comptroller.toLowerCase() != comptrollerParams.address?.toLowerCase()) {
         throw new Error("UserManager set comptroller error");
     }
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenType}.json`);
+    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenContract}.json`);
     const uToken = await userManager.uToken();
     if (uToken.toLowerCase() != uTokenParams.address?.toLowerCase()) {
         throw new Error("UserManager set uToken error");
@@ -390,10 +390,10 @@ const checkUserManager = async chainId => {
 
 const checkUToken = async chainId => {
     const data = configs[chainId]["UToken"];
-    const uTokenType = data["type"];
-    const path = `../deployments/${networks[chainId]}/${uTokenType}.json`;
+    const uTokenContract = "UDai";
+    const path = `../deployments/${networks[chainId]}/${uTokenContract}.json`;
     const params = checkFileExist(path);
-    const uToken = await ethers.getContractAt(uTokenType, params.address);
+    const uToken = await ethers.getContractAt(uTokenContract, params.address);
 
     const name = await uToken.name();
     if (name != data["name"]) {
