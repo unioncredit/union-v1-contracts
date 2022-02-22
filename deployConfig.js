@@ -33,7 +33,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            contract: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -103,7 +104,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "95129375951"
         },
-        UDai: {
+        UToken: {
+            contract: "UErc20",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: "1000000000000000000",
@@ -176,7 +178,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            contract: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -224,8 +227,8 @@ var configs = {
     },
     4: {
         // rinkeby
-        Guardian: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
-        Admin: "0x7a0C61EdD8b5c0c5C1437AEb571d7DDbF8022Be4",
+        Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
         DAI: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
         ArbL1Router: "0x70C143928eCfFaf9F5b406f7f4fC28Dc43d68380",
         ArbL1Gateway: "0x917dc9a69F65dC3082D518192cd3725E1Fa96cA2",
@@ -247,7 +250,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            contract: "UDai",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -311,7 +315,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            contract: "UErc20",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,
@@ -348,7 +353,8 @@ var configs = {
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
-        UDai: {
+        UToken: {
+            contract: "UErc20",
             name: "uDAI",
             symbol: "uDAI",
             initialExchangeRateMantissa: parseUnits("1"), // 100%,

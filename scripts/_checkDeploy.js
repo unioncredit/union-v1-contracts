@@ -195,7 +195,8 @@ const checkMarketRegistry = async chainId => {
     const params = checkFileExist(path);
     const marketRegistry = await ethers.getContractAt("MarketRegistry", params.address);
 
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UDai.json`);
+    const uTokenContract = "UDai";
+    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenContract}.json`);
     const uTokens = await marketRegistry.getUTokens();
     let uTokenIsExist;
     for (let i = 0; i < uTokens.length; i++) {
@@ -347,6 +348,7 @@ const checkUnionToken = async chainId => {
 };
 
 const checkUserManager = async chainId => {
+    const uTokenContract = "UDai";
     const path = `../deployments/${networks[chainId]}/UserManager.json`;
     const params = checkFileExist(path);
     const userManager = await ethers.getContractAt("UserManager", params.address);
@@ -370,7 +372,7 @@ const checkUserManager = async chainId => {
     if (comptroller.toLowerCase() != comptrollerParams.address?.toLowerCase()) {
         throw new Error("UserManager set comptroller error");
     }
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UDai.json`);
+    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenContract}.json`);
     const uToken = await userManager.uToken();
     if (uToken.toLowerCase() != uTokenParams.address?.toLowerCase()) {
         throw new Error("UserManager set uToken error");
@@ -387,66 +389,67 @@ const checkUserManager = async chainId => {
 };
 
 const checkUToken = async chainId => {
-    const path = `../deployments/${networks[chainId]}/UDai.json`;
+    const data = configs[chainId]["UToken"];
+    const uTokenContract = "UDai";
+    const path = `../deployments/${networks[chainId]}/${uTokenContract}.json`;
     const params = checkFileExist(path);
-    const uToken = await ethers.getContractAt("UDai", params.address);
-    const data = configs[chainId]["UDai"];
+    const uToken = await ethers.getContractAt(uTokenContract, params.address);
 
     const name = await uToken.name();
-    if (name != configs[chainId]["UDai"]["name"]) {
-        throw new Error("UDai set name error");
+    if (name != data["name"]) {
+        throw new Error("UToken set name error");
     }
     const symbol = await uToken.symbol();
-    if (symbol != configs[chainId]["UDai"]["symbol"]) {
-        throw new Error("UDai set name error");
+    if (symbol != data["symbol"]) {
+        throw new Error("UToken set name error");
     }
     const underlying = await uToken.underlying();
     if (chainId != 31337) {
         if (underlying.toLowerCase() != configs[chainId]["DAI"].toLowerCase()) {
-            throw new Error("UDai set underlying error");
+            throw new Error("UToken set underlying error");
         }
     }
     const reserveFactorMantissa = await uToken.reserveFactorMantissa();
     if (parseFloat(reserveFactorMantissa) != parseFloat(data.reserveFactorMantissa)) {
-        throw new Error("UDai set reserveFactorMantissa error");
+        throw new Error("UToken set reserveFactorMantissa error");
     }
     const originationFee = await uToken.originationFee();
     if (parseFloat(originationFee) != parseFloat(data.originationFee)) {
-        throw new Error("UDai set originationFee error");
+        throw new Error("UToken set originationFee error");
     }
     const debtCeiling = await uToken.debtCeiling();
     if (parseFloat(debtCeiling) != parseFloat(data.debtCeiling)) {
-        throw new Error("UDai set debtCeiling error");
+        throw new Error("UToken set debtCeiling error");
     }
     const maxBorrow = await uToken.maxBorrow();
     if (parseFloat(maxBorrow) != parseFloat(data.maxBorrow)) {
-        throw new Error("UDai set maxBorrow error");
+        throw new Error("UToken set maxBorrow error");
     }
     const minBorrow = await uToken.minBorrow();
     if (parseFloat(minBorrow) != parseFloat(data.minBorrow)) {
-        throw new Error("UDai set minBorrow error");
+        throw new Error("UToken set minBorrow error");
     }
     const overdueBlocks = await uToken.overdueBlocks();
     if (parseFloat(overdueBlocks) != parseFloat(data.overdueBlocks)) {
-        throw new Error("UDai set overdueBlocks error");
+        throw new Error("UToken set overdueBlocks error");
     }
     const assetManager = await uToken.assetManager();
     const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
     if (assetManager.toLowerCase() != assetManagerParams.address.toLowerCase()) {
-        throw new Error("UDai set assetManager error");
+        throw new Error("UToken set assetManager error");
     }
     const userManager = await uToken.userManager();
     const userManagerParams = checkFileExist(`../deployments/${networks[chainId]}/UserManager.json`);
     if (userManager.toLowerCase() != userManagerParams.address.toLowerCase()) {
-        throw new Error("UDai set userManager error");
+        throw new Error("UToken set userManager error");
     }
     const interestRateModel = await uToken.interestRateModel();
     const interestRateModelParams = checkFileExist(`../deployments/${networks[chainId]}/FixedInterestRateModel.json`);
     if (interestRateModel.toLowerCase() != interestRateModelParams.address.toLowerCase()) {
-        throw new Error("UDai set interestRateModel error");
+        throw new Error("UToken set interestRateModel error");
     }
 
-    console.log("UDai success");
+    console.log("UToken success");
 };
 
 const checkGovernance = async chainId => {

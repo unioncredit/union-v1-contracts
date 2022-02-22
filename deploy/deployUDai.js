@@ -6,32 +6,36 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const chainId = await getChainId();
 
-    const params = configs[chainId]["UDai"];
+    const params = configs[chainId]["UToken"];
 
-    const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
+    const daiAddress =
+        network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
     await deploy("UDai", {
         from: deployer,
+        contract: params.contract,
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
-                methodName: "__UToken_init",
-                args: [
-                    params["name"],
-                    params["symbol"],
-                    DAI,
-                    params.initialExchangeRateMantissa,
-                    params.reserveFactorMantissa,
-                    params.originationFee,
-                    params.debtCeiling,
-                    params.maxBorrow,
-                    params.minBorrow,
-                    params.overdueBlocks,
-                    deployer
-                ]
+                init: {
+                    methodName: "__UToken_init",
+                    args: [
+                        params["name"],
+                        params["symbol"],
+                        daiAddress,
+                        params.initialExchangeRateMantissa,
+                        params.reserveFactorMantissa,
+                        params.originationFee,
+                        params.debtCeiling,
+                        params.maxBorrow,
+                        params.minBorrow,
+                        params.overdueBlocks,
+                        deployer
+                    ]
+                }
             }
         },
         log: true
     });
 };
-module.exports.tags = ["UDai", "Arbitrum"];
+module.exports.tags = ["UToken", "Arbitrum"];

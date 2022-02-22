@@ -96,12 +96,14 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
 };
 
 const setUnionToken = async (chainId, admin) => {
-    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
-        const unionToken = await ethers.getContract("UnionToken");
-        if ((await unionToken.owner()) != admin) {
-            tx = await unionToken.transferOwnership(admin);
-            console.log("UnionToken transferOwnership, tx is:", tx.hash);
-        }
+    const unionToken =
+        network.name === "arbitrumRinkeby" || network.name === "arbitrum"
+            ? await ethers.getContract("ArbUnion")
+            : await ethers.getContract("UnionToken");
+
+    if ((await unionToken.owner()) != admin) {
+        tx = await unionToken.transferOwnership(admin);
+        console.log("UnionToken transferOwnership, tx is:", tx.hash);
     }
 };
 
@@ -168,6 +170,16 @@ const setMarketRegistry = async (chainId, timelockAddress, admin, guardian) => {
     }
 };
 
+const setArbUnionWrapper = async (chainId, admin) => {
+    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
+        const wrapper = await ethers.getContract("ArbUnionWrapper");
+        if ((await wrapper.owner()) != admin) {
+            const tx = await wrapper.transferOwnership(admin);
+            console.log("ArbUnionWrapper transferAdmin, tx is:", tx.hash);
+        }
+    }
+};
+
 const setUserManager = async (chainId, timelockAddress, admin, guardian) => {
     const userManager =
         network.name === "arbitrum" || network.name === "arbitrumRinkeby"
@@ -231,4 +243,5 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
     await setUserManager(chainId, timelockAddress, admin, guardian);
     await setUToken(chainId, timelockAddress, admin, guardian);
     await setTreasury(chainId, admin);
+    await setArbUnionWrapper(chainId, admin);
 })();
