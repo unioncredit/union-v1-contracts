@@ -24,7 +24,7 @@ Union is an upgradeable system. Each deployed contract is actually a "Proxy" tha
 | Treasury         | [0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9](https://etherscan.io/address/0x6DBDe0E7e563E34A53B1130D6B779ec8eD34B4B9) | ❌          |
 | Treasury Vester  | [0x641DD6258cb3E948121B10ee51594Dc2A8549fe1](https://etherscan.io/address/0x641DD6258cb3E948121B10ee51594Dc2A8549fe1) | ❌          |
 | ArbUnion Wrapper | [0x20c375e822b6264E22941B74943F940A1CfE5F25](https://etherscan.io/address/0x20c375e822b6264E22941B74943F940A1CfE5F25) | ❌          |
-| Arb Connector    | [0xd8cA7C410B5780BdA6425D43869e5beC19233850](https://etherscan.io/address/0xd8cA7C410B5780BdA6425D43869e5beC19233850) | ❌          |
+| Arb Connector    | [0x307ED81138cA91637E432DbaBaC6E3A42699032a](https://etherscan.io/address/0x307ED81138cA91637E432DbaBaC6E3A42699032a) | ❌          |
 
 ## Arbitrum One
 
