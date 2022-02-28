@@ -1,11 +1,13 @@
 const hre = require("hardhat");
-const {ethers, getNamedAccounts, getChainId} = hre;
+const {ethers, network, getChainId} = hre;
 
 const configs = require("../deployConfig.js");
 
 const networks = {
     1: "mainnet",
+    4: "rinkeby",
     42: "kovan",
+    421611: "arbitrumRinkeby",
     31337: "hardhat"
 };
 
@@ -19,9 +21,7 @@ const checkFileExist = path => {
 
 const setAaveAdapter = async (chainId, timelockAddress, admin, guardian) => {
     if (configs[chainId]["AaveAdapter"]) {
-        const aaveAdapterPath = `../deployments/${networks[chainId]}/AaveAdapter.json`;
-        const aaveAdapterParams = checkFileExist(aaveAdapterPath);
-        const aaveAdapter = await ethers.getContractAt("AaveAdapter", aaveAdapterParams.address);
+        const aaveAdapter = await ethers.getContract("AaveAdapter");
         if (guardian && (await aaveAdapter.pauseGuardian()) != guardian) {
             tx = await aaveAdapter.setGuardian(guardian);
             console.log("AaveAdapter setGuardian, tx is:", tx.hash);
@@ -41,9 +41,7 @@ const setAaveAdapter = async (chainId, timelockAddress, admin, guardian) => {
 
 const setCompoundAdapter = async (chainId, timelockAddress, admin, guardian) => {
     if (configs[chainId]["CompoundAdapter"]) {
-        const compoundAdapterPath = `../deployments/${networks[chainId]}/CompoundAdapter.json`;
-        const compoundAdapterParams = checkFileExist(compoundAdapterPath);
-        const compoundAdapter = await ethers.getContractAt("CompoundAdapter", compoundAdapterParams.address);
+        const compoundAdapter = await ethers.getContract("CompoundAdapter");
         if (guardian && (await compoundAdapter.pauseGuardian()) != guardian) {
             tx = await compoundAdapter.setGuardian(guardian);
             console.log("CompoundAdapter setGuardian, tx is:", tx.hash);
@@ -62,9 +60,7 @@ const setCompoundAdapter = async (chainId, timelockAddress, admin, guardian) => 
 };
 
 const setPureTokenAdapter = async (chainId, timelockAddress, admin, guardian) => {
-    const pureTokenAdapterPath = `../deployments/${networks[chainId]}/PureTokenAdapter.json`;
-    const pureTokenAdapterParams = checkFileExist(pureTokenAdapterPath);
-    const pureTokenAdapter = await ethers.getContractAt("PureTokenAdapter", pureTokenAdapterParams.address);
+    const pureTokenAdapter = await ethers.getContract("PureTokenAdapter");
     if (guardian && (await pureTokenAdapter.pauseGuardian()) != guardian) {
         tx = await pureTokenAdapter.setGuardian(guardian);
         console.log("PureTokenAdapter setGuardian, tx is:", tx.hash);
@@ -82,9 +78,7 @@ const setPureTokenAdapter = async (chainId, timelockAddress, admin, guardian) =>
 };
 
 const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
-    const comptrollerPath = `../deployments/${networks[chainId]}/Comptroller.json`;
-    const comptrollerParams = checkFileExist(comptrollerPath);
-    const comptroller = await ethers.getContractAt("Comptroller", comptrollerParams.address);
+    const comptroller = await ethers.getContract("Comptroller");
     if (guardian && (await comptroller.pauseGuardian()) != guardian) {
         tx = await comptroller.setGuardian(guardian);
         console.log("Comptroller setGuardian, tx is:", tx.hash);
@@ -102,9 +96,10 @@ const setComptroller = async (chainId, timelockAddress, admin, guardian) => {
 };
 
 const setUnionToken = async (chainId, admin) => {
-    const unionTokenPath = `../deployments/${networks[chainId]}/UnionToken.json`;
-    const unionTokenParams = checkFileExist(unionTokenPath);
-    const unionToken = await ethers.getContractAt("UnionToken", unionTokenParams.address);
+    const unionToken =
+        network.name === "arbitrumRinkeby" || network.name === "arbitrum"
+            ? await ethers.getContract("ArbUnion")
+            : await ethers.getContract("UnionToken");
 
     if ((await unionToken.owner()) != admin) {
         tx = await unionToken.transferOwnership(admin);
@@ -113,12 +108,7 @@ const setUnionToken = async (chainId, admin) => {
 };
 
 const setFixedInterestRateModel = async (chainId, admin) => {
-    const fixedInterestRateModelPath = `../deployments/${networks[chainId]}/FixedInterestRateModel.json`;
-    const fixedInterestRateModelParams = checkFileExist(fixedInterestRateModelPath);
-    const fixedInterestRateModel = await ethers.getContractAt(
-        "FixedInterestRateModel",
-        fixedInterestRateModelParams.address
-    );
+    const fixedInterestRateModel = await ethers.getContract("FixedInterestRateModel");
     if (admin && (await fixedInterestRateModel.owner()) != admin) {
         tx = await fixedInterestRateModel.transferOwnership(admin);
         console.log("FixedInterestRateModel transferOwnership, tx is:", tx.hash);
@@ -126,9 +116,7 @@ const setFixedInterestRateModel = async (chainId, admin) => {
 };
 
 const setSumOfTrust = async (chainId, admin) => {
-    const sumOfTrustPath = `../deployments/${networks[chainId]}/SumOfTrust.json`;
-    const sumOfTrustParams = checkFileExist(sumOfTrustPath);
-    const sumOfTrust = await ethers.getContractAt("SumOfTrust", sumOfTrustParams.address);
+    const sumOfTrust = await ethers.getContract("SumOfTrust");
     if (admin && (await sumOfTrust.owner()) != admin) {
         tx = await sumOfTrust.transferOwnership(admin);
         console.log("SumOfTrust transferOwnership, tx is:", tx.hash);
@@ -136,20 +124,18 @@ const setSumOfTrust = async (chainId, admin) => {
 };
 
 const setTreasury = async (chainId, admin) => {
-    const treasuryPath = `../deployments/${networks[chainId]}/Treasury.json`;
-    const treasuryParams = checkFileExist(treasuryPath);
-    const treasury = await ethers.getContractAt("Treasury", treasuryParams.address);
-    if (admin && (await treasury.admin()) != admin && (await treasury.newAdmin()) != admin) {
-        tx = await treasury.changeAdmin(admin);
-        console.log("Treasury changeAdmin, tx is:", tx.hash);
-        //TODO: Also need to be called acceptAdmin by admin
+    if (network.name !== "arbitrumRinkeby" && network.name !== "arbitrum") {
+        const treasury = await ethers.getContract("Treasury");
+        if (admin && (await treasury.admin()) != admin && (await treasury.newAdmin()) != admin) {
+            tx = await treasury.changeAdmin(admin);
+            console.log("Treasury changeAdmin, tx is:", tx.hash);
+            //TODO: Also need to be called acceptAdmin by admin
+        }
     }
 };
 
 const setAssetManager = async (chainId, timelockAddress, admin, guardian) => {
-    const assetManagerPath = `../deployments/${networks[chainId]}/AssetManager.json`;
-    const assetManagerParams = checkFileExist(assetManagerPath);
-    const assetManager = await ethers.getContractAt("AssetManager", assetManagerParams.address);
+    const assetManager = await ethers.getContract("AssetManager");
     if (guardian && (await assetManager.pauseGuardian()) != guardian) {
         tx = await assetManager.setGuardian(guardian);
         console.log("AssetManager setGuardian, tx is:", tx.hash);
@@ -167,9 +153,7 @@ const setAssetManager = async (chainId, timelockAddress, admin, guardian) => {
 };
 
 const setMarketRegistry = async (chainId, timelockAddress, admin, guardian) => {
-    const marketRegistryPath = `../deployments/${networks[chainId]}/MarketRegistry.json`;
-    const marketRegistryParams = checkFileExist(marketRegistryPath);
-    const marketRegistry = await ethers.getContractAt("MarketRegistry", marketRegistryParams.address);
+    const marketRegistry = await ethers.getContract("MarketRegistry");
     if (guardian && (await marketRegistry.pauseGuardian()) != guardian) {
         tx = await marketRegistry.setGuardian(guardian);
         console.log("MarketRegistry setGuardian, tx is:", tx.hash);
@@ -186,10 +170,21 @@ const setMarketRegistry = async (chainId, timelockAddress, admin, guardian) => {
     }
 };
 
+const setArbUnionWrapper = async (chainId, timelockAddress) => {
+    if (network.name === "rinkeby" || network.name === "mainnet") {
+        const wrapper = await ethers.getContract("ArbUnionWrapper");
+        if ((await wrapper.owner()) != timelockAddress) {
+            const tx = await wrapper.transferOwnership(timelockAddress);
+            console.log("ArbUnionWrapper transferAdmin, tx is:", tx.hash);
+        }
+    }
+};
+
 const setUserManager = async (chainId, timelockAddress, admin, guardian) => {
-    const userManagerPath = `../deployments/${networks[chainId]}/UserManager.json`;
-    const userManagerParams = checkFileExist(userManagerPath);
-    const userManager = await ethers.getContractAt("UserManager", userManagerParams.address);
+    const userManager =
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+            ? await ethers.getContract("UserManagerArb")
+            : await ethers.getContract("UserManager");
     if (guardian && (await userManager.pauseGuardian()) != guardian) {
         tx = await userManager.setGuardian(guardian);
         console.log("UserManager setGuardian, tx is:", tx.hash);
@@ -207,9 +202,7 @@ const setUserManager = async (chainId, timelockAddress, admin, guardian) => {
 };
 
 const setUToken = async (chainId, timelockAddress, admin, guardian) => {
-    const uTokenPath = `../deployments/${networks[chainId]}/UDai.json`;
-    const uTokenParams = checkFileExist(uTokenPath);
-    const uToken = await ethers.getContractAt("UToken", uTokenParams.address);
+    const uToken = await ethers.getContract("UDai");
     if (guardian && (await uToken.pauseGuardian()) != guardian) {
         tx = await uToken.setGuardian(guardian);
         console.log("UToken setGuardian, tx is:", tx.hash);
@@ -228,9 +221,13 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
 
 (async () => {
     const chainId = await getChainId();
-    const timelockPath = `../deployments/${networks[chainId]}/TimelockController.json`;
-    const timelockParams = checkFileExist(timelockPath);
-    const timelockAddress = timelockParams.address;
+    console.log(`Setting permissions for network ${network.name} ...`);
+    const timelockAddress =
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+            ? configs[chainId]["Timelock"]
+            : (await ethers.getContract("TimelockController")).address;
+    console.log({timelockAddress});
+
     const admin = configs[chainId]["Admin"];
     const guardian = configs[chainId]["Guardian"];
 
@@ -241,9 +238,10 @@ const setUToken = async (chainId, timelockAddress, admin, guardian) => {
     await setUnionToken(chainId, admin);
     await setFixedInterestRateModel(chainId, admin);
     await setSumOfTrust(chainId, admin);
-    await setTreasury(chainId, admin);
     await setAssetManager(chainId, timelockAddress, admin, guardian);
     await setMarketRegistry(chainId, timelockAddress, admin, guardian);
     await setUserManager(chainId, timelockAddress, admin, guardian);
     await setUToken(chainId, timelockAddress, admin, guardian);
+    await setTreasury(chainId, admin);
+    await setArbUnionWrapper(chainId, timelockAddress);
 })();

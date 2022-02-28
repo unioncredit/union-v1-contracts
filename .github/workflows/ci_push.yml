@@ -18,7 +18,7 @@ jobs:
             - name: Test
               run: |
                   npm run lint
-                  npm run test
+                  npm run test:unit
               env:
                   COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
