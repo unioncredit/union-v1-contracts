@@ -7,6 +7,7 @@
         "test": "yarn hardhat test",
         "test:unit": "yarn hardhat test test/unit/*",
         "test:deploy": "yarn hardhat deploy --write true --reset --network hardhat",
+        "test:proposal": "yarn test --deploy-fixture proposals/**/testProposal.js",
         "deploy": "yarn hardhat deploy --network",
         "deploy:arbitrum": "yarn hardhat deploy --tags Arbitrum --network",
         "deploy:connector": "yarn hardhat deploy --tags Connector --network",

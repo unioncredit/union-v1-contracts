@@ -1,28 +1,13 @@
-const hre = require("hardhat");
-const {ethers, getChainId} = hre;
+const {ethers, deployments, getChainId} = require("hardhat");
 
 const configs = require("../deployConfig.js");
 
-const networks = {
-    1: "mainnet",
-    4: "rinkeby",
-    42: "kovan",
-    31337: "hardhat",
-    421611: "arbitrumRinkeby"
-};
-
-const checkFileExist = path => {
-    try {
-        return require(path);
-    } catch (error) {
-        throw new Error("file not found");
-    }
+const getDAIAddress = async chainId => {
+    return chainId != 31337 ? configs[chainId]["DAI"] : (await deployments.get("FaucetERC20")).address;
 };
 
 const checkAssetManager = async chainId => {
-    const path = `../deployments/${networks[chainId]}/AssetManager.json`;
-    const params = checkFileExist(path);
-    const assetManager = await ethers.getContractAt("AssetManager", params.address);
+    const assetManager = await ethers.getContract("AssetManager");
 
     const newSeq = configs[chainId]["AssetManager"]["newSeq"];
     for (let i = 0; i < newSeq.length; i++) {
@@ -32,20 +17,15 @@ const checkAssetManager = async chainId => {
         }
     }
 
-    let DAI;
-    if (chainId != 31337) {
-        DAI = configs[chainId]["DAI"];
-    } else {
-        const erc20 = checkFileExist(`../deployments/${networks[chainId]}/FaucetERC20.json`);
-        DAI = erc20.address;
-    }
+    const DAI = await getDAIAddress(chainId);
+
     const isSupported = await assetManager.supportedMarkets(DAI);
     if (!isSupported) {
         throw new Error("assetManager DAI not add");
     }
 
     const marketRegistry = await assetManager.marketRegistry();
-    const marketRegistryParams = checkFileExist(`../deployments/${networks[chainId]}/MarketRegistry.json`);
+    const marketRegistryParams = await ethers.getContract("MarketRegistry");
     if (marketRegistry.toLowerCase() != marketRegistryParams.address?.toLowerCase()) {
         throw new Error("AssetManager set marketRegistry error");
     }
@@ -54,17 +34,10 @@ const checkAssetManager = async chainId => {
 };
 
 const checkPureTokenAdapter = async chainId => {
-    const path = `../deployments/${networks[chainId]}/PureTokenAdapter.json`;
-    const params = checkFileExist(path);
-    const pureTokenAdapter = await ethers.getContractAt("PureTokenAdapter", params.address);
+    const pureTokenAdapter = await ethers.getContract("PureTokenAdapter");
 
-    let DAI;
-    if (chainId != 31337) {
-        DAI = configs[chainId]["DAI"];
-    } else {
-        const erc20 = checkFileExist(`../deployments/${networks[chainId]}/FaucetERC20.json`);
-        DAI = erc20.address;
-    }
+    const DAI = await getDAIAddress(chainId);
+
     const ceiling = await pureTokenAdapter.ceilingMap(DAI);
     if (parseFloat(ceiling) != parseFloat(configs[chainId]["PureTokenAdapter"]["ceiling"])) {
         throw new Error("PureTokenAdapter setCeiling error");
@@ -76,7 +49,7 @@ const checkPureTokenAdapter = async chainId => {
     }
 
     const assetManager = await pureTokenAdapter.assetManager();
-    const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
+    const assetManagerParams = await ethers.getContract("AssetManager");
     if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
         throw new Error("PureTokenAdapter set assetManager error");
     }
@@ -85,17 +58,10 @@ const checkPureTokenAdapter = async chainId => {
 };
 
 const checkCompoundAdapter = async chainId => {
-    const path = `../deployments/${networks[chainId]}/CompoundAdapter.json`;
-    const params = checkFileExist(path);
-    const compoundAdapter = await ethers.getContractAt("CompoundAdapter", params.address);
+    const compoundAdapter = await ethers.getContract("CompoundAdapter");
 
-    let DAI;
-    if (chainId != 31337) {
-        DAI = configs[chainId]["DAI"];
-    } else {
-        const erc20 = checkFileExist(`../deployments/${networks[chainId]}/FaucetERC20.json`);
-        DAI = erc20.address;
-    }
+    const DAI = await getDAIAddress(chainId);
+
     const ceiling = await compoundAdapter.ceilingMap(DAI);
     if (parseFloat(ceiling) != parseFloat(configs[chainId]["CompoundAdapter"]["ceiling"])) {
         throw new Error("CompoundAdapter setCeiling error");
@@ -112,7 +78,7 @@ const checkCompoundAdapter = async chainId => {
     }
 
     const assetManager = await compoundAdapter.assetManager();
-    const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
+    const assetManagerParams = await ethers.getContract("AssetManager");
     if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
         throw new Error("CompoundAdapter set assetManager error");
     }
@@ -121,17 +87,10 @@ const checkCompoundAdapter = async chainId => {
 };
 
 const checkAaveAdapter = async chainId => {
-    const path = `../deployments/${networks[chainId]}/AaveAdapter.json`;
-    const params = checkFileExist(path);
-    const aaveAdapter = await ethers.getContractAt("AaveAdapter", params.address);
+    const aaveAdapter = await ethers.getContract("AaveAdapter");
 
-    let DAI;
-    if (chainId != 31337) {
-        DAI = configs[chainId]["DAI"];
-    } else {
-        const erc20 = checkFileExist(`../deployments/${networks[chainId]}/FaucetERC20.json`);
-        DAI = erc20.address;
-    }
+    const DAI = await getDAIAddress(chainId);
+
     const ceiling = await aaveAdapter.ceilingMap(DAI);
     if (parseFloat(ceiling) != parseFloat(configs[chainId]["AaveAdapter"]["ceiling"])) {
         throw new Error("AaveAdapter setCeiling error");
@@ -148,7 +107,7 @@ const checkAaveAdapter = async chainId => {
     }
 
     const assetManager = await aaveAdapter.assetManager();
-    const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
+    const assetManagerParams = await ethers.getContract("AssetManager");
     if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
         throw new Error("AaveAdapter set assetManager error");
     }
@@ -157,18 +116,16 @@ const checkAaveAdapter = async chainId => {
 };
 
 const checkComptroller = async chainId => {
-    const path = `../deployments/${networks[chainId]}/Comptroller.json`;
-    const params = checkFileExist(path);
-    const comptroller = await ethers.getContractAt("Comptroller", params.address);
+    const comptroller = await ethers.getContract("Comptroller");
 
     const unionToken = await comptroller.unionToken();
-    const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
+    const unionTokenParams = await ethers.getContract("UnionToken");
     if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
         throw new Error("Comptroller set unionToken error");
     }
 
     const marketRegistry = await comptroller.marketRegistry();
-    const marketRegistryParams = checkFileExist(`../deployments/${networks[chainId]}/MarketRegistry.json`);
+    const marketRegistryParams = await ethers.getContract("MarketRegistry");
     if (marketRegistry.toLowerCase() != marketRegistryParams.address?.toLowerCase()) {
         throw new Error("Comptroller set marketRegistry error");
     }
@@ -177,9 +134,7 @@ const checkComptroller = async chainId => {
 };
 
 const checkFixedInterestRateModel = async chainId => {
-    const path = `../deployments/${networks[chainId]}/FixedInterestRateModel.json`;
-    const params = checkFileExist(path);
-    const fixedInterestRateModel = await ethers.getContractAt("FixedInterestRateModel", params.address);
+    const fixedInterestRateModel = await ethers.getContract("FixedInterestRateModel");
     const interestRatePerBlock = await fixedInterestRateModel.interestRatePerBlock();
     if (
         parseFloat(interestRatePerBlock) !=
@@ -191,12 +146,9 @@ const checkFixedInterestRateModel = async chainId => {
 };
 
 const checkMarketRegistry = async chainId => {
-    const path = `../deployments/${networks[chainId]}/MarketRegistry.json`;
-    const params = checkFileExist(path);
-    const marketRegistry = await ethers.getContractAt("MarketRegistry", params.address);
+    const marketRegistry = await ethers.getContract("MarketRegistry");
 
-    const uTokenContract = "UDai";
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenContract}.json`);
+    const uTokenParams = await ethers.getContract("UDai");
     const uTokens = await marketRegistry.getUTokens();
     let uTokenIsExist;
     for (let i = 0; i < uTokens.length; i++) {
@@ -209,7 +161,7 @@ const checkMarketRegistry = async chainId => {
         throw new Error("MarketRegistry set uToken error");
     }
 
-    const userManagerParams = checkFileExist(`../deployments/${networks[chainId]}/UserManager.json`);
+    const userManagerParams = await ethers.getContract("UserManager");
     const userManagerList = await marketRegistry.getUserManagers();
     let userManagerIsExist;
     for (let i = 0; i < userManagerList.length; i++) {
@@ -226,9 +178,7 @@ const checkMarketRegistry = async chainId => {
 };
 
 const checkSumOfTrust = async chainId => {
-    const path = `../deployments/${networks[chainId]}/SumOfTrust.json`;
-    const params = checkFileExist(path);
-    const sumOfTrust = await ethers.getContractAt("SumOfTrust", params.address);
+    const sumOfTrust = await ethers.getContract("SumOfTrust");
     const effectiveNumber = await sumOfTrust.effectiveNumber();
     if (parseFloat(effectiveNumber) != parseFloat(configs[chainId]["SumOfTrust"]["effectiveNumber"])) {
         throw new Error("SumOfTrust set effectiveNumber error");
@@ -238,14 +188,12 @@ const checkSumOfTrust = async chainId => {
 };
 
 const checkTimelock = async chainId => {
-    const path = `../deployments/${networks[chainId]}/TimelockController.json`;
-    const params = checkFileExist(path);
-    const timelock = await ethers.getContractAt("TimelockController", params.address);
+    const timelock = await ethers.getContract("TimelockController");
     const minDelay = await timelock.getMinDelay();
     if (parseFloat(minDelay) != parseFloat(configs[chainId]["TimelockController"]["minDelay"])) {
         throw new Error("Timelock set minDelay error");
     }
-    const governorParams = checkFileExist(`../deployments/${networks[chainId]}/UnionGovernor.json`);
+    const governorParams = await ethers.getContract("UnionGovernor");
     const isAdmin = await timelock.hasRole(ethers.utils.id("TIMELOCK_ADMIN_ROLE"), governorParams.address);
     if (!isAdmin) {
         throw new Error("Timelock set governor error");
@@ -265,16 +213,14 @@ const checkTimelock = async chainId => {
 };
 
 const checkTreasury = async chainId => {
-    const path = `../deployments/${networks[chainId]}/Treasury.json`;
-    const params = checkFileExist(path);
-    const treasury = await ethers.getContractAt("Treasury", params.address);
+    const treasury = await ethers.getContract("Treasury");
     const unionToken = await treasury.token();
-    const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
+    const unionTokenParams = await ethers.getContract("UnionToken");
     if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
         throw new Error("Treasury set unionToken error");
     }
 
-    const comptrollerParams = checkFileExist(`../deployments/${networks[chainId]}/Comptroller.json`);
+    const comptrollerParams = await ethers.getContract("Comptroller");
     const schedule = await treasury.tokenSchedules(comptrollerParams.address);
     if (
         configs[chainId]["Treasury"]["dripStart"] &&
@@ -293,9 +239,7 @@ const checkTreasury = async chainId => {
 };
 
 const checkTreasuryVester = async chainId => {
-    const path = `../deployments/${networks[chainId]}/TreasuryVester.json`;
-    const params = checkFileExist(path);
-    const treasuryVester = await ethers.getContractAt("TreasuryVester", params.address);
+    const treasuryVester = await ethers.getContract("TreasuryVester");
     const unionToken = await treasuryVester.unionToken();
     const recipient = await treasuryVester.recipient();
     const vestingAmount = await treasuryVester.vestingAmount();
@@ -303,8 +247,8 @@ const checkTreasuryVester = async chainId => {
     const vestingCliff = await treasuryVester.vestingCliff();
     const vestingEnd = await treasuryVester.vestingEnd();
     const data = configs[chainId]["TreasuryVester"];
-    const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
-    const treasuryParams = checkFileExist(`../deployments/${networks[chainId]}/Treasury.json`);
+    const unionTokenParams = await ethers.getContract("UnionToken");
+    const treasuryParams = await ethers.getContract("Treasury");
     if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
         throw new Error("TreasuryVester set unionToken error");
     }
@@ -328,9 +272,7 @@ const checkTreasuryVester = async chainId => {
 };
 
 const checkUnionToken = async chainId => {
-    const path = `../deployments/${networks[chainId]}/UnionToken.json`;
-    const params = checkFileExist(path);
-    const unionToken = await ethers.getContractAt("UnionToken", params.address);
+    const unionToken = await ethers.getContract("UnionToken");
     const name = await unionToken.name();
     if (name != configs[chainId]["UnionToken"]["name"]) {
         throw new Error("UnionToken set name error");
@@ -348,31 +290,28 @@ const checkUnionToken = async chainId => {
 };
 
 const checkUserManager = async chainId => {
-    const uTokenContract = "UDai";
-    const path = `../deployments/${networks[chainId]}/UserManager.json`;
-    const params = checkFileExist(path);
-    const userManager = await ethers.getContractAt("UserManager", params.address);
-    const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
+    const userManager = await ethers.getContract("UserManager");
+    const assetManagerParams = await ethers.getContract("AssetManager");
     const assetManager = await userManager.assetManager();
     if (assetManager.toLowerCase() != assetManagerParams.address?.toLowerCase()) {
         throw new Error("UserManager set assetManager error");
     }
-    const unionTokenParams = checkFileExist(`../deployments/${networks[chainId]}/UnionToken.json`);
+    const unionTokenParams = await ethers.getContract("UnionToken");
     const unionToken = await userManager.unionToken();
     if (unionToken.toLowerCase() != unionTokenParams.address?.toLowerCase()) {
         throw new Error("UserManager set unionToken error");
     }
-    const creditLimitModelParams = checkFileExist(`../deployments/${networks[chainId]}/SumOfTrust.json`);
+    const creditLimitModelParams = await ethers.getContract("SumOfTrust");
     const creditLimitModel = await userManager.creditLimitModel();
     if (creditLimitModel.toLowerCase() != creditLimitModelParams.address?.toLowerCase()) {
         throw new Error("UserManager set sumOfTrust error");
     }
-    const comptrollerParams = checkFileExist(`../deployments/${networks[chainId]}/Comptroller.json`);
+    const comptrollerParams = await ethers.getContract("Comptroller");
     const comptroller = await userManager.comptroller();
     if (comptroller.toLowerCase() != comptrollerParams.address?.toLowerCase()) {
         throw new Error("UserManager set comptroller error");
     }
-    const uTokenParams = checkFileExist(`../deployments/${networks[chainId]}/${uTokenContract}.json`);
+    const uTokenParams = await ethers.getContract("UDai");
     const uToken = await userManager.uToken();
     if (uToken.toLowerCase() != uTokenParams.address?.toLowerCase()) {
         throw new Error("UserManager set uToken error");
@@ -390,10 +329,7 @@ const checkUserManager = async chainId => {
 
 const checkUToken = async chainId => {
     const data = configs[chainId]["UToken"];
-    const uTokenContract = "UDai";
-    const path = `../deployments/${networks[chainId]}/${uTokenContract}.json`;
-    const params = checkFileExist(path);
-    const uToken = await ethers.getContractAt(uTokenContract, params.address);
+    const uToken = await ethers.getContract("UDai");
 
     const name = await uToken.name();
     if (name != data["name"]) {
@@ -434,17 +370,17 @@ const checkUToken = async chainId => {
         throw new Error("UToken set overdueBlocks error");
     }
     const assetManager = await uToken.assetManager();
-    const assetManagerParams = checkFileExist(`../deployments/${networks[chainId]}/AssetManager.json`);
+    const assetManagerParams = await ethers.getContract("AssetManager");
     if (assetManager.toLowerCase() != assetManagerParams.address.toLowerCase()) {
         throw new Error("UToken set assetManager error");
     }
     const userManager = await uToken.userManager();
-    const userManagerParams = checkFileExist(`../deployments/${networks[chainId]}/UserManager.json`);
+    const userManagerParams = await ethers.getContract("UserManager");
     if (userManager.toLowerCase() != userManagerParams.address.toLowerCase()) {
         throw new Error("UToken set userManager error");
     }
     const interestRateModel = await uToken.interestRateModel();
-    const interestRateModelParams = checkFileExist(`../deployments/${networks[chainId]}/FixedInterestRateModel.json`);
+    const interestRateModelParams = await ethers.getContract("FixedInterestRateModel");
     if (interestRateModel.toLowerCase() != interestRateModelParams.address.toLowerCase()) {
         throw new Error("UToken set interestRateModel error");
     }
@@ -453,9 +389,7 @@ const checkUToken = async chainId => {
 };
 
 const checkGovernance = async chainId => {
-    const path = `../deployments/${networks[chainId]}/UnionGovernor.json`;
-    const params = checkFileExist(path);
-    const unionGovernor = await ethers.getContractAt("UnionGovernor", params.address);
+    const unionGovernor = await ethers.getContract("UnionGovernor");
     const data = configs[chainId]["UnionGovernor"];
 
     const votingDelay = await unionGovernor.votingDelay();
