@@ -13,13 +13,13 @@ jobs:
                   node-version: 14
 
             - name: Install Dependencies
-              run: npm install
+              run: yarn install
 
             - name: Run coverage
               run: |
-                  npm run lint
-                  npm run coverage
-                  npx codecov
+                  yarn lint
+                  yarn coverage
+                  yarn codecov
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
@@ -83,7 +83,7 @@ jobs:
 
             - name: Run Deploy Script and Check Results
               run: |
-                  npm run deployTest
+                  npm run test:deploy
               env:
                   COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}

@@ -9,15 +9,17 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
 
     console.log("setAssetManager start");
 
-    tx = await execute(
-        "AssetManager",
-        {from: deployer},
-        "addAdapter",
-        (
-            await deployments.get("PureTokenAdapter")
-        ).address
-    );
-    console.log("AssetManager addAdapter PureTokenAdapter, tx is:", tx.transactionHash);
+    if (0 == (await read("AssetManager", {from: deployer}, "moneyMarketsCount"))) {
+        tx = await execute(
+            "AssetManager",
+            {from: deployer},
+            "addAdapter",
+            (
+                await deployments.get("PureTokenAdapter")
+            ).address
+        );
+        console.log("AssetManager addAdapter PureTokenAdapter, tx is:", tx.transactionHash);
+    }
 
     if (configs[chainId]["CompoundAdapter"]) {
         tx = await execute(
@@ -51,5 +53,5 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     console.log("setAssetManager end");
 };
 
-module.exports.tags = ["AssetManagerSetting"];
+module.exports.tags = ["AssetManagerSetting", "Arbitrum"];
 module.exports.dependencies = ["AaveAdapter", "CompoundAdapter", "PureTokenAdapter"];

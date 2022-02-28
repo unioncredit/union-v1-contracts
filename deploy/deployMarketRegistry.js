@@ -13,4 +13,4 @@ module.exports = async ({getNamedAccounts, deployments}) => {
         log: true
     });
 };
-module.exports.tags = ["MarketRegistry"];
+module.exports.tags = ["MarketRegistry", "Arbitrum"];

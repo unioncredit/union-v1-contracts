@@ -8,29 +8,37 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
 
     const DAI = network.name === "hardhat" ? (await deployments.get("FaucetERC20")).address : configs[chainId]["DAI"];
 
+    const unionTokenAddress =
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+            ? (await deployments.get("ArbUnion")).address
+            : (await deployments.get("UnionToken")).address;
+
     const assetManager = await deployments.get("AssetManager");
-    const unionToken = await deployments.get("UnionToken");
     const creditLimitModel = await deployments.get("SumOfTrust");
     const comptroller = await deployments.get("Comptroller");
 
-    await deploy("UserManager", {
+    const UserManagerContract =
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArb" : "UserManager";
+    await deploy(UserManagerContract, {
         from: deployer,
         proxy: {
             proxyContract: "UUPSProxy",
             execute: {
-                methodName: "__UserManager_init",
-                args: [
-                    assetManager.address,
-                    unionToken.address,
-                    DAI,
-                    creditLimitModel.address,
-                    comptroller.address,
-                    deployer
-                ]
+                init: {
+                    methodName: "__UserManager_init",
+                    args: [
+                        assetManager.address,
+                        unionTokenAddress,
+                        DAI,
+                        creditLimitModel.address,
+                        comptroller.address,
+                        deployer
+                    ]
+                }
             }
         },
         log: true
     });
 };
-module.exports.tags = ["UserManager"];
-module.exports.dependencies = ["AssetManager", "UnionToken", "SumOfTrust", "Comptroller"];
+module.exports.tags = ["UserManager", "Arbitrum"];
+module.exports.dependencies = ["AssetManager", "UnionToken", "SumOfTrust", "Comptroller", "ArbUnion"];

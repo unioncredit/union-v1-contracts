@@ -17,8 +17,8 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
         console.log("setCompoundAdapter start");
         if (
             !(
-                (await read("CompoundAdapter", {from: deployer}, "ceilingMap", DAI)) ===
-                configs[chainId]["CompoundAdapter"]["ceiling"]
+                (await read("CompoundAdapter", {from: deployer}, "ceilingMap", DAI)).toString() ===
+                configs[chainId]["CompoundAdapter"]["ceiling"].toString()
             )
         ) {
             tx = await execute(
@@ -32,8 +32,8 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
         }
         if (
             !(
-                (await read("CompoundAdapter", {from: deployer}, "floorMap", DAI)) ===
-                configs[chainId]["CompoundAdapter"]["floor"]
+                (await read("CompoundAdapter", {from: deployer}, "floorMap", DAI)).toString() ===
+                configs[chainId]["CompoundAdapter"]["floor"].toString()
             )
         ) {
             tx = await execute(
@@ -43,9 +43,14 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
                 DAI,
                 configs[chainId]["CompoundAdapter"]["floor"]
             );
-            console.log("CompoundAdapter, setFloor, tx is:", tx.transactionHash);
+            console.log("CompoundAdapter setFloor, tx is:", tx.transactionHash);
         }
-        if (!((await read("CompoundAdapter", {from: deployer}, "tokenToCToken", DAI)) === cDAI)) {
+        if (
+            !(
+                (await read("CompoundAdapter", {from: deployer}, "tokenToCToken", DAI)).toLowerCase() ===
+                cDAI.toLowerCase()
+            )
+        ) {
             tx = await execute("CompoundAdapter", {from: deployer}, "mapTokenToCToken", DAI, cDAI);
             console.log("CompoundAdapter mapTokenToCToken, tx is:", tx.transactionHash);
         }
