@@ -25,7 +25,6 @@ module.exports = async ({getNamedAccounts, getChainId, ethers}) => {
             governor.address
         );
         console.log("grantRole TIMELOCK_ADMIN_ROLE governor, tx is:", tx.transactionHash);
-
         if (configs[chainId].Admin) {
             tx = await execute(
                 "TimelockController",

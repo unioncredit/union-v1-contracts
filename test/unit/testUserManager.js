@@ -15,6 +15,7 @@ describe("User Manager Contract", () => {
         const AssetManager = await ethers.getContractFactory("AssetManagerMock");
         const Comptroller = await ethers.getContractFactory("ComptrollerMock");
         const ERC20 = await ethers.getContractFactory("FaucetERC20");
+
         SumOfTrust = await ethers.getContractFactory("SumOfTrust");
         const UnionToken = await ethers.getContractFactory("UnionTokenMock");
         UserManager = await ethers.getContractFactory("UserManager");
@@ -495,6 +496,50 @@ describe("User Manager Contract", () => {
         await userManager
             .connect(MEMBER1)
             .stakeWithPermit(100, result.nonce, result.expiry, result.v, result.r, result.s);
+    });
+
+    it("stake with ERC20 permit", async () => {
+        const ERC20 = await ethers.getContractFactory("FaucetERC20_ERC20Permit");
+        const erc20 = await upgrades.deployProxy(ERC20, ["Dai Stablecoin", "DAI"], {
+            initializer: "__FaucetERC20_ERC20Permit_init(string,string)"
+        });
+        await erc20.mint(MEMBER1.address, parseEther("10000"));
+        userManager = await upgrades.deployProxy(
+            UserManager,
+            [
+                assetManager.address,
+                unionToken.address,
+                erc20.address,
+                creditLimitModel.address,
+                comptroller.address,
+                ADMIN.address
+            ],
+            {
+                initializer: "__UserManager_init(address,address,address,address,address,address)"
+            }
+        );
+        await userManager.setUToken(uToken.address);
+        await userManager.addMember(MEMBER1.address);
+        await userManager.addMember(MEMBER2.address);
+        await userManager.addMember(MEMBER3.address);
+        await userManager.addMember(MEMBER4.address);
+        await erc20.connect(MEMBER1).approve(userManager.address, 0);
+        const stakeAmount = 100;
+        const result = await signERC2612Permit(
+            waffle.provider._hardhatNetwork.provider,
+            {
+                name: "Dai Stablecoin",
+                version: "1",
+                chainId: "31337",
+                verifyingContract: erc20.address
+            },
+            MEMBER1.address,
+            userManager.address,
+            stakeAmount
+        );
+        await userManager
+            .connect(MEMBER1)
+            .stakeWithERC20Permit(stakeAmount, result.deadline, result.v, result.r, result.s);
     });
 
     it("Update overdue info", async () => {
