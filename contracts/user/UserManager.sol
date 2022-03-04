@@ -1,9 +1,10 @@
-//SPDX-License-Identifier: UNLICENSED
+//SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
 
 import "../Controller.sol";
 import "../interfaces/IAssetManager.sol";
@@ -46,11 +47,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 lockedStake;
         uint256 totalLockedStake;
     }
-
-    /**
-     *  @dev Max number of addresses a single account can trust
-     */
-    uint256 public constant MAX_TRUST_LIMIT = 100;
 
     /**
      *  @dev Max amount that can be staked of the staking token
@@ -107,7 +103,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     /**
      *  @dev Union members
      */
-    mapping(address => Member) private members;
+    mapping(address => Member) internal members;
 
     /**
      *  @dev Mapping of stakers to staking amount
@@ -531,8 +527,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         trustInfo.staker = msg.sender;
         if (trustInfo.staker == borrower) revert ErrorSelfVouching();
         if (
-            members[borrower].creditLine.stakerAddresses.length >= MAX_TRUST_LIMIT ||
-            members[trustInfo.staker].creditLine.borrowerAddresses.length >= MAX_TRUST_LIMIT
+            members[borrower].creditLine.stakerAddresses.length >= _maxTrust() ||
+            members[trustInfo.staker].creditLine.borrowerAddresses.length >= _maxTrust()
         ) revert MaxTrustLimitReached();
         trustInfo.borrowerAddresses = members[trustInfo.staker].creditLine.borrowerAddresses;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
@@ -650,7 +646,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  Emits {LogRegisterMember} event
      *  @param newMember New member address
      */
-    function registerMember(address newMember) public override whenNotPaused {
+    function registerMember(address newMember) public virtual override whenNotPaused {
         if (checkIsMember(newMember)) revert NoExistingMember();
 
         IUnionToken unionTokenContract = IUnionToken(unionToken);
@@ -748,7 +744,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     /**
-     *  @dev stakeWithPermit
+     *  @dev Stake using DAI permit
      *  @param amount Amount to stake
      *  @param nonce Nonce
      *  @param expiry Timestamp for when the permit expires
@@ -766,6 +762,23 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     ) public whenNotPaused {
         IDai erc20Token = IDai(stakingToken);
         erc20Token.permit(msg.sender, address(this), nonce, expiry, true, v, r, s);
+
+        stake(amount);
+    }
+
+    /**
+     *  @dev Stake using ERC20 permit
+     *  @param amount Amount
+     */
+    function stakeWithERC20Permit(
+        uint256 amount,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public whenNotPaused {
+        IERC20Permit erc20Token = IERC20Permit(stakingToken);
+        erc20Token.permit(msg.sender, address(this), amount, deadline, v, r, s);
 
         stake(amount);
     }
@@ -948,5 +961,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         }
 
         return totalFrozenCoinAge;
+    }
+
+    /**
+     *  @dev Max number of vouches for a member can get, for ddos protection
+     */
+    function _maxTrust() internal pure virtual returns (uint256) {
+        return 25;
     }
 }
