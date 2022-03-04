@@ -62,7 +62,19 @@ async function main(types, params, destAddr, value, data, excessFeeRefundAddress
         ]
     );
 
-    return {target, value: callValue.toString(), signature, calldata};
+    const ABI = ["function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)"];
+    const iface = new ethers.utils.Interface(ABI);
+    const signCalldata = iface.encodeFunctionData("createRetryableTicket", [
+        destAddr,
+        l2CallValue,
+        maxSubmissionCost,
+        excessFeeRefundAddress,
+        callValueRefundAddress,
+        maxGas,
+        gasPriceBid,
+        data
+    ]);
+    return {target, value: callValue.toString(), signature, calldata, signCalldata};
 }
 
 module.exports = main;

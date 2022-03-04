@@ -35,10 +35,11 @@ async function main() {
     let targets = [],
         values = [],
         signatures = [],
-        calldatas = [];
+        calldatas = [],
+        signCalldatas = [];
     for (let i = 0; i < actions.length; i++) {
         const action = actions[i];
-        const {target, value, signature, calldata} = await arbProposeParams(
+        const {target, value, signature, calldata, signCalldata} = await arbProposeParams(
             //types,params,target,value,calldata
             action[0],
             action[1],
@@ -52,6 +53,7 @@ async function main() {
         values.push(value);
         signatures.push(signature);
         calldatas.push(calldata);
+        signCalldatas.push(signCalldata);
     }
     const msg = `
     UIP001: Adapter and Decay Rate Parameter Changes
@@ -64,7 +66,7 @@ The goal with the adapters is to have as many tx's be drawn from the more gas ef
 In order to increase the rate of decentralization and distribute voting power during this launch period, we are proposing increasing the Half_Decay_Point to 1 Million. Effectively doubling the rate of UNION per block.
     `;
 
-    return {targets, values, signatures, calldatas, msg};
+    return {targets, values, signatures, calldatas, signCalldatas, msg};
 }
 
 module.exports = main;
