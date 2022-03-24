@@ -1,4 +1,4 @@
-name: build and test
+name: test and coverage
 
 on: [push]
 
@@ -13,14 +13,35 @@ jobs:
                   node-version: 14
 
             - name: Install Dependencies
-              run: npm install
+              run: yarn install
 
-            - name: Test
+            - name: Unit Test
               run: |
-                  npm run lint
-                  npm run test:unit
+                  yarn lint
+                  yarn test:unit
               env:
                   COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  INFURA_ID: ${{ secrets.INFURA_ID }}
+                  MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
+    runCoverage:
+        name: Run Coverage
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: 14
+
+            - name: Install Dependencies
+              run: yarn install
+
+            - name: Run coverage
+              run: |
+                  yarn coverage
+                  yarn codecov
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
                   INFURA_ID: ${{ secrets.INFURA_ID }}
                   MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
