@@ -78,7 +78,7 @@
         "prettier-plugin-solidity": "^1.0.0-alpha.54",
         "solhint": "^3.3.6",
         "solhint-plugin-prettier": "^0.0.4",
-        "solidity-coverage": "^0.7.0"
+        "solidity-coverage": "^0.7.8"
     },
     "husky": {
         "hooks": {
