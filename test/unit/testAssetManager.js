@@ -52,6 +52,8 @@ describe("AssetManager Contract", async () => {
         let supportedMarket = await assetManager.supportedMarkets(erc20.address);
         supportedMarket.should.eq(true);
         await assetManager.removeToken(erc20.address);
+        //remove not set token
+        await assetManager.removeToken(CONTRACT.address);
         supportedMarket = await assetManager.supportedMarkets(erc20.address);
         supportedMarket.should.eq(false);
     });
@@ -65,6 +67,12 @@ describe("AssetManager Contract", async () => {
         await marketRegistry.addUToken(erc20.address, CONTRACT.address);
         await expect(assetManager.connect(CONTRACT).deposit(erc20.address, 0)).to.be.revertedWith(
             "AssetManager: amount cant be 0"
+        );
+    });
+
+    it("Deposit unauthed sender", async () => {
+        await expect(assetManager.connect(CONTRACT).deposit(CONTRACT.address, 100)).to.be.revertedWith(
+            "AssetManager: unauthed sender"
         );
     });
 
@@ -123,6 +131,9 @@ describe("AssetManager Contract", async () => {
     });
 
     it("Rebalance", async () => {
+        await expect(assetManager.rebalance(CONTRACT.address, [])).to.be.revertedWith(
+            "AssetManager: unsupported token"
+        );
         await assetManager.rebalance(erc20.address, []);
     });
 
@@ -134,9 +145,13 @@ describe("AssetManager Contract", async () => {
 
     it("Remove adapter", async () => {
         await assetManager.addAdapter(compoundAdapter2.address);
+        //Add a exist adapter can success
+        await assetManager.addAdapter(compoundAdapter2.address);
         let adapterAddress = await assetManager.moneyMarkets(1);
         adapterAddress.should.eq(compoundAdapter2.address);
         await assetManager.removeAdapter(compoundAdapter2.address);
+        //Remove not set adapter
+        await assetManager.removeAdapter(CONTRACT.address);
         await expect(assetManager.moneyMarkets(1)).to.be.reverted;
     });
 
@@ -216,6 +231,10 @@ describe("AssetManager Contract", async () => {
         await erc20.connect(CONTRACT2).approve(assetManager.address, amount);
         await assetManager.connect(CONTRACT2).deposit(erc20.address, amount);
         const balanceBefore = await assetManager.balances(CONTRACT2.address, erc20.address);
+
+        await expect(assetManager.connect(CONTRACT2).debtWriteOff(erc20.address, amount.mul(2))).to.be.revertedWith(
+            "AssetManager: balance not enough"
+        );
         await assetManager.connect(CONTRACT2).debtWriteOff(erc20.address, amount);
         const balanceAfter = await assetManager.balances(CONTRACT2.address, erc20.address);
         balanceAfter.toString().should.eq(balanceBefore.sub(amount));
@@ -237,9 +256,24 @@ describe("AssetManager Contract", async () => {
     });
 
     it("Set new marketRegistry", async () => {
+        await expect(assetManager.setMarketRegistry(ethers.constants.AddressZero)).to.be.revertedWith(
+            "AssetManager: marketRegistry can not be zero"
+        );
         await assetManager.setMarketRegistry(MARKET_REGISTRY.address);
         let res = await assetManager.marketRegistry();
         res.should.eq(MARKET_REGISTRY.address);
+    });
+
+    it("Rebalance: remaining funds transfer to last market", async () => {
+        await compoundAdapter2.setSupport();
+        await assetManager.rebalance(erc20.address, [5000]);
+    });
+
+    it("Rebalance: when compoundAdapter not support", async () => {
+        await compoundAdapter.setSupport();
+        let res = await compoundAdapter.isSupport();
+        res.should.eq(false);
+        await assetManager.rebalance(erc20.address, [5000]);
     });
 
     describe("Overwirte adapter order", () => {
@@ -271,6 +305,12 @@ describe("AssetManager Contract", async () => {
             await expect(
                 assetManager.connect(ALICE).overwriteAdapters([compoundAdapter.address, compoundAdapter2.address])
             ).to.be.revertedWith("Controller: not admi");
+        });
+
+        it("Get MoneyMarket", async () => {
+            await compoundAdapter2.setRate(1234);
+            const res = await assetManager.getMoneyMarket(erc20.address, 0);
+            res.rate.should.eq(1234);
         });
     });
 });

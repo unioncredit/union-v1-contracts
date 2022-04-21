@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 contract CompoundAdapterMock is Initializable {
     bool public isSupport;
+    uint256 public rate;
     mapping(address => uint256) public floorMap;
     mapping(address => uint256) public ceilingMap;
 
@@ -36,6 +37,14 @@ contract CompoundAdapterMock is Initializable {
     function getSupplyView(address tokenAddress) external view returns (uint256) {
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
         return token.balanceOf(address(this));
+    }
+
+    function setRate(uint256 _rate) external {
+        rate = _rate;
+    }
+
+    function getRate(address) external view returns (uint256) {
+        return rate;
     }
 
     function getSupply(address tokenAddress) external view returns (uint256) {

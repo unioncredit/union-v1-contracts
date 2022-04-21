@@ -342,6 +342,11 @@ describe("User Manager Contract", () => {
         totalAmount = await userManager.getTotalFrozenAmount(MEMBER1.address);
         totalAmount.toString().should.eq(parseEther("1").toString());
 
+        await uToken.updateLockedData(userManager.address, BOB.address, creditLimit.add(parseEther("1")));
+        await uToken.updateOverdueInfo(userManager.address, BOB.address, true);
+        totalAmount = await userManager.getTotalFrozenAmount(MEMBER1.address);
+        totalAmount.toString().should.eq(parseEther("1").toString());
+
         //Restore simulation settings
         await uToken.setIsOverdue(false);
     });
@@ -403,6 +408,10 @@ describe("User Manager Contract", () => {
 
         const res = await userManager.getLockedStake(MEMBER1.address, BOB.address);
         res.toString().should.eq("10"); //creditLimitModelMock mock 10
+
+        await userManager.connect(MEMBER1).unstake(parseEther("1000").sub(10));
+        const totalAmount = await userManager.connect(MEMBER1).getTotalLockedStake(MEMBER1.address);
+        totalAmount.toString().should.eq("10");
     });
 
     it("Withdraw rewards", async () => {

@@ -488,6 +488,17 @@ describe("Governor Contract State", () => {
                 callDatas,
                 "do nothing"
             );
+        await expect(
+            governor
+                .connect(BOB)
+                ["propose(address[],uint256[],string[],bytes[],string)"](
+                    targets,
+                    values,
+                    signatures,
+                    callDatas,
+                    "do nothing"
+                )
+        ).to.be.revertedWith("Governor: found an already pending proposal");
 
         const newProposalId = await governor.latestProposalIds(BOB.address);
 
@@ -497,6 +508,12 @@ describe("Governor Contract State", () => {
         await waitNBlocks(parseInt(votingPeriod));
         const res = await governor.state(newProposalId);
         res.toString().should.eq("4");
+    });
+
+    it("supportsInterface", async () => {
+        //IERC165-supportsInterface
+        const res = await governor.supportsInterface("0x01ffc9a7");
+        res.should.eq(true);
     });
 });
 

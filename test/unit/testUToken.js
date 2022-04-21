@@ -199,6 +199,9 @@ describe("UToken Contract", async () => {
         );
 
         await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
+        const interestIndex = await uToken.getInterestIndex(alice.address);
+        console.log(`interestIndex: ${interestIndex.toString()}`);
+        //exchangeRateCurrent
         await waitNBlocks(overdueBlocks);
         await expect(uToken.connect(alice).borrow(ethers.utils.parseEther("1"))).to.be.revertedWith(
             "MemberIsOverdue()"
@@ -225,6 +228,10 @@ describe("UToken Contract", async () => {
         borrowed.toString().should.not.eq("0");
         const repayAmount = borrowed.add(ethers.utils.parseEther("0.001")); //In order to repay cleanly and avoid the interest incurred when repaying
         await erc20.connect(alice).approve(uToken.address, repayAmount);
+        //amount less than interest
+        const interest = await uToken.calculatingInterest(alice.address);
+        await uToken.connect(alice).repayBorrow(interest.sub(1));
+        //amount enough
         await uToken.connect(alice).repayBorrow(repayAmount);
         borrowed = await uToken.borrowBalanceView(alice.address);
         borrowed.toString().should.eq("0");
@@ -298,6 +305,7 @@ describe("UToken Contract", async () => {
         let exchangeRate = await uToken.exchangeRateStored();
         exchangeRate.toString().should.eq(initialExchangeRateMantissa.toString());
         const mintAmount = ethers.utils.parseEther("1");
+
         await erc20.connect(alice).approve(uToken.address, mintAmount);
         await uToken.connect(alice).mint(mintAmount);
 
@@ -331,6 +339,8 @@ describe("UToken Contract", async () => {
 
         exchangeRate = await uToken.exchangeRateStored();
         exchangeRate.toString().should.eq(expectedExchangeRate.toString());
+
+        await uToken.exchangeRateCurrent();
     });
 
     it("Redeem and redeemUnderlying", async () => {
@@ -344,6 +354,7 @@ describe("UToken Contract", async () => {
         uBalance.toString().should.eq(mintAmount.toString());
         await uToken.connect(alice).redeem(uBalance);
         uBalance = await uToken.balanceOf(alice.address);
+
         let erc20BalanceAfter = await erc20.balanceOf(alice.address);
         uBalance.toString().should.eq("0");
         erc20BalanceAfter.toString().should.eq(erc20Balance.add(mintAmount).toString());
@@ -367,6 +378,8 @@ describe("UToken Contract", async () => {
         uBalance.toString().should.not.eq("0");
         erc20BalanceAfter = await erc20.balanceOf(alice.address);
         erc20BalanceAfter.toString().should.eq(erc20Balance.add(mintAmount).toString());
+
+        await uToken.balanceOfUnderlying(alice.address);
     });
 
     it("Add reserves and remove reserves", async () => {

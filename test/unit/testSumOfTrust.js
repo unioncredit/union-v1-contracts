@@ -68,6 +68,9 @@ describe("SumOfTrust Contract using hardhat", () => {
         limit = await creditLimitModel.getLockedAmount([], ADMIN_ADDRESS, 0, true);
         limit.toString().should.eq("0");
 
+        limit = await creditLimitModel.getLockedAmount([], ethers.constants.AddressZero, 0, true);
+        limit.toString().should.eq("0");
+
         array = [
             ["0xFFcf8FDEE72ac11b5c542428B35EEF5769C409f0", "10000000000000000000", "0", "20000000000000000000"],
             ["0xd03ea8624C8C5987235048901fB614fDcA89b117", "10000000000000000000", "0", "10000000000000000000"],
