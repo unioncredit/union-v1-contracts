@@ -1,6 +1,7 @@
 const {waitNBlocks} = require("../../utils");
 const {ethers, upgrades, waffle} = require("hardhat");
 const {expect} = require("chai");
+const {parseEther} = require("ethers").utils;
 
 require("chai").should();
 const {signDaiPermit, signERC2612Permit} = require("eth-permit");
@@ -164,6 +165,16 @@ describe("UToken Contract", async () => {
         await uToken.setInterestRateModel(fixedInterestRateModelNew.address);
         interestRateModelNew = await uToken.interestRateModel();
         interestRateModelNew.should.eq(fixedInterestRateModelNew.address);
+    });
+
+    it("Get supply rate per block", async () => {
+        const reserveFactorMantissa = await uToken.reserveFactorMantissa();
+        const expectSupplyRate = borrowInterestPerBlock
+            .mul(parseEther("1").sub(reserveFactorMantissa))
+            .div(parseEther("1"));
+
+        const rate = await uToken.supplyRatePerBlock();
+        rate.should.eq(expectSupplyRate);
     });
 
     it("Only member can borrow", async () => {

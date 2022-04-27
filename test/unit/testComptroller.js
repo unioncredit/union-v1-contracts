@@ -6,28 +6,26 @@ const {parseEther} = require("ethers").utils;
 const {waitNBlocks} = require("../../utils");
 
 const INFLATION_TEST_DATA = [
-    ["1", "1"],
-    ["10", "0.9"],
-    ["100", "0.8"],
-    ["1000", "0.7"],
-    ["10000", "0.6"],
-    ["100000", "0.5"],
+    ["5", "1"],
+    ["50", "0.9"],
+    ["500", "0.8"],
+    ["5000", "0.7"],
+    ["50000", "0.6"],
     ["500000", "0.5"],
-    ["1000000", "0.25"],
-    ["10000000", "0.01"],
-    ["100000000", "0.001"],
-    ["1000000000", "0.0001"],
-    ["10000000000", "0.00001"],
-    ["10000000001", "0.00001"]
+    ["2500000", "0.25"],
+    ["5000000", "0.1"],
+    ["50000000", "0.01"],
+    ["500000000", "0.001"],
+    ["5000000000", "0.0001"],
+    ["50000000000", "0.00001"],
+    ["50000000001", "0.000001"]
 ];
 
 describe("Comptroller Contract", () => {
     let comptrollerContract;
-    let ADMIN, ALICE, BOB, APP, PROXY_ADMIN;
+    let ADMIN, ALICE, BOB;
     before(async function () {
-        // await deployments.fixture(); // ensure we start from a fresh deployments
-
-        [ADMIN, ALICE, BOB, APP, PROXY_ADMIN] = await ethers.getSigners();
+        [ADMIN, ALICE, BOB] = await ethers.getSigners();
 
         const AssetManager = await ethers.getContractFactory("AssetManagerMock");
         const ERC20 = await ethers.getContractFactory("FaucetERC20");
@@ -43,7 +41,6 @@ describe("Comptroller Contract", () => {
 
         sumOfTrust = await SumOfTrust.deploy(3);
 
-        const latestBlock = await ethers.provider.getBlock("latest");
         unionToken = await UnionToken.deploy("Union Token", "UNION");
 
         marketRegistry = await upgrades.deployProxy(MarketRegistry, [], {
@@ -86,7 +83,7 @@ describe("Comptroller Contract", () => {
     });
 
     it("Calculate inflation exceeds the maximum", async () => {
-        const inflation = await comptrollerContract.inflationPerBlock(ethers.utils.parseEther("10000000001"));
+        const inflation = await comptrollerContract.inflationPerBlock(ethers.utils.parseEther("50000000001"));
         (inflation / 1e18).toString().should.eq(INFLATION_TEST_DATA[INFLATION_TEST_DATA.length - 1][1]);
     });
 
@@ -164,5 +161,24 @@ describe("Comptroller Contract", () => {
             blockPerYear
         );
         console.log(rewardsPerYear.toString());
+    });
+
+    it("addFrozenCoinAge", async () => {
+        await userManager.setComptroller(comptrollerContract.address);
+        await expect(comptrollerContract.addFrozenCoinAge(BOB.address, testToken.address, 0, 0)).to.be.revertedWith(
+            "UnionToken: only user manager can call"
+        );
+        await userManager.repayLoanOverdue(BOB.address, testToken.address, 0);
+        const latestBlock = await ethers.provider.getBlock("latest");
+        await userManager.repayLoanOverdue(BOB.address, testToken.address, latestBlock.number);
+    });
+
+    it("Set half decay point", async () => {
+        await expect(comptrollerContract.setHalfDecayPoint(0)).to.be.revertedWith(
+            "Comptroller: halfDecayPoint can not be zero"
+        );
+        await comptrollerContract.setHalfDecayPoint(1234);
+        const halfDecayPoint = await comptrollerContract.halfDecayPoint();
+        halfDecayPoint.toString().should.eq("1234");
     });
 });

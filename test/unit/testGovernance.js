@@ -63,6 +63,10 @@ describe("Governor Contract", () => {
         proposalId = await governor.latestProposalIds(ADMIN.address);
     });
 
+    it("Only governance can set voting period", async () => {
+        await expect(governor.setVotingPeriod(0)).to.be.revertedWith("Governor: onlyGovernance");
+    });
+
     it("There does not exist a proposal with matching proposal id where the current block number is between the proposal's start block (exclusive) and end block (inclusive)", async () => {
         await expect(governor.connect(ADMIN).castVote(proposalId, 1)).to.be.revertedWith(
             "Governor: vote not currently active"
