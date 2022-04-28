@@ -823,7 +823,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 lastRepay
     ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
-        uint256 addressesLength;
+        uint256 addressesLength = stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
             address staker = stakerAddresses[i];
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
