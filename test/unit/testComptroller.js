@@ -168,6 +168,7 @@ describe("Comptroller Contract", () => {
         await expect(comptrollerContract.addFrozenCoinAge(BOB.address, testToken.address, 0, 0)).to.be.revertedWith(
             "UnionToken: only user manager can call"
         );
+        await userManager.connect(BOB).withdrawRewards();
         await userManager.repayLoanOverdue(BOB.address, testToken.address, 0);
         const latestBlock = await ethers.provider.getBlock("latest");
         await userManager.repayLoanOverdue(BOB.address, testToken.address, latestBlock.number);

@@ -313,7 +313,9 @@ describe("User Manager Contract", () => {
 
     it("Total credit used", async () => {
         await userManager.connect(MEMBER1).updateTrust(BOB.address, 1);
-        const totalAmount = await userManager.connect(MEMBER1).getTotalLockedStake(MEMBER1.address);
+        let totalAmount = await userManager.getTotalLockedStake(MEMBER1.address);
+        totalAmount.toString().should.eq("0");
+        totalAmount = await userManager.getTotalLockedStake(TOM.address);
         totalAmount.toString().should.eq("0");
     });
 
@@ -343,6 +345,11 @@ describe("User Manager Contract", () => {
         totalAmount.toString().should.eq(parseEther("1").toString());
 
         await uToken.updateLockedData(userManager.address, BOB.address, creditLimit.add(parseEther("1")));
+        await uToken.updateOverdueInfo(userManager.address, BOB.address, true);
+        totalAmount = await userManager.getTotalFrozenAmount(MEMBER1.address);
+        totalAmount.toString().should.eq(parseEther("1").toString());
+
+        await uToken.updateLockedData(userManager.address, BOB.address, creditLimit.add(parseEther("10")));
         await uToken.updateOverdueInfo(userManager.address, BOB.address, true);
         totalAmount = await userManager.getTotalFrozenAmount(MEMBER1.address);
         totalAmount.toString().should.eq(parseEther("1").toString());
