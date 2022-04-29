@@ -96,6 +96,7 @@ describe("UToken Contract", async () => {
     it("Get and set params", async () => {
         let assetManagerNew = await uToken.assetManager();
         assetManagerNew.should.eq(assetManager.address);
+        await expect(uToken.setAssetManager(ethers.constants.AddressZero)).to.be.reverted;
         await expect(uToken.connect(alice).setAssetManager(assetManager.address)).to.be.revertedWith(
             "Controller: not admin"
         );
@@ -105,10 +106,10 @@ describe("UToken Contract", async () => {
 
         let userManagerNew = await uToken.userManager();
         userManagerNew.should.eq(userManager.address);
+        await expect(uToken.setUserManager(ethers.constants.AddressZero)).to.be.reverted;
         await expect(uToken.connect(alice).setUserManager(userManager.address)).to.be.revertedWith(
             "Controller: not admin"
         );
-
         await uToken.setUserManager(userManager.address);
         userManagerNew = await uToken.userManager();
         userManagerNew.should.eq(userManager.address);
@@ -161,6 +162,7 @@ describe("UToken Contract", async () => {
             "Controller: not admin"
         );
         await expect(uToken.setInterestRateModel(ethers.constants.AddressZero)).to.be.reverted;
+        await expect(uToken.setInterestRateModel(alice.address)).to.be.reverted;
         let fixedInterestRateModelNew = await FixedInterestRateModel.deploy(borrowInterestPerBlock);
         await uToken.setInterestRateModel(fixedInterestRateModelNew.address);
         interestRateModelNew = await uToken.interestRateModel();
@@ -462,6 +464,7 @@ describe("UToken Contract", async () => {
     });
 
     it("Update overdue info", async () => {
+        await expect(uToken.updateOverdueInfo(ethers.constants.AddressZero)).to.be.reverted;
         await uToken.updateOverdueInfo(alice.address);
 
         await uToken.connect(alice).borrow(ethers.utils.parseEther("1"));
@@ -682,6 +685,7 @@ describe("UToken Contract", async () => {
             let reserveFactorMantissaNew = await uToken.reserveFactorMantissa();
             reserveFactorMantissaNew.toString().should.eq(reserveFactorMantissa.toString());
             await expect(uToken.connect(alice).setReserveFactor(0)).to.be.revertedWith("Controller: not admin");
+            await expect(uToken.setReserveFactor(parseEther("2"))).to.be.reverted;
             await uToken.setReserveFactor(0);
             reserveFactorMantissaNew = await uToken.reserveFactorMantissa();
             reserveFactorMantissaNew.toString().should.eq("0");

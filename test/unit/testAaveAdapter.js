@@ -128,9 +128,15 @@ describe("AaveAdapter Contract", async () => {
     });
 
     it("Set floor and ceiling", async () => {
+        await expect(aaveAdapter.setFloor(ethers.constants.AddressZero, 100)).to.be.revertedWith(
+            "AaveAdapter: tokenAddress can not be zero"
+        );
         await aaveAdapter.setFloor(erc20.address, 100);
         const floor = await aaveAdapter.floorMap(erc20.address);
         floor.should.eq(100);
+        await expect(aaveAdapter.setCeiling(ethers.constants.AddressZero, 200)).to.be.revertedWith(
+            "AaveAdapter: tokenAddress can not be zero"
+        );
         await aaveAdapter.setCeiling(erc20.address, 200);
         const ceiling = await aaveAdapter.ceilingMap(erc20.address);
         ceiling.should.eq(200);

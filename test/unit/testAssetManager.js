@@ -267,6 +267,7 @@ describe("AssetManager Contract", async () => {
     it("Rebalance: remaining funds transfer to last market", async () => {
         await compoundAdapter2.setSupport();
         await assetManager.rebalance(erc20.address, [5000]);
+        await assetManager.rebalance(erc20.address, [0]);
     });
 
     it("Rebalance: when compoundAdapter not support", async () => {

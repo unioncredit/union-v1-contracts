@@ -172,6 +172,7 @@ describe("Comptroller Contract", () => {
         await userManager.repayLoanOverdue(BOB.address, testToken.address, 0);
         const latestBlock = await ethers.provider.getBlock("latest");
         await userManager.repayLoanOverdue(BOB.address, testToken.address, latestBlock.number);
+        await userManager.connect(BOB).withdrawRewards();
     });
 
     it("Set half decay point", async () => {

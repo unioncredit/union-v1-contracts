@@ -140,6 +140,8 @@ describe("SumOfTrust Contract using hardhat", () => {
             true
         );
         limit.toString().should.eq("15");
+        limit = await creditLimitModel.getLockedAmount(array, USER.address, borrow, true);
+        limit.toString().should.eq("0");
         limit = await creditLimitModel.getLockedAmount(
             array,
             "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b",

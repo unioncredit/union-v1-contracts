@@ -142,10 +142,15 @@ describe("ArbUnionToken Contract", () => {
         });
 
         it("Unwhitelist Comptroller", async () => {
+            await expect(unionToken.unwhitelist(ethers.constants.AddressZero)).to.be.revertedWith(
+                "Whitelistable: account can not be zero"
+            );
             await unionToken.unwhitelist(COMPTROLLER.address);
             const isWhitelisted = await unionToken.isWhitelisted(COMPTROLLER.address);
             isWhitelisted.should.eq(false);
-
+            await expect(unionToken.whitelist(ethers.constants.AddressZero)).to.be.revertedWith(
+                "Whitelistable: account can not be zero"
+            );
             await unionToken.whitelist(COMPTROLLER.address);
         });
 

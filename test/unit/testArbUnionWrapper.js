@@ -16,7 +16,7 @@ describe("ArbUnionWrapper Contract", () => {
             ["Dai Stablecoin", "DAI"],
             {initializer: "__FaucetERC20_init(string,string)"}
         );
-        await testToken.mint(ADMIN.address, parseEther("10000000"));
+        await testToken.mint(ADMIN.address, parseEther("1000"));
 
         const GatewayMock = await ethers.getContractFactory("GatewayMock");
         gateway = await GatewayMock.deploy();
@@ -31,9 +31,11 @@ describe("ArbUnionWrapper Contract", () => {
     it("Wrapper and unwrap test token", async () => {
         const amount = parseEther("1");
         await testToken.approve(arbUnionWrapper.address, amount);
+        await expect(arbUnionWrapper.wrap(parseEther("100000"))).to.be.revertedWith("Insufficient balance");
         await arbUnionWrapper.wrap(amount);
         let bal = await arbUnionWrapper.balanceOf(ADMIN.address);
         bal.toString().should.eq(amount);
+        await expect(arbUnionWrapper.unwrap(parseEther("100000"))).to.be.revertedWith("Insufficient balance");
         await arbUnionWrapper.unwrap(amount);
         bal = await arbUnionWrapper.balanceOf(ADMIN.address);
         bal.toString().should.eq("0");

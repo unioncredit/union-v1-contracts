@@ -64,7 +64,7 @@ describe("User Manager Contract", () => {
                 initializer: "__UserManager_init(address,address,address,address,address,address)"
             }
         );
-
+        await expect(userManager.setUToken(AddressZero)).to.be.reverted;
         await userManager.setUToken(uToken.address);
         await userManager.addMember(MEMBER1.address);
         await userManager.addMember(MEMBER2.address);
@@ -214,6 +214,7 @@ describe("User Manager Contract", () => {
         creditLimitModel.should.eq(sumOfTrustNew.address);
 
         await expect(userManager.setCreditLimitModel(AddressZero)).to.be.reverted;
+        await expect(userManager.setCreditLimitModel(BOB.address)).to.be.reverted;
     });
 
     it("Credit limit", async () => {
@@ -349,11 +350,6 @@ describe("User Manager Contract", () => {
         totalAmount = await userManager.getTotalFrozenAmount(MEMBER1.address);
         totalAmount.toString().should.eq(parseEther("1").toString());
 
-        await uToken.updateLockedData(userManager.address, BOB.address, creditLimit.add(parseEther("10")));
-        await uToken.updateOverdueInfo(userManager.address, BOB.address, true);
-        totalAmount = await userManager.getTotalFrozenAmount(MEMBER1.address);
-        totalAmount.toString().should.eq(parseEther("1").toString());
-
         //Restore simulation settings
         await uToken.setIsOverdue(false);
     });
@@ -417,6 +413,7 @@ describe("User Manager Contract", () => {
         res.toString().should.eq("10"); //creditLimitModelMock mock 10
 
         await userManager.connect(MEMBER1).unstake(parseEther("1000").sub(10));
+        await userManager.updateLockedData(BOB.address, 100, true);
         const totalAmount = await userManager.connect(MEMBER1).getTotalLockedStake(MEMBER1.address);
         totalAmount.toString().should.eq("10");
     });
