@@ -821,7 +821,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         address account,
         address token,
         uint256 lastRepay
-    ) external override whenNotPaused onlyMarketOrAdmin {
+    ) external override whenNotPaused onlyMarketOrAdmin returns (uint8 count) {
         address[] memory stakerAddresses = getStakerAddresses(account);
         uint256 addressesLength = stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
@@ -829,6 +829,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
 
             comptroller.addFrozenCoinAge(staker, token, lockedStake, lastRepay);
+            count++;
         }
     }
 
