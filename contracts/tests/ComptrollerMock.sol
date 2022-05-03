@@ -36,4 +36,11 @@ contract ComptrollerMock {
     function updateTotalStaked(address, uint256) external pure returns (bool) {
         return true;
     }
+
+    function addFrozenCoinAge(
+        address staker,
+        address token,
+        uint256 lockedStake,
+        uint256 lastRepay
+    ) external {}
 }
