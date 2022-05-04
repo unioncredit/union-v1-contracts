@@ -159,9 +159,11 @@ interface IUserManager {
     function batchUpdateTotalFrozen(address[] calldata account, bool[] calldata isOverdue) external;
 
     /**
-     *  @dev Repay user's loan overdue, called only from the lending market
+     *  @dev Repay user's loan overdue, called only by UToken
      *  @param account User address
+     *  @param token The asset token repaying to
      *  @param lastRepay Last repay block number
+     *  @return Number of frozen stakers, so we know if repay overdue loan works.
      */
     function repayLoanOverdue(
         address account,

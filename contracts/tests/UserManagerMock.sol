@@ -144,7 +144,7 @@ contract UserManagerMock {
         address account,
         address token,
         uint256 lastRepay
-    ) external {}
+    ) external returns (uint8 counter) {}
 
     //Only supports sumOfTrust
     function debtWriteOff(address borrower, uint256 amount) public {}

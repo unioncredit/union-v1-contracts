@@ -20,7 +20,7 @@ contract UTokenMock is ERC20Upgradeable {
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     bool public isOverdue;
-    uint8 public overdueAmount;
+    uint8 public frozenCounter;
 
     function __UToken_init() public initializer {
         ERC20Upgradeable.__ERC20_init("uToken", "uToken");
@@ -39,8 +39,8 @@ contract UTokenMock is ERC20Upgradeable {
         address account,
         address token,
         uint256 lastRepay
-    ) external returns (uint8) {
-        overdueAmount = IUserManager(userManager).repayLoanOverdue(account, token, lastRepay);
+    ) external {
+        frozenCounter = IUserManager(userManager).repayLoanOverdue(account, token, lastRepay);
     }
 
     function updateLockedData(
