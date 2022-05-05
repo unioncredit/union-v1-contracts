@@ -22,46 +22,46 @@ module.exports = {
             },
             allowUnlimitedContractSize: true
         },
-        rinkeby: {
-            url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID,
-            accounts: process.env.PRIVATE_KEY
-                ? [process.env.PRIVATE_KEY]
-                : {
-                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
-                  }
-        },
-        kovan: {
-            url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID,
-            accounts: process.env.PRIVATE_KEY
-                ? [process.env.PRIVATE_KEY]
-                : {
-                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
-                  }
-        },
-        arbitrumRinkeby: {
-            url: "https://rinkeby.arbitrum.io/rpc",
-            accounts: process.env.PRIVATE_KEY
-                ? [process.env.PRIVATE_KEY]
-                : {
-                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
-                  }
-        },
-        arbitrum: {
-            url: "https://arb1.arbitrum.io/rpc",
-            accounts: process.env.PRIVATE_KEY
-                ? [process.env.PRIVATE_KEY]
-                : {
-                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
-                  }
-        },
-        mainnet: {
-            url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID,
-            accounts: process.env.PRIVATE_KEY
-                ? [process.env.PRIVATE_KEY]
-                : {
-                      mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
-                  }
-        }
+        // rinkeby: {
+        //     url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID,
+        //     accounts: process.env.PRIVATE_KEY
+        //         ? [process.env.PRIVATE_KEY]
+        //         : {
+        //               mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+        //           }
+        // },
+        // kovan: {
+        //     url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID,
+        //     accounts: process.env.PRIVATE_KEY
+        //         ? [process.env.PRIVATE_KEY]
+        //         : {
+        //               mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+        //           }
+        // },
+        // arbitrumRinkeby: {
+        //     url: "https://rinkeby.arbitrum.io/rpc",
+        //     accounts: process.env.PRIVATE_KEY
+        //         ? [process.env.PRIVATE_KEY]
+        //         : {
+        //               mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+        //           }
+        // },
+        // arbitrum: {
+        //     url: "https://arb1.arbitrum.io/rpc",
+        //     accounts: process.env.PRIVATE_KEY
+        //         ? [process.env.PRIVATE_KEY]
+        //         : {
+        //               mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+        //           }
+        // },
+        // mainnet: {
+        //     url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID,
+        //     accounts: process.env.PRIVATE_KEY
+        //         ? [process.env.PRIVATE_KEY]
+        //         : {
+        //               mnemonic: process.env.MNEMONIC ? process.env.MNEMONIC : process.env.MNEMONIC_TEST
+        //           }
+        // }
     },
     solidity: {
         compilers: [

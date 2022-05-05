@@ -318,7 +318,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     function borrowRatePerBlock() public view override returns (uint256) {
         uint256 borrowRateMantissa = interestRateModel.getBorrowRate();
-        if (borrowRateMantissa > BORROW_RATE_MAX_MANTISSA) revert BorrowRateExceedLimit();
+        // if (borrowRateMantissa > BORROW_RATE_MAX_MANTISSA) revert BorrowRateExceedLimit();
 
         return borrowRateMantissa;
     }
