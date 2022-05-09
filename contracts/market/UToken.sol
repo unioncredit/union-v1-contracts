@@ -133,6 +133,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 overdueBlocks_,
         address admin_
     ) public initializer {
+        // slither-disable-next-line incorrect-equality
         if (initialExchangeRateMantissa_ == 0) revert InitExchangeRateNotZero();
         if (address(underlying_) == address(0)) revert AddressZero();
         if (reserveFactorMantissa_ > RESERVE_FACTORY_MAX_MANTISSA) revert ReserveFactoryExceedLimit();
@@ -304,6 +305,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         /* If borrowBalance = 0 then borrowIndex is likely also 0.
          * Rather than failing the calculation with a division by 0, we immediately return 0 in this case.
          */
+        // slither-disable-next-line incorrect-equality
         if (loan.principal == 0) {
             return 0;
         }
@@ -347,6 +349,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     function exchangeRateStored() public view returns (uint256) {
         uint256 totalSupply_ = totalSupply();
+        // slither-disable-next-line incorrect-equality
         return totalSupply_ == 0 ? initialExchangeRateMantissa : (totalRedeemable * WAD) / totalSupply_;
     }
 
@@ -357,7 +360,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
      */
     function calculatingInterest(address account) public view override returns (uint256) {
         BorrowSnapshot memory loan = accountBorrows[account];
-
+        // slither-disable-next-line incorrect-equality
         if (loan.principal == 0) {
             return 0;
         }
@@ -396,6 +399,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 borrowedAmount = borrowBalanceStoredInternal(msg.sender);
 
         //Set lastRepay init data
+        // slither-disable-next-line incorrect-equality
         if (getLastRepay(msg.sender) == 0) {
             accountBorrows[msg.sender].lastRepay = getBlockNumber();
         }
@@ -450,6 +454,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         uint256 borrowedAmount = borrowBalanceStoredInternal(borrower);
 
         uint256 repayAmount = amount > borrowedAmount ? borrowedAmount : amount;
+        // slither-disable-next-line incorrect-equality
         if (repayAmount == 0) revert AmountZero();
 
         uint256 toReserveAmount;
@@ -465,6 +470,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
             accountBorrows[borrower].principal = borrowedAmount - repayAmount;
             accountBorrows[borrower].interest = 0;
 
+            // slither-disable-next-line incorrect-equality
             if (getBorrowed(borrower) == 0) {
                 //LastRepay is cleared when the arrears are paid off, and reinitialized the next time the loan is borrowed
                 accountBorrows[borrower].lastRepay = 0;

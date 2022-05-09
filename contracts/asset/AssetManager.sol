@@ -422,6 +422,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
                 continue;
             }
             uint256 amountToDeposit = (tokenSupply * percentages[i]) / 10000;
+            // slither-disable-next-line incorrect-equality
             if (amountToDeposit == 0) {
                 continue;
             }
