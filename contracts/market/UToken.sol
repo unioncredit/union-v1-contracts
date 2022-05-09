@@ -464,7 +464,9 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
             toRedeemableAmount = interest - toReserveAmount;
 
             if (isOverdue) {
+                // slither-disable-next-line reentrancy-no-eth
                 IUserManager(userManager).updateTotalFrozen(borrower, false);
+                // slither-disable-next-line reentrancy-no-eth
                 IUserManager(userManager).repayLoanOverdue(borrower, underlying, getLastRepay(borrower));
             }
             accountBorrows[borrower].principal = borrowedAmount - repayAmount;
