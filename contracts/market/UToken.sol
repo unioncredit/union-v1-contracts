@@ -406,12 +406,13 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         accountBorrows[msg.sender].principal += amount + fee;
         uint256 newPrincipal = getBorrowed(msg.sender);
-        IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
+
         accountBorrows[msg.sender].interest = accountBorrowsNew - newPrincipal;
         accountBorrows[msg.sender].interestIndex = borrowIndex;
         totalBorrows = totalBorrowsNew;
         // The origination fees contribute to the reserve
         totalReserves += fee;
+        IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
 
         if (!assetManagerContract.withdraw(underlying, msg.sender, amount)) revert WithdrawFailed();
 

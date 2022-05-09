@@ -228,6 +228,7 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
         if (selfBalance > 0) {
             uint256 withdrawAmount = selfBalance < remaining ? selfBalance : remaining;
             remaining -= withdrawAmount;
+            // slither-disable-next-line reentrancy-no-eth
             IERC20Upgradeable(token).safeTransfer(account, withdrawAmount);
         }
 
@@ -237,12 +238,13 @@ contract AssetManager is Controller, ReentrancyGuardUpgradeable, IAssetManager {
             for (uint256 i = 0; i < withdrawSeqLength && remaining > 0; i++) {
                 IMoneyMarketAdapter moneyMarket = moneyMarkets[withdrawSeq[i]];
                 if (!moneyMarket.supportsToken(token)) continue;
-
+                // slither-disable-next-line reentrancy-no-eth
                 uint256 supply = moneyMarket.getSupply(token);
                 if (supply == 0) continue;
 
                 uint256 withdrawAmount = supply < remaining ? supply : remaining;
                 remaining -= withdrawAmount;
+                // slither-disable-next-line reentrancy-no-eth
                 moneyMarket.withdraw(token, account, withdrawAmount);
             }
         }
