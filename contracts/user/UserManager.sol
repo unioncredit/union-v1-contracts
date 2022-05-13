@@ -730,7 +730,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      */
     function stake(uint256 amount) public override whenNotPaused nonReentrant {
         IERC20Upgradeable erc20Token = IERC20Upgradeable(stakingToken);
-
+        // slither-disable-next-line unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         uint256 balance = stakers[msg.sender];
@@ -799,7 +799,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         if (stakingAmount - getTotalLockedStake(msg.sender) < amount) revert InsufficientBalance();
 
-        // slither-disable-next-line reentrancy-no-eth
+        // slither-disable-next-line reentrancy-no-eth,unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         stakers[msg.sender] = stakingAmount - amount;
@@ -814,6 +814,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     function withdrawRewards() external whenNotPaused nonReentrant {
+        // slither-disable-next-line unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
     }
 
@@ -857,7 +858,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         _updateTotalFrozen(borrower, true);
         if (amount > totalFrozen) revert ExceedsTotalFrozen();
 
-        // slither-disable-next-line reentrancy-no-eth
+        // slither-disable-next-line reentrancy-no-eth,unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         //The borrower is still overdue, do not call comptroller.addFrozenCoinAge
@@ -890,6 +891,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        // slither-disable-next-line unused-return
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
     }
 
@@ -910,6 +912,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         }
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        // slither-disable-next-line unused-return
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
     }
 

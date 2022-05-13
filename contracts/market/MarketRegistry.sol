@@ -56,6 +56,7 @@ contract MarketRegistry is Controller {
 
     function addUToken(address token, address uToken) public newToken(token) onlyAdmin {
         require(token != address(0) && uToken != address(0), "MarketRegistry: token and uToken can not be zero");
+        // slither-disable-next-line unused-return
         uTokenList.add(uToken);
         tokens[token].uToken = uToken;
         emit LogAddUToken(token, uToken);
@@ -66,13 +67,16 @@ contract MarketRegistry is Controller {
             token != address(0) && userManager != address(0),
             "MarketRegistry: token and userManager can not be zero"
         );
+        // slither-disable-next-line unused-return
         userManagerList.add(userManager);
         tokens[token].userManager = userManager;
         emit LogAddUserManager(token, userManager);
     }
 
     function deleteMarket(address token) public onlyAdmin {
+        // slither-disable-next-line unused-return
         uTokenList.remove(tokens[token].uToken);
+        // slither-disable-next-line unused-return
         userManagerList.remove(tokens[token].userManager);
         delete tokens[token].uToken;
         delete tokens[token].userManager;
