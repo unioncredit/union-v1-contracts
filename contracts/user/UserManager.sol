@@ -397,6 +397,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @return Frozen token amount
      */
     function getTotalFrozenAmount(address staker) public view override returns (uint256) {
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         uint256 totalFrozenAmount = 0;
         trustInfo.borrowerAddresses = members[staker].creditLine.borrowerAddresses;
@@ -424,6 +425,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @return Credit line amount
      */
     function getCreditLimit(address borrower) public view override returns (int256) {
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
         // Get the number of effective vouchee, first
@@ -523,6 +525,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         if (borrower_ == address(0)) revert AddressZero();
         address borrower = borrower_;
 
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         trustInfo.staker = msg.sender;
         if (trustInfo.staker == borrower) revert ErrorSelfVouching();
@@ -679,6 +682,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 amount,
         bool isBorrow
     ) external override onlyMarketOrAdmin {
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
 

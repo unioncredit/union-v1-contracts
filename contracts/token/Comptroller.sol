@@ -133,6 +133,7 @@ contract Comptroller is Controller, IComptroller {
     ) public view override returns (uint256) {
         IUserManager userManagerContract = IUserManager(_getUserManager(token));
         Info memory userInfo = users[account][token];
+        // slither-disable-next-line uninitialized-local
         UserManagerData memory userManagerData;
 
         userManagerData.totalFrozen = userManagerContract.totalFrozen();
