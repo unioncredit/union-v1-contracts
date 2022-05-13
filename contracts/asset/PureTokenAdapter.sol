@@ -83,13 +83,13 @@ contract PureTokenAdapter is Controller, IMoneyMarketAdapter {
         return token.balanceOf(address(this));
     }
 
-    function supportsToken(address tokenAddress) external view override returns (bool) {
+    function supportsToken(address tokenAddress) external pure override returns (bool) {
         return _supportsToken(tokenAddress);
     }
 
     function claimRewards(address tokenAddress) external override onlyAdmin {}
 
-    function _supportsToken(address tokenAddress) internal view returns (bool) {
+    function _supportsToken(address tokenAddress) internal pure returns (bool) {
         return tokenAddress != address(0);
     }
 
