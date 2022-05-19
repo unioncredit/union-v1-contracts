@@ -129,7 +129,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     error NotEnoughStakers();
     error StakeLimitReached();
     error AssetManagerDepositFailed();
-    error AssetManagerWithdrawFailed();
     error InsufficientBalance();
     error ExceedsTotalStaked();
     error NotOverdue();
@@ -384,11 +383,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             totalLockedStake += getLockedStake(staker, borrower);
         }
 
-        if (stakingAmount >= totalLockedStake) {
-            return totalLockedStake;
-        } else {
-            return stakingAmount;
-        }
+        return stakingAmount > totalLockedStake ? totalLockedStake : stakingAmount;
     }
 
     /**
@@ -411,11 +406,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             }
         }
 
-        if (trustInfo.stakingAmount >= totalFrozenAmount) {
-            return totalFrozenAmount;
-        } else {
-            return trustInfo.stakingAmount;
-        }
+        return trustInfo.stakingAmount > totalFrozenAmount ? totalFrozenAmount : trustInfo.stakingAmount;
     }
 
     /**
@@ -799,8 +790,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         stakers[msg.sender] = stakingAmount - amount;
         totalStaked -= amount;
 
-        if (!IAssetManager(assetManager).withdraw(stakingToken, address(this), amount))
-            revert AssetManagerWithdrawFailed();
+        IAssetManager(assetManager).withdraw(stakingToken, address(this), amount);
 
         erc20Token.safeTransfer(msg.sender, amount);
 
@@ -857,11 +847,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         stakers[msg.sender] -= amount;
         totalStaked -= amount;
         totalFrozen -= amount;
-        if (memberFrozen[borrower] >= amount) {
+        if (memberFrozen[borrower] > amount) {
             memberFrozen[borrower] -= amount;
         } else {
             memberFrozen[borrower] = 0;
         }
+
         members[msg.sender].creditLine.lockedAmount[borrower] = lockedAmount - amount;
         uint256 trustAmount = members[msg.sender].creditLine.borrowers[borrower];
         uint256 newTrustAmount = trustAmount - amount;

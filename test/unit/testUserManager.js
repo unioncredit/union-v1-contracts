@@ -556,6 +556,7 @@ describe("User Manager Contract", () => {
     });
 
     it("Update overdue info", async () => {
+        const amount = parseEther("1");
         let res;
         //prevent after simulating totalFrozen data， totalStaked - totalFrozen < 0
         await erc20.connect(MEMBER1).approve(userManager.address, 1000);
@@ -565,25 +566,43 @@ describe("User Manager Contract", () => {
             "AuthFailed()"
         );
 
+        await erc20.connect(MEMBER1).approve(userManager.address, parseEther("10000"));
+        await erc20.connect(MEMBER2).approve(userManager.address, parseEther("10000"));
+        await erc20.connect(MEMBER3).approve(userManager.address, parseEther("10000"));
+        await userManager.connect(MEMBER1).stake(parseEther("1"));
+        await userManager.connect(MEMBER2).stake(parseEther("1"));
+        await userManager.connect(MEMBER3).stake(parseEther("1"));
+        await userManager.addMember(BOB.address);
+        await userManager.connect(MEMBER1).updateTrust(BOB.address, amount);
+        await userManager.connect(MEMBER2).updateTrust(BOB.address, amount);
+        await userManager.connect(MEMBER3).updateTrust(BOB.address, amount);
+        //Simulate user loan default
+        await uToken.setIsOverdue(true);
+        await uToken.updateLockedData(userManager.address, BOB.address, amount);
+        await uToken.updateOverdueInfo(userManager.address, BOB.address, true);
+
         //isOverdue false totalFrozen <= amount
         await userManager.updateTotalFrozen(MEMBER1.address, false);
         res = await userManager.totalFrozen();
-        res.toString().should.eq("0");
+        res.toString().should.eq(amount);
 
         //isOverdue true
         await userManager.batchUpdateTotalFrozen([MEMBER1.address], [true]);
         res = await userManager.totalFrozen();
-        res.toString().should.eq("0");
+        res.toString().should.eq(amount);
 
         //totalFrozen add ADMIN frozen amount
         await userManager.updateTotalFrozen(ADMIN.address, true);
         res = await userManager.totalFrozen();
-        res.toString().should.eq("0");
+        res.toString().should.eq(amount);
 
         //isOverdue false totalFrozen > amount
         await userManager.batchUpdateTotalFrozen([BOB.address], [false]);
         res = await userManager.totalFrozen();
         res.toString().should.eq("0");
+
+        //Restore simulation settings
+        await uToken.setIsOverdue(false);
     });
 
     it("Debt write off", async () => {
@@ -611,6 +630,38 @@ describe("User Manager Contract", () => {
 
         await userManager.connect(MEMBER1).debtWriteOff(TOM.address, parseEther("1"));
 
+        stakeAmount = await userManager.stakers(MEMBER1.address);
+        lockedAmount = await userManager.getLockedStake(MEMBER1.address, TOM.address);
+        stakeAmount.toString().should.eq("0");
+        lockedAmount.toString().should.eq("0");
+        //Restore simulation settings
+        await uToken.setIsOverdue(false);
+    });
+
+    it("Debt write off2", async () => {
+        await erc20.connect(MEMBER1).approve(userManager.address, parseEther("10000"));
+        await erc20.connect(MEMBER2).approve(userManager.address, parseEther("10000"));
+        await erc20.connect(MEMBER3).approve(userManager.address, parseEther("10000"));
+        await userManager.connect(MEMBER1).stake(parseEther("2"));
+        await userManager.connect(MEMBER2).stake(parseEther("1"));
+        await userManager.connect(MEMBER3).stake(parseEther("1"));
+        await userManager.addMember(TOM.address);
+        await userManager.connect(MEMBER1).updateTrust(TOM.address, parseEther("2"));
+        await userManager.connect(MEMBER2).updateTrust(TOM.address, parseEther("1"));
+        await userManager.connect(MEMBER3).updateTrust(TOM.address, parseEther("1"));
+
+        //Simulate user loan default
+        await uToken.setIsOverdue(true);
+        await uToken.updateLockedData(userManager.address, TOM.address, parseEther("2"));
+        await uToken.updateOverdueInfo(userManager.address, TOM.address, true);
+
+        let stakeAmount = await userManager.stakers(MEMBER1.address);
+        let lockedAmount = await userManager.getLockedStake(MEMBER1.address, TOM.address);
+        stakeAmount.toString().should.eq(parseEther("2").toString());
+        lockedAmount.toString().should.eq(parseEther("2").toString());
+
+        await userManager.connect(MEMBER1).debtWriteOff(TOM.address, parseEther("2"));
+        memberFrozen = await userManager.memberFrozen(TOM.address);
         stakeAmount = await userManager.stakers(MEMBER1.address);
         lockedAmount = await userManager.getLockedStake(MEMBER1.address, TOM.address);
         stakeAmount.toString().should.eq("0");
