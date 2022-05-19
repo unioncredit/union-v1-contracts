@@ -45,6 +45,7 @@ contract UTokenMock is ERC20Upgradeable {
         uint256 lastRepay
     ) external returns (uint8) {
         overdueCount = IUserManager(userManager).repayLoanOverdue(account, token, lastRepay);
+        return overdueCount;
     }
 
     function updateLockedData(

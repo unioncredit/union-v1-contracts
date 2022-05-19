@@ -165,8 +165,8 @@ contract UserManagerMock {
         comptroller = IComptroller(comptroller_);
     }
 
-    function updateTotalStaked(address token, uint256 totalStaked) external {
-        if (address(comptroller) != address(0)) comptroller.updateTotalStaked(token, totalStaked);
+    function updateTotalStaked(address token_, uint256 totalStaked_) external {
+        if (address(comptroller) != address(0)) comptroller.updateTotalStaked(token_, totalStaked_);
     }
 
     function repayLoanOverdue(
@@ -175,5 +175,6 @@ contract UserManagerMock {
         uint256 lastRepay
     ) external returns (uint8) {
         if (address(comptroller) != address(0)) comptroller.addFrozenCoinAge(account, token, 0, lastRepay);
+        return 0;
     }
 }
