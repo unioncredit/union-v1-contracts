@@ -104,6 +104,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         token.safeApprove(cTokenAddress, 0);
         token.safeApprove(cTokenAddress, amount);
         uint256 result = cToken.mint(amount);
+        // slither-disable-next-line incorrect-equality
         require(result == 0, "Error minting the cToken");
     }
 
@@ -117,6 +118,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         CToken cToken = CToken(cTokenAddress);
 
         uint256 result = cToken.redeemUnderlying(tokenAmount);
+        // slither-disable-next-line incorrect-equality
         require(result == 0, "Error redeeming the cToken");
         token.safeTransfer(recipient, tokenAmount);
     }
@@ -132,6 +134,7 @@ contract CompoundAdapter is Controller, IMoneyMarketAdapter {
         CToken cToken = CToken(cTokenAddress);
 
         uint256 result = cToken.redeemUnderlying(cToken.balanceOfUnderlying(address(this)));
+        // slither-disable-next-line incorrect-equality
         require(result == 0, "Error redeeming the cToken");
         token.safeTransfer(recipient, token.balanceOf(address(this)));
     }
