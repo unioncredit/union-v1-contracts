@@ -163,11 +163,10 @@ interface IUserManager {
      *  @param account User address
      *  @param token The asset token repaying to
      *  @param lastRepay Last repay block number
-     *  @return Number of frozen stakers, so we know if repay overdue loan works.
      */
     function repayLoanOverdue(
         address account,
         address token,
         uint256 lastRepay
-    ) external returns (uint8);
+    ) external;
 }

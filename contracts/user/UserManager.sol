@@ -816,13 +816,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param account User address
      *  @param token The asset token repaying to
      *  @param lastRepay Last repay block number
-     *  @return counter Number of frozen stakers, so we know if repay overdue loan works.
      */
     function repayLoanOverdue(
         address account,
         address token,
         uint256 lastRepay
-    ) external override whenNotPaused onlyMarketOrAdmin returns (uint8 counter) {
+    ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
         uint256 addressesLength = stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
@@ -830,7 +829,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
 
             comptroller.addFrozenCoinAge(staker, token, lockedStake, lastRepay);
-            ++counter;
         }
     }
 

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 contract ComptrollerMock {
     address public unionToken;
     uint256 public rewardAmount;
+    uint256 public frozenCounter;
 
     function __ComptrollerMock_init() public {}
 
@@ -38,9 +39,11 @@ contract ComptrollerMock {
     }
 
     function addFrozenCoinAge(
-        address staker,
-        address token,
-        uint256 lockedStake,
-        uint256 lastRepay
-    ) external {}
+        address,
+        address,
+        uint256,
+        uint256
+    ) external {
+        frozenCounter++;
+    }
 }

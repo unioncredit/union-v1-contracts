@@ -40,7 +40,7 @@ contract UTokenMock is ERC20Upgradeable {
         address token,
         uint256 lastRepay
     ) external {
-        frozenCounter = IUserManager(userManager).repayLoanOverdue(account, token, lastRepay);
+        IUserManager(userManager).repayLoanOverdue(account, token, lastRepay);
     }
 
     function updateLockedData(
