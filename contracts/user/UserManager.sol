@@ -823,13 +823,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param account User address
      *  @param token The asset token repaying to
      *  @param lastRepay Last repay block number
-     *  @return counter Number of frozen stakers, so we know if repay overdue loan works.
      */
     function repayLoanOverdue(
         address account,
         address token,
         uint256 lastRepay
-    ) external override whenNotPaused onlyMarketOrAdmin returns (uint8 counter) {
+    ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
         uint256 addressesLength = stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
@@ -837,7 +836,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
 
             comptroller.addFrozenCoinAge(staker, token, lockedStake, lastRepay);
-            ++counter;
         }
     }
 
@@ -887,12 +885,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
-        _updateTotalFrozen(account, isOverdue);
-
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         // slither-disable-next-line unused-return
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
+        _updateTotalFrozen(account, isOverdue);
     }
 
     /**
@@ -907,13 +904,13 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         whenNotPaused
     {
         if (accounts.length != isOverdues.length) revert LengthNotMatch();
-        for (uint256 i = 0; i < accounts.length; i++) {
-            if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
-        }
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         // slither-disable-next-line unused-return
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
+        }
     }
 
     function _updateTotalFrozen(address account, bool isOverdue) private {

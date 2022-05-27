@@ -614,28 +614,4 @@ describe("User Manager Contract", () => {
         res.should.eq(amount);
         await expect(userManager.connect(MEMBER1).stake(parseEther("2"))).to.be.revertedWith("StakeLimitReached()");
     });
-
-    it("Repay loan overdue", async () => {
-        await erc20.connect(MEMBER1).approve(userManager.address, parseEther("10000"));
-        await erc20.connect(MEMBER2).approve(userManager.address, parseEther("10000"));
-        await erc20.connect(MEMBER3).approve(userManager.address, parseEther("10000"));
-        await userManager.connect(MEMBER1).stake(parseEther("1"));
-        await userManager.connect(MEMBER2).stake(parseEther("1"));
-        await userManager.connect(MEMBER3).stake(parseEther("1"));
-        await userManager.addMember(TOM.address);
-        await userManager.connect(MEMBER1).updateTrust(TOM.address, parseEther("1"));
-        await userManager.connect(MEMBER2).updateTrust(TOM.address, parseEther("1"));
-        await userManager.connect(MEMBER3).updateTrust(TOM.address, parseEther("1"));
-        const creditLimit = await userManager.getCreditLimit(TOM.address);
-        //Simulate user loan default
-        await uToken.setIsOverdue(true);
-        await uToken.updateLockedData(userManager.address, TOM.address, creditLimit);
-        await uToken.updateOverdueInfo(userManager.address, TOM.address, true);
-
-        let count = await uToken.frozenCounter();
-        count.toString().should.eq("0");
-        await uToken.repayLoanOverdue(userManager.address, TOM.address, erc20.address, 0);
-        count = await uToken.frozenCounter();
-        count.toString().should.eq("3");
-    });
 });
