@@ -46,7 +46,7 @@ abstract contract LendingPool {
         );
 }
 
-abstract contract AMarket {
+abstract contract AMarket3 {
     function claimRewards(
         address[] calldata assets,
         uint256 amount,
@@ -68,7 +68,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
     address public assetManager;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
-    AMarket public market;
+    AMarket3 public market;
     LendingPool public lendingPool;
 
     modifier checkTokenSupported(address tokenAddress) {
@@ -84,7 +84,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
     function __AaveAdapter_init(
         address _assetManager,
         LendingPool _lendingPool,
-        AMarket _market
+        AMarket3 _market
     ) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
