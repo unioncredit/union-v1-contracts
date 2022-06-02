@@ -19,7 +19,7 @@ describe("AaveV3Adapter Contract", async () => {
             initializer: "__FaucetERC20_init(string,string)"
         });
 
-        marketMock = await upgrades.deployProxy(await ethers.getContractFactory("AaveMock"), [RATE, aToken.address], {
+        marketMock = await upgrades.deployProxy(await ethers.getContractFactory("Aave3Mock"), [RATE, aToken.address], {
             initializer: "__AaveMock_init(uint128,address)"
         });
 
