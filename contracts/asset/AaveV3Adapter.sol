@@ -132,6 +132,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
         address recipient,
         uint256 tokenAmount
     ) external override onlyAssetManager checkTokenSupported(tokenAddress) {
+        // slither-disable-next-line unused-return
         lendingPool.withdraw(tokenAddress, tokenAmount, recipient);
     }
 
@@ -141,6 +142,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
         onlyAssetManager
         checkTokenSupported(tokenAddress)
     {
+        // slither-disable-next-line unused-return
         lendingPool.withdraw(tokenAddress, UINT256_MAX, recipient);
     }
 
@@ -177,6 +179,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
         address[] memory assets = new address[](1);
         assets[0] = aTokenAddress;
         uint256 rewards = market.getRewardsBalance(assets, address(this));
+        // slither-disable-next-line unused-return
         market.claimRewards(assets, rewards, msg.sender);
     }
 
