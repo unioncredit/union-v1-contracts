@@ -6,16 +6,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "../interfaces/IMoneyMarketAdapter.sol";
 import "../Controller.sol";
-
-abstract contract AToken is IERC20Upgradeable {
-    function scaledBalanceOf(address user) external view virtual returns (uint256);
-
-    function getScaledUserBalanceAndSupply(address user) external view virtual returns (uint256, uint256);
-
-    function scaledTotalSupply() external view virtual returns (uint256);
-
-    function isTransferAllowed(address user, uint256 amount) external view virtual returns (bool);
-}
+import "./AToken.sol";
 
 abstract contract LendingPool {
     function deposit(
