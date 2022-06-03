@@ -8,7 +8,7 @@ import "../interfaces/IMoneyMarketAdapter.sol";
 import "../Controller.sol";
 import "./AToken.sol";
 
-abstract contract LendingPool {
+abstract contract LendingPool3 {
     function deposit(
         address asset,
         uint256 amount,
@@ -68,7 +68,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
     AMarket3 public market;
-    LendingPool public lendingPool;
+    LendingPool3 public lendingPool;
 
     modifier checkTokenSupported(address tokenAddress) {
         require(_supportsToken(tokenAddress), "AaveAdapter: Token not supported");
@@ -82,7 +82,7 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
 
     function __AaveAdapter_init(
         address _assetManager,
-        LendingPool _lendingPool,
+        LendingPool3 _lendingPool,
         AMarket3 _market
     ) public initializer {
         Controller.__Controller_init(msg.sender);
