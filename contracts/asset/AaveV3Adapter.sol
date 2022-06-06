@@ -46,13 +46,7 @@ abstract contract LendingPool3 {
 }
 
 abstract contract AMarket3 {
-    function claimRewards(
-        address[] calldata assets,
-        uint256 amount,
-        address to
-    ) external virtual returns (uint256);
-
-    function getRewardsBalance(address[] memory assets, address user) external view virtual returns (uint256);
+    function claimAllRewards(address[] calldata assets, address to) external virtual returns (uint256);
 }
 
 /**
@@ -109,7 +103,6 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
         address aTokenAddress;
         (, , , , , , , , aTokenAddress, , , , , , ) = lendingPool.getReserveData(tokenAddress);
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
-        //AToken aToken = AToken(aTokenAddress);
         token.safeApprove(address(lendingPool), 0);
         token.safeApprove(address(lendingPool), UINT256_MAX);
         tokenToAToken[tokenAddress] = aTokenAddress;
@@ -154,11 +147,9 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
         address aTokenAddress = tokenToAToken[tokenAddress];
         AToken aToken = AToken(aTokenAddress);
         uint256 balance = aToken.balanceOf(address(this));
-
         if (balance <= 10) {
             return 0;
         }
-
         return balance;
     }
 
@@ -178,9 +169,8 @@ contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
         address aTokenAddress = tokenToAToken[tokenAddress];
         address[] memory assets = new address[](1);
         assets[0] = aTokenAddress;
-        uint256 rewards = market.getRewardsBalance(assets, address(this));
         // slither-disable-next-line unused-return
-        market.claimRewards(assets, rewards, msg.sender);
+        market.claimAllRewards(assets, msg.sender);
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
