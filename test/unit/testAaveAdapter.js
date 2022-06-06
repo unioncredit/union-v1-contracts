@@ -123,4 +123,22 @@ describe("AaveAdapter Contract", async () => {
         let res = await aaveAdapter.assetManager();
         res.should.eq(ASSET_MANAGER_2.address);
     });
+
+    it("Set floor", async () => {
+        await expect(aaveAdapter.setFloor(ethers.constants.AddressZero, 0)).to.be.revertedWith(
+            "AaveAdapter: tokenAddress can not be zero"
+        );
+        await aaveAdapter.setFloor(erc20.address, 100);
+        const floor = await aaveAdapter.floorMap(erc20.address);
+        floor.should.eq(100);
+    });
+
+    it("Set ceiling", async () => {
+        await expect(aaveAdapter.setCeiling(ethers.constants.AddressZero, 0)).to.be.revertedWith(
+            "AaveAdapter: tokenAddress can not be zero"
+        );
+        await aaveAdapter.setCeiling(erc20.address, 100);
+        const floor = await aaveAdapter.ceilingMap(erc20.address);
+        floor.should.eq(100);
+    });
 });
