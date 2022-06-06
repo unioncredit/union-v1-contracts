@@ -11,7 +11,7 @@ describe("Test aave3 adapter on forking arbitrum", () => {
     const marketAddress = "0x929EC64c34a17401F460460D4B9390518E5B473e"; //aave liquidity Mining
     const daiAddress = "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1";
     const account = "0x4a2328a2c7ffc1ea1a6ba4623dfc28029aa2b3ce"; //An address with eth and dai on the arbitrum is used for testing
-
+    let oldProvider;
     const deployAndInitContracts = async () => {
         axios.create({
             baseURL: "https://api.tenderly.co/api/v1",
@@ -38,6 +38,7 @@ describe("Test aave3 adapter on forking arbitrum", () => {
         console.log(`forkId: ${forkId}`);
         forkRPC = `https://rpc.tenderly.co/fork/${forkId}`;
         provider = new ethers.providers.JsonRpcProvider(forkRPC);
+        oldProvider = ethers.provider;
         ethers.provider = provider;
 
         signer = await ethers.provider.getSigner(account);
@@ -93,6 +94,7 @@ describe("Test aave3 adapter on forking arbitrum", () => {
     });
 
     it("delete fork", async function () {
+        ethers.provider = oldProvider;
         const TENDERLY_FORK_ACCESS_URL = `https://api.tenderly.co/api/v1/account/${process.env.TENDERLY_USER}/project/${process.env.TENDERLY_PROJECT}/fork/${forkId}`;
         await axios.delete(TENDERLY_FORK_ACCESS_URL, opts);
     });
