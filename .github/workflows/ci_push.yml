@@ -38,7 +38,7 @@ jobs:
 
             - name: Run coverage
               run: |
-                  yarn coverage
+                  yarn coverage --testfiles test/unit/
                   yarn codecov
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
