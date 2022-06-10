@@ -27,7 +27,7 @@ jobs:
                   MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
 
             - name: Run integration tests
-              run: yarn test test/integration/**/*
+              run: yarn test test/integration/*
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
