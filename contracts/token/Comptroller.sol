@@ -145,6 +145,9 @@ contract Comptroller is Controller, IComptroller {
         }
 
         uint256 lastUpdatedBlock = userInfo.updatedBlock;
+        if (block.number < lastUpdatedBlock) {
+            lastUpdatedBlock = block.number;
+        }
 
         uint256 pastBlocks = block.number - lastUpdatedBlock + futureBlocks;
         userManagerData.frozenCoinAge =

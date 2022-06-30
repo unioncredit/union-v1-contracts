@@ -110,6 +110,11 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         _;
     }
 
+    modifier onlyAssetManager() {
+        if (msg.sender != assetManager) revert CallerNotAssetManager();
+        _;
+    }
+
     modifier onlyUserManager() {
         if (msg.sender != userManager) revert CallerNotUserManager();
         _;

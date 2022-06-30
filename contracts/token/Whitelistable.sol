@@ -16,6 +16,13 @@ abstract contract Whitelistable is Ownable {
     event WhitelistEnabled();
     event WhitelistDisabled();
 
+    modifier checkWhitelist() {
+        if (whitelistEnabled) {
+            require(_whitelisted[msg.sender], "Whitelistable: address not whitelisted");
+        }
+        _;
+    }
+
     /**
      * @notice enable whitelist and only allow transfers from whitelisted addresses
      */

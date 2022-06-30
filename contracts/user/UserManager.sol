@@ -129,6 +129,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     error NotEnoughStakers();
     error StakeLimitReached();
     error AssetManagerDepositFailed();
+    error AssetManagerWithdrawFailed();
     error InsufficientBalance();
     error ExceedsTotalStaked();
     error NotOverdue();
@@ -383,7 +384,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             totalLockedStake += getLockedStake(staker, borrower);
         }
 
-        return stakingAmount > totalLockedStake ? totalLockedStake : stakingAmount;
+        if (stakingAmount >= totalLockedStake) {
+            return totalLockedStake;
+        } else {
+            return stakingAmount;
+        }
     }
 
     /**
@@ -796,7 +801,8 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         stakers[msg.sender] = stakingAmount - amount;
         totalStaked -= amount;
 
-        IAssetManager(assetManager).withdraw(stakingToken, address(this), amount);
+        if (!IAssetManager(assetManager).withdraw(stakingToken, address(this), amount))
+            revert AssetManagerWithdrawFailed();
 
         erc20Token.safeTransfer(msg.sender, amount);
 
@@ -818,7 +824,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         address account,
         address token,
         uint256 lastRepay
-    ) external override whenNotPaused onlyMarketOrAdmin returns (uint8 count) {
+    ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
         uint256 addressesLength = stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
@@ -826,7 +832,6 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
 
             comptroller.addFrozenCoinAge(staker, token, lockedStake, lastRepay);
-            count++;
         }
     }
 
@@ -855,7 +860,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         stakers[msg.sender] -= amount;
         totalStaked -= amount;
         totalFrozen -= amount;
-        if (memberFrozen[borrower] > amount) {
+        if (memberFrozen[borrower] >= amount) {
             memberFrozen[borrower] -= amount;
         } else {
             memberFrozen[borrower] = 0;
@@ -877,11 +882,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
+        _updateTotalFrozen(account, isOverdue);
+
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         // slither-disable-next-line unused-return
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
-        _updateTotalFrozen(account, isOverdue);
     }
 
     /**
@@ -896,13 +902,13 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         whenNotPaused
     {
         if (accounts.length != isOverdues.length) revert LengthNotMatch();
+        for (uint256 i = 0; i < accounts.length; i++) {
+            if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
+        }
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
         // slither-disable-next-line unused-return
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
-        for (uint256 i = 0; i < accounts.length; i++) {
-            if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
-        }
     }
 
     function _updateTotalFrozen(address account, bool isOverdue) private {
