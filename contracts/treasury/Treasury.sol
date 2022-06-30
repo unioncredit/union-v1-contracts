@@ -93,6 +93,7 @@ contract Treasury {
         uint256 amount_
     ) public onlyAdmin {
         require(tokenSchedules[target_].target == address(0), "Target schedule already exists");
+        // slither-disable-next-line uninitialized-local
         Schedule memory schedule;
         schedule.dripStart = dripStart_;
         schedule.dripRate = dripRate_;

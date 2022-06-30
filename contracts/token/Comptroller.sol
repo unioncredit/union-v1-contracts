@@ -133,6 +133,7 @@ contract Comptroller is Controller, IComptroller {
     ) public view override returns (uint256) {
         IUserManager userManagerContract = IUserManager(_getUserManager(token));
         Info memory userInfo = users[account][token];
+        // slither-disable-next-line uninitialized-local
         UserManagerData memory userManagerData;
 
         userManagerData.totalFrozen = userManagerContract.totalFrozen();
@@ -228,10 +229,11 @@ contract Comptroller is Controller, IComptroller {
      *  @return New inflation index
      */
     function _getInflationIndexNew(uint256 totalStaked_, uint256 blockDelta) private view returns (uint256) {
+        // slither-disable-next-line incorrect-equality
         if (totalStaked_ == 0) {
             return INIT_INFLATION_INDEX;
         }
-
+        // slither-disable-next-line incorrect-equality
         if (blockDelta == 0) {
             return gInflationIndex;
         }
@@ -250,7 +252,7 @@ contract Comptroller is Controller, IComptroller {
     ) private view returns (uint256) {
         uint256 startInflationIndex = users[account][token].inflationIndex;
         require(userStaked * pastBlocks >= frozenCoinAge, "Comptroller: frozenCoinAge error");
-
+        // slither-disable-next-line incorrect-equality
         if (userStaked == 0 || totalStaked == 0 || startInflationIndex == 0 || pastBlocks == 0) {
             return 0;
         }
@@ -323,6 +325,7 @@ contract Comptroller is Controller, IComptroller {
         bool isMember_
     ) private pure returns (uint256) {
         if (isMember_) {
+            // slither-disable-next-line incorrect-equality
             if (userStaked == 0 || totalFrozen_ >= lockedStake || totalFrozen_ >= userStaked) {
                 return memberRatio;
             }

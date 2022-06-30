@@ -23,6 +23,7 @@ contract UserManagerArb is UserManager {
                 effectiveStakerNumber += 1;
         }
 
+        // slither-disable-next-line reentrancy-no-eth
         if (effectiveStakerNumber < creditLimitModel.effectiveNumber()) revert NotEnoughStakers();
 
         members[newMember].isMember = true;

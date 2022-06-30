@@ -696,11 +696,10 @@ describe("User Manager Contract", () => {
         await uToken.updateLockedData(userManager.address, TOM.address, creditLimit);
         await uToken.updateOverdueInfo(userManager.address, TOM.address, true);
 
-        await uToken.initOverdueCount();
-        let count = await uToken.overdueCount();
+        let count = await comptroller.frozenCounter();
         count.toString().should.eq("0");
         await uToken.repayLoanOverdue(userManager.address, TOM.address, erc20.address, 0);
-        count = await uToken.overdueCount();
+        count = await comptroller.frozenCounter();
         count.toString().should.eq("3");
     });
 });
