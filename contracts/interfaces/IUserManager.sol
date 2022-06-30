@@ -168,5 +168,5 @@ interface IUserManager {
         address account,
         address token,
         uint256 lastRepay
-    ) external returns (uint8);
+    ) external;
 }
