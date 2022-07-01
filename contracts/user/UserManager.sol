@@ -412,7 +412,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
             }
         }
 
-        return trustInfo.stakingAmount > totalFrozenAmount ? totalFrozenAmount : trustInfo.stakingAmount;
+        if (trustInfo.stakingAmount >= totalFrozenAmount) {
+            return totalFrozenAmount;
+        } else {
+            return trustInfo.stakingAmount;
+        }
     }
 
     /**
