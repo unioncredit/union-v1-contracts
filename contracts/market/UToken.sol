@@ -410,6 +410,7 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
 
         accountBorrows[msg.sender].principal += amount + fee;
         uint256 newPrincipal = getBorrowed(msg.sender);
+        // slither-disable-next-line reentrancy-no-eth
         IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
 
         accountBorrows[msg.sender].interest = accountBorrowsNew - newPrincipal;
