@@ -67,6 +67,9 @@ describe("PureTokenAdapter Contract", async () => {
         let supply = await adapter.getSupplyView(erc20.address);
         supply.should.eq(ethers.utils.parseEther("100"));
 
+        await expect(adapter.withdraw(erc20.address, ADMIN.address, ethers.utils.parseEther("100"))).to.be.revertedWith(
+            "PureTokenAdapter: only asset manager can call"
+        );
         await adapter.connect(ASSET_MANAGER).withdraw(erc20.address, ADMIN.address, ethers.utils.parseEther("100"));
 
         supply = await adapter.getSupplyView(erc20.address);
@@ -98,5 +101,18 @@ describe("PureTokenAdapter Contract", async () => {
 
         let res = await adapter.assetManager();
         res.should.eq(ASSET_MANAGER_2.address);
+    });
+
+    it("Set floor and ceiling", async () => {
+        await adapter.setFloor(erc20.address, 100);
+        const floor = await adapter.floorMap(erc20.address);
+        floor.should.eq(100);
+        await adapter.setCeiling(erc20.address, 200);
+        const ceiling = await adapter.ceilingMap(erc20.address);
+        ceiling.should.eq(200);
+    });
+
+    it("Claim rewards not any thing will happen", async () => {
+        await adapter.claimRewards(erc20.address);
     });
 });

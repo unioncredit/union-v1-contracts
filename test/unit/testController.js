@@ -302,6 +302,12 @@ describe("Controller Contract", async () => {
             isAdmin.should.eq(false);
         });
 
+        it("Can not add zero address to admin", async () => {
+            await expect(controller.addAdmin(ethers.constants.AddressZero)).to.be.revertedWith(
+                "Controller: address zero"
+            );
+        });
+
         it("Default admin should be able to add Alice as admin", async () => {
             try {
                 await controller.addAdmin(ALICE.address);
@@ -316,6 +322,10 @@ describe("Controller Contract", async () => {
             } catch (e) {
                 assert.fail();
             }
+        });
+
+        it("Admin already existed", async () => {
+            await expect(controller.addAdmin(BOB.address)).to.be.revertedWith("Controller: admin already existed");
         });
 
         it("Alice should be an admin", async () => {
