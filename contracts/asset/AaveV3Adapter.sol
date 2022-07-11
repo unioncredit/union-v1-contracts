@@ -8,7 +8,7 @@ import "../interfaces/IMoneyMarketAdapter.sol";
 import "../Controller.sol";
 import "./AToken.sol";
 
-abstract contract LendingPool {
+abstract contract LendingPool3 {
     function deposit(
         address asset,
         uint256 amount,
@@ -20,7 +20,7 @@ abstract contract LendingPool {
         address asset,
         uint256 amount,
         address to
-    ) external virtual;
+    ) external virtual returns (uint256);
 
     function getReserveData(address asset)
         external
@@ -34,29 +34,26 @@ abstract contract LendingPool {
             uint128,
             uint128,
             uint40,
+            uint16,
             address,
             address,
             address,
             address,
-            uint8
+            uint128,
+            uint128,
+            uint128
         );
 }
 
-abstract contract AMarket {
-    function claimRewards(
-        address[] calldata assets,
-        uint256 amount,
-        address to
-    ) external virtual;
-
-    function getRewardsBalance(address[] memory assets, address user) external view virtual returns (uint256);
+abstract contract AMarket3 {
+    function claimAllRewards(address[] calldata assets, address to) external virtual returns (uint256);
 }
 
 /**
  * @title AaveAdapter
  *  @dev The implementation of Aave.Finance MoneyMarket that integrates with AssetManager.
  */
-contract AaveAdapter is Controller, IMoneyMarketAdapter {
+contract AaveV3Adapter is Controller, IMoneyMarketAdapter {
     using SafeERC20Upgradeable for IERC20Upgradeable;
 
     uint256 private constant UINT256_MAX = type(uint256).max;
@@ -64,8 +61,8 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
     address public assetManager;
     mapping(address => uint256) public override floorMap;
     mapping(address => uint256) public override ceilingMap;
-    AMarket public market;
-    LendingPool public lendingPool;
+    AMarket3 public market;
+    LendingPool3 public lendingPool;
 
     modifier checkTokenSupported(address tokenAddress) {
         require(_supportsToken(tokenAddress), "AaveAdapter: Token not supported");
@@ -79,8 +76,8 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
 
     function __AaveAdapter_init(
         address _assetManager,
-        LendingPool _lendingPool,
-        AMarket _market
+        LendingPool3 _lendingPool,
+        AMarket3 _market
     ) public initializer {
         Controller.__Controller_init(msg.sender);
         assetManager = _assetManager;
@@ -104,9 +101,8 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
 
     function mapTokenToAToken(address tokenAddress) external onlyAdmin {
         address aTokenAddress;
-        (, , , , , , , aTokenAddress, , , , ) = lendingPool.getReserveData(tokenAddress);
+        (, , , , , , , , aTokenAddress, , , , , , ) = lendingPool.getReserveData(tokenAddress);
         IERC20Upgradeable token = IERC20Upgradeable(tokenAddress);
-        //AToken aToken = AToken(aTokenAddress);
         token.safeApprove(address(lendingPool), 0);
         token.safeApprove(address(lendingPool), UINT256_MAX);
         tokenToAToken[tokenAddress] = aTokenAddress;
@@ -114,7 +110,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
 
     function getRate(address tokenAddress) external view override returns (uint256) {
         uint128 currentLiquidityRate;
-        (, , , currentLiquidityRate, , , , , , , , ) = lendingPool.getReserveData(tokenAddress);
+        (, , currentLiquidityRate, , , , , , , , , , , , ) = lendingPool.getReserveData(tokenAddress);
         return uint256(currentLiquidityRate);
     }
 
@@ -129,6 +125,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         address recipient,
         uint256 tokenAmount
     ) external override onlyAssetManager checkTokenSupported(tokenAddress) {
+        // slither-disable-next-line unused-return
         lendingPool.withdraw(tokenAddress, tokenAmount, recipient);
     }
 
@@ -138,6 +135,7 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         onlyAssetManager
         checkTokenSupported(tokenAddress)
     {
+        // slither-disable-next-line unused-return
         lendingPool.withdraw(tokenAddress, UINT256_MAX, recipient);
     }
 
@@ -149,11 +147,9 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         address aTokenAddress = tokenToAToken[tokenAddress];
         AToken aToken = AToken(aTokenAddress);
         uint256 balance = aToken.balanceOf(address(this));
-
         if (balance <= 10) {
             return 0;
         }
-
         return balance;
     }
 
@@ -173,8 +169,8 @@ contract AaveAdapter is Controller, IMoneyMarketAdapter {
         address aTokenAddress = tokenToAToken[tokenAddress];
         address[] memory assets = new address[](1);
         assets[0] = aTokenAddress;
-        uint256 rewards = market.getRewardsBalance(assets, address(this));
-        market.claimRewards(assets, rewards, msg.sender);
+        // slither-disable-next-line unused-return
+        market.claimAllRewards(assets, msg.sender);
     }
 
     function _supportsToken(address tokenAddress) internal view returns (bool) {
