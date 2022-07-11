@@ -106,8 +106,9 @@ contract Comptroller is Controller, IComptroller {
         users[sender][token].updatedBlock = block.number;
         users[sender][token].inflationIndex = gInflationIndex;
         if (unionToken.balanceOf(address(this)) >= amount && amount > 0) {
-            users[sender][token].accrued = 0;
+            // slither-disable-next-line reentrancy-no-eth
             unionToken.safeTransfer(sender, amount);
+            users[sender][token].accrued = 0;
             emit LogWithdrawRewards(sender, amount);
 
             return amount;

@@ -77,6 +77,9 @@ describe("AaveAdapter Contract", async () => {
         let supply = await aaveAdapter.getSupplyView(erc20.address);
         supply.toString().should.eq(amount.toString());
 
+        await expect(aaveAdapter.withdraw(erc20.address, ADMIN.address, amount)).to.be.revertedWith(
+            "AaveAdapter: only asset manager can call"
+        );
         await aaveAdapter.connect(ASSET_MANAGER).withdraw(erc20.address, ADMIN.address, amount);
 
         supply = await aaveAdapter.getSupplyView(erc20.address);

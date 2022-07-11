@@ -5,7 +5,7 @@ describe("SumOfTrust Contract using hardhat", () => {
     let ADMIN_SIGNER, ADMIN_ADDRESS;
     let creditLimitModel;
     before(async function () {
-        [ADMIN_SIGNER] = await ethers.getSigners();
+        [ADMIN_SIGNER, USER] = await ethers.getSigners();
         ADMIN_ADDRESS = await ADMIN_SIGNER.getAddress();
         const SumOfTrust = await ethers.getContractFactory("SumOfTrust");
         creditLimitModel = await SumOfTrust.connect(ADMIN_SIGNER).deploy(3);
@@ -66,6 +66,12 @@ describe("SumOfTrust Contract using hardhat", () => {
         limit.toString().should.eq("10");
 
         limit = await creditLimitModel.getLockedAmount([], ADMIN_ADDRESS, 0, true);
+        limit.toString().should.eq("0");
+
+        limit = await creditLimitModel.getLockedAmount([], USER.address, 0, true);
+        limit.toString().should.eq("0");
+
+        limit = await creditLimitModel.getLockedAmount([], ethers.constants.AddressZero, 0, true);
         limit.toString().should.eq("0");
 
         array = [
@@ -134,6 +140,8 @@ describe("SumOfTrust Contract using hardhat", () => {
             true
         );
         limit.toString().should.eq("15");
+        limit = await creditLimitModel.getLockedAmount(array, USER.address, borrow, true);
+        limit.toString().should.eq("0");
         limit = await creditLimitModel.getLockedAmount(
             array,
             "0x22d491Bde2303f2f43325b2108D26f1eAbA1e32b",

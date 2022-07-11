@@ -1,4 +1,6 @@
 const {ethers, upgrades} = require("hardhat");
+const {expect} = require("chai");
+
 require("chai").should();
 
 describe("MarketRegistry Contract", () => {
@@ -22,7 +24,16 @@ describe("MarketRegistry Contract", () => {
     });
 
     it("Add and delete utoken", async () => {
+        await expect(marketRegistry.addUToken(ethers.constants.AddressZero, uToken.address)).to.be.revertedWith(
+            "MarketRegistry: token and uToken can not be zero"
+        );
+        await expect(marketRegistry.addUToken(ETH, ethers.constants.AddressZero)).to.be.revertedWith(
+            "MarketRegistry: token and uToken can not be zero"
+        );
         await marketRegistry.addUToken(ETH, uToken.address);
+        await expect(marketRegistry.addUToken(ETH, uToken.address)).to.be.revertedWith(
+            "MarketRegistry: has already exist this uToken"
+        );
 
         let res = await marketRegistry.tokens(ETH);
         res.uToken.should.eq(uToken.address);
@@ -44,7 +55,16 @@ describe("MarketRegistry Contract", () => {
     });
 
     it("Add and delete userManager", async () => {
+        await expect(
+            marketRegistry.addUserManager(ethers.constants.AddressZero, userManager.address)
+        ).to.be.revertedWith("MarketRegistry: token and userManager can not be zero");
+        await expect(marketRegistry.addUserManager(ETH, ethers.constants.AddressZero)).to.be.revertedWith(
+            "MarketRegistry: token and userManager can not be zero"
+        );
         await marketRegistry.addUserManager(ETH, userManager.address);
+        await expect(marketRegistry.addUserManager(ETH, userManager.address)).to.be.revertedWith(
+            "MarketRegistry: has already exist this userManager"
+        );
 
         let res = await marketRegistry.tokens(ETH);
         res.userManager.should.eq(userManager.address);
