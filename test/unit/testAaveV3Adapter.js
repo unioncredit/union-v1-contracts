@@ -3,7 +3,7 @@ const {expect} = require("chai");
 
 require("chai").should();
 
-describe("AaveAdapter Contract", async () => {
+describe("AaveV3Adapter Contract", async () => {
     let ADMIN, ASSET_MANAGER, ASSET_MANAGER_2;
     let erc20, aToken, marketMock, aaveAdapter;
 
@@ -19,7 +19,7 @@ describe("AaveAdapter Contract", async () => {
             initializer: "__FaucetERC20_init(string,string)"
         });
 
-        marketMock = await upgrades.deployProxy(await ethers.getContractFactory("AaveMock"), [RATE, aToken.address], {
+        marketMock = await upgrades.deployProxy(await ethers.getContractFactory("Aave3Mock"), [RATE, aToken.address], {
             initializer: "__AaveMock_init(uint128,address)"
         });
 
@@ -28,7 +28,7 @@ describe("AaveAdapter Contract", async () => {
 
     beforeEach(async () => {
         aaveAdapter = await upgrades.deployProxy(
-            await ethers.getContractFactory("AaveAdapter"),
+            await ethers.getContractFactory("AaveV3Adapter"),
             [ASSET_MANAGER.address, marketMock.address, marketMock.address],
             {initializer: "__AaveAdapter_init(address,address,address)"}
         );
@@ -77,9 +77,6 @@ describe("AaveAdapter Contract", async () => {
         let supply = await aaveAdapter.getSupplyView(erc20.address);
         supply.toString().should.eq(amount.toString());
 
-        await expect(aaveAdapter.withdraw(erc20.address, ADMIN.address, amount)).to.be.revertedWith(
-            "AaveAdapter: only asset manager can call"
-        );
         await aaveAdapter.connect(ASSET_MANAGER).withdraw(erc20.address, ADMIN.address, amount);
 
         supply = await aaveAdapter.getSupplyView(erc20.address);

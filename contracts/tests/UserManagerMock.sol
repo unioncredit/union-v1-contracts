@@ -1,5 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
+import "../interfaces/IComptroller.sol";
 
 /**
  * @title UserManager Contract
@@ -17,6 +18,7 @@ contract UserManagerMock {
     uint256 public stakerBalance;
     uint256 public totalLockedStake;
     uint256 public totalFrozenAmount;
+    IComptroller public comptroller;
 
     function __UserManager_init() public {
         newMemberFee = 10**18; // Set the default membership fee
@@ -36,6 +38,10 @@ contract UserManagerMock {
 
     function setStakerBalance(uint256 stakerBalance_) public {
         stakerBalance = stakerBalance_;
+    }
+
+    function setTotalStaked(uint256 totalStaked_) public {
+        totalStaked = totalStaked_;
     }
 
     function getStakerBalance(address) public view returns (uint256) {
@@ -134,20 +140,41 @@ contract UserManagerMock {
 
     function unstake(uint256 amount) external {}
 
-    function withdrawRewards() external {}
+    function withdrawRewards(address token) external {
+        if (address(comptroller) != address(0)) comptroller.withdrawRewards(msg.sender, token);
+    }
+
+    //Execute withdrawReward 2 times in one transaction for simple testing
+    function withdrawRewardsDouble(address token) external {
+        if (address(comptroller) != address(0)) {
+            comptroller.withdrawRewards(msg.sender, token);
+            comptroller.withdrawRewards(msg.sender, token);
+        }
+    }
 
     function updateTotalFrozen(address, bool) external {}
 
     function batchUpdateTotalFrozen(address[] calldata, bool[] calldata) external {}
 
-    function repayLoanOverdue(
-        address account,
-        address token,
-        uint256 lastRepay
-    ) external {}
-
     //Only supports sumOfTrust
     function debtWriteOff(address borrower, uint256 amount) public {}
 
     function getFrozenCoinAge(address staker, uint256 pastBlocks) public view returns (uint256) {}
+
+    function setComptroller(address comptroller_) public {
+        comptroller = IComptroller(comptroller_);
+    }
+
+    function updateTotalStaked(address token_, uint256 totalStaked_) external {
+        if (address(comptroller) != address(0)) comptroller.updateTotalStaked(token_, totalStaked_);
+    }
+
+    function repayLoanOverdue(
+        address account,
+        address token,
+        uint256 lastRepay
+    ) external returns (uint8) {
+        if (address(comptroller) != address(0)) comptroller.addFrozenCoinAge(account, token, 0, lastRepay);
+        return 0;
+    }
 }

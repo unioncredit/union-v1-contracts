@@ -869,6 +869,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         } else {
             memberFrozen[borrower] = 0;
         }
+
         members[msg.sender].creditLine.lockedAmount[borrower] = lockedAmount - amount;
         uint256 trustAmount = members[msg.sender].creditLine.borrowers[borrower];
         uint256 newTrustAmount = trustAmount - amount;

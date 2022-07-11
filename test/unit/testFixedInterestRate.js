@@ -1,5 +1,6 @@
 const {ethers} = require("hardhat");
 const {expect} = require("chai");
+const {parseEther} = require("ethers").utils;
 
 require("chai").should();
 
@@ -24,5 +25,17 @@ describe("InterestRatemodel Contract", () => {
         await interestRateModel.setInterestRate(maxRate);
         const rate = await interestRateModel.getBorrowRate();
         rate.toString().should.eq(maxRate);
+    });
+
+    it("Get supply rate", async () => {
+        const reserveFactorMantissa = parseEther("0.5");
+        await expect(interestRateModel.getSupplyRate(parseEther("2"))).to.be.revertedWith(
+            "reserveFactorMantissa error"
+        );
+        const rate = await interestRateModel.getBorrowRate();
+        const expectSupplyRate = rate.mul(parseEther("1").sub(reserveFactorMantissa)).div(parseEther("1"));
+
+        const res = await interestRateModel.getSupplyRate(reserveFactorMantissa);
+        res.toString().should.eq(expectSupplyRate);
     });
 });

@@ -9,7 +9,7 @@ describe("CompoundAdapter Contract", async () => {
 
     const RATE = ethers.utils.parseEther("0.01");
     before(async () => {
-        [ADMIN, ASSET_MANAGER, ASSET_MANAGER_2, COMPTROLLER] = await ethers.getSigners();
+        [ADMIN, ASSET_MANAGER, ASSET_MANAGER_2, COMPTROLLER, COMPTROLLER_2] = await ethers.getSigners();
 
         erc20 = await upgrades.deployProxy(await ethers.getContractFactory("FaucetERC20"), ["Dai Stablecoin", "DAI"], {
             initializer: "__FaucetERC20_init(string,string)"
@@ -70,6 +70,9 @@ describe("CompoundAdapter Contract", async () => {
         let supply = await compoundAdapter.getSupplyView(erc20.address);
         supply.toString().should.eq(ethers.utils.parseEther("100").toString());
 
+        await expect(
+            compoundAdapter.withdraw(erc20.address, ADMIN.address, ethers.utils.parseEther("100"))
+        ).to.be.revertedWith("Only asset manager can call");
         await compoundAdapter
             .connect(ASSET_MANAGER)
             .withdraw(erc20.address, ADMIN.address, ethers.utils.parseEther("100"));
@@ -99,7 +102,13 @@ describe("CompoundAdapter Contract", async () => {
     it("Set new assetManager", async () => {
         await compoundAdapter.setAssetManager(ASSET_MANAGER_2.address);
 
-        let res = await compoundAdapter.assetManager();
+        const res = await compoundAdapter.assetManager();
         res.should.eq(ASSET_MANAGER_2.address);
+    });
+
+    it("Set comptroller", async () => {
+        await compoundAdapter.setComptroller(COMPTROLLER_2.address);
+        const res = await compoundAdapter.comptroller();
+        res.should.eq(COMPTROLLER_2.address);
     });
 });

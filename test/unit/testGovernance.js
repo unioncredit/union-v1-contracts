@@ -63,6 +63,10 @@ describe("Governor Contract", () => {
         proposalId = await governor.latestProposalIds(ADMIN.address);
     });
 
+    it("Only governance can set voting period", async () => {
+        await expect(governor.setVotingPeriod(0)).to.be.revertedWith("Governor: onlyGovernance");
+    });
+
     it("There does not exist a proposal with matching proposal id where the current block number is between the proposal's start block (exclusive) and end block (inclusive)", async () => {
         await expect(governor.connect(ADMIN).castVote(proposalId, 1)).to.be.revertedWith(
             "Governor: vote not currently active"
@@ -488,6 +492,17 @@ describe("Governor Contract State", () => {
                 callDatas,
                 "do nothing"
             );
+        await expect(
+            governor
+                .connect(BOB)
+                ["propose(address[],uint256[],string[],bytes[],string)"](
+                    targets,
+                    values,
+                    signatures,
+                    callDatas,
+                    "do nothing"
+                )
+        ).to.be.revertedWith("Governor: found an already pending proposal");
 
         const newProposalId = await governor.latestProposalIds(BOB.address);
 
@@ -497,6 +512,12 @@ describe("Governor Contract State", () => {
         await waitNBlocks(parseInt(votingPeriod));
         const res = await governor.state(newProposalId);
         res.toString().should.eq("4");
+    });
+
+    it("supportsInterface", async () => {
+        //IERC165-supportsInterface
+        const res = await governor.supportsInterface("0x01ffc9a7");
+        res.should.eq(true);
     });
 });
 

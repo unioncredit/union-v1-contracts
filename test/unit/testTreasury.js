@@ -47,6 +47,12 @@ describe("Treasury Contract", () => {
         res.toString().should.eq(parseEther("100").toString());
         res = await testToken.balanceOf(BOB.address);
         res.toString().should.eq(parseEther("0").toString());
+        await expect(treasury.grantToken(ethers.constants.AddressZero, parseEther("100"))).to.be.revertedWith(
+            "Treasury: account can not be zero"
+        );
+        await expect(treasury.grantToken(BOB.address, parseEther("10000"))).to.be.revertedWith(
+            "amount larger than balance"
+        );
         await treasury.grantToken(BOB.address, parseEther("100"));
         res = await testToken.balanceOf(treasury.address);
         res.toString().should.eq(parseEther("0").toString());
@@ -59,6 +65,9 @@ describe("Treasury Contract", () => {
         const dripRate = parseEther("1").toString();
 
         await treasury.addSchedule(dripStart, dripRate, BOB.address, 0);
+        await expect(treasury.addSchedule(dripStart, dripRate, BOB.address, 0)).to.be.revertedWith(
+            "Target schedule already exists"
+        );
         schedules = await treasury.tokenSchedules(BOB.address);
         schedules.target.should.eq(BOB.address);
         schedules.dripStart.toString().should.eq(dripStart.toString());
@@ -82,13 +91,24 @@ describe("Treasury Contract", () => {
         await waitNBlocks(2);
         await increaseTime(100);
         await treasuryVester.connect(BOB).claim();
+        await expect(treasury.drip(ethers.constants.AddressZero)).to.be.revertedWith("Target schedule doesn't exist");
         await treasury.connect(BOB).drip(BOB.address);
         endBalance = await testToken.balanceOf(BOB.address);
-        console.log(startBalance.toString(), endBalance.toString());
+
+        await treasury.editSchedule(dripStart, dripRate, BOB.address, 0);
+        await waitNBlocks(2);
+        await increaseTime(100);
+        await treasuryVester.connect(BOB).claim();
+        await treasury.connect(BOB).drip(BOB.address);
+        endBalance2 = await testToken.balanceOf(BOB.address);
+        console.log(startBalance.toString(), endBalance.toString(), endBalance2.toString());
     });
 
     it("change admin", async () => {
+        await expect(treasury.connect(BOB).changeAdmin(BOB.address)).to.be.revertedWith("Treasury: not admin");
+        await expect(treasury.changeAdmin(ethers.constants.AddressZero)).to.be.revertedWith("New admin cannot be zero");
         await treasury.changeAdmin(BOB.address);
+        await expect(treasury.acceptAdmin()).to.be.revertedWith("Must be called from new admin");
         await treasury.connect(BOB).acceptAdmin();
         const admin = await treasury.admin();
         admin.should.eq(BOB.address);
