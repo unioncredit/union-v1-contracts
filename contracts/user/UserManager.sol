@@ -886,12 +886,11 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @param isOverdue account is overdue
      */
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
-        _updateTotalFrozen(account, isOverdue);
-
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
-        // slither-disable-next-line unused-return
+        // slither-disable-next-line unused-return,reentrancy-no-eth
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
+        _updateTotalFrozen(account, isOverdue);
     }
 
     /**
@@ -906,13 +905,13 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         whenNotPaused
     {
         if (accounts.length != isOverdues.length) revert LengthNotMatch();
+        if (totalStaked < totalFrozen) revert ErrorTotalStake();
+        uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        // slither-disable-next-line unused-return,reentrancy-no-eth
+        comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         for (uint256 i = 0; i < accounts.length; i++) {
             if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
         }
-        if (totalStaked < totalFrozen) revert ErrorTotalStake();
-        uint256 effectiveTotalStaked = totalStaked - totalFrozen;
-        // slither-disable-next-line unused-return
-        comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
     }
 
     function _updateTotalFrozen(address account, bool isOverdue) private {
