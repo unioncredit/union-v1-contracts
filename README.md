@@ -4,7 +4,7 @@
 
 # Networks
 
-Union is an upgradeable system. Each deployed contract is actually a "Proxy" that points to an "Implementation" contract. All addresses can be found in the folder `deployments/${network}`.
+Union is an upgradeable system. Each deployed contract is a "Proxy" that points to an "Implementation" contract. All addresses can be found in the folder `deployments/${network}`.
 
 ## Ethereum Mainnet
 
@@ -116,13 +116,13 @@ $ yarn test
 To run the unit tests only:
 
 ```
-$ yarn unitTest
+$ yarn test:unit
 ```
 
 To run the deployment script tests:
 
 ```
-$ yarn deployTest
+$ yarn test:deploy
 ```
 
 # Coverage

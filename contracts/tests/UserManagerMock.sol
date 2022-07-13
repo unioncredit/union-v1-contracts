@@ -173,7 +173,7 @@ contract UserManagerMock {
         address account,
         address token,
         uint256 lastRepay
-    ) external returns (uint8) {
+    ) external {
         if (address(comptroller) != address(0)) comptroller.addFrozenCoinAge(account, token, 0, lastRepay);
         return 0;
     }
