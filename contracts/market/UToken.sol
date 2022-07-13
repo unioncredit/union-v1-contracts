@@ -413,9 +413,6 @@ contract UToken is IUToken, Controller, ERC20PermitUpgradeable, ReentrancyGuardU
         // slither-disable-next-line reentrancy-no-eth
         IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
 
-        // slither-disable-next-line reentrancy-no-eth
-        IUserManager(userManager).updateLockedData(msg.sender, newPrincipal - oldPrincipal, true);
-
         accountBorrows[msg.sender].interest = accountBorrowsNew - newPrincipal;
         accountBorrows[msg.sender].interestIndex = borrowIndex;
         totalBorrows = totalBorrowsNew;
