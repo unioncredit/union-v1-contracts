@@ -84,7 +84,7 @@ contract ArbUnionWrapper is ERC20, Whitelistable {
             gasPriceBid,
             maxSubmissionCostForCustomBridge
         );
-
+        // slither-disable-next-line unused-return
         IGatewayRouter(router).setGateway{value: gas2}(gateway, maxGas, gasPriceBid, maxSubmissionCostForRouter);
 
         // slither-disable-next-line reentrancy-eth

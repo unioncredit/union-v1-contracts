@@ -44,6 +44,7 @@ contract ArbConnector is Ownable {
             uint256 transferAmount = arbUnionWrapper.balanceOf(address(this));
             bytes memory data = abi.encode(maxSubmissionCost, "");
             address gatewayRouter = arbUnionWrapper.router();
+            // slither-disable-next-line unused-return
             IGatewayRouter(gatewayRouter).outboundTransfer{value: msg.value}(
                 address(arbUnionWrapper),
                 target,
@@ -61,6 +62,7 @@ contract ArbConnector is Ownable {
         require(recipient != address(0), "recipient cant be 0");
         uint256 wBalance = arbUnionWrapper.balanceOf(address(this));
         if (wBalance > 0) {
+            // slither-disable-next-line unused-return
             arbUnionWrapper.unwrap(wBalance);
         }
         uint256 balance = token.balanceOf(address(this));

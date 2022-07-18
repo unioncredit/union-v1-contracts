@@ -10,7 +10,7 @@ contract GatewayMock {
         uint256,
         uint256,
         uint256
-    ) public {
+    ) public view {
         require(ArbUnionWrapper(msg.sender).isArbitrumEnabled() == uint16(0xa4b1));
     }
 }

@@ -3,8 +3,8 @@ name: coverage and slither
 on: [pull_request]
 
 jobs:
-    buildAndTest:
-        name: Build and Run coverage
+    coverage:
+        name: Run coverage and tests
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
@@ -18,13 +18,24 @@ jobs:
             - name: Run coverage
               run: |
                   yarn lint
-                  yarn coverage
+                  yarn coverage --testfiles test/unit/
                   yarn codecov
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
                   INFURA_ID: ${{ secrets.INFURA_ID }}
                   MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
+
+            - name: Run integration tests
+              run: yarn test test/integration/*
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+                  INFURA_ID: ${{ secrets.INFURA_ID }}
+                  MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
+                  TENDERLY_ACCESS_KEY: ${{ secrets.TENDERLY_ACCESS_KEY }}
+                  TENDERLY_USER: ${{ secrets.TENDERLY_USER }}
+                  TENDERLY_PROJECT: ${{ secrets.TENDERLY_PROJECT }}
     slither:
         name: Slither analyzer
         runs-on: ubuntu-latest
@@ -45,27 +56,6 @@ jobs:
                   pip3 install slither-analyzer
                   npm run slither
               env:
-                  ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
-                  INFURA_ID: ${{ secrets.INFURA_ID }}
-                  MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}
-    gasDelta:
-        name: Check Gas Delta
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
-              with:
-                  node-version: 14
-
-            - name: Install Dependencies
-              run: npm install
-
-            - name: Run Gas Delta
-              run: |
-                  npm run gasReport
-                  npm run gasDelta
-              env:
-                  COINMARKETCAP_API_KEY: ${{ secrets.COINMARKETCAP_API_KEY }}
                   ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
                   INFURA_ID: ${{ secrets.INFURA_ID }}
                   MNEMONIC_TEST: ${{ secrets.MNEMONIC_TEST }}

@@ -312,6 +312,12 @@ var configs = {
             floor: parseUnits("50000"),
             ceiling: parseUnits("1000000000")
         },
+        AaveV3Adapter: {
+            floor: parseUnits("10000"),
+            ceiling: parseUnits("50000"),
+            market: "0x929EC64c34a17401F460460D4B9390518E5B473e",
+            lendingPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD"
+        },
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
         },
