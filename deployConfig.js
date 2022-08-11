@@ -378,6 +378,110 @@ var configs = {
             maxStakeAmount: parseUnits("5000"),
             newMemberFee: parseUnits("1")
         }
+    },
+    5: {
+        // goerli
+        Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        DAI: "0x7e752bC77eBE2225B327e6ebF09fAD7801873931",
+        ArbL1Router: "0x4c7708168395aEa569453Fc36862D2ffcDaC588c",
+        ArbL1Gateway: "0x9fDD1C4E4AA24EEc1d913FABea925594a20d43C7",
+        ArbComptroller: "0x057947C9951e01481AB3c890ab02B74b4Ca3bA29", //l2 comptroller
+        ArbUnion: "0xD7c33F78fACEfa7AA98a2Df50B1D9759F2878b0C", // L2 union token
+        AssetManager: {
+            newSeq: [0]
+        },
+        PureTokenAdapter: {
+            floor: parseUnits("50000"),
+            ceiling: parseUnits("1000000000")
+        },
+        FixedInterestRateModel: {
+            interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
+        },
+        UToken: {
+            contract: "UDai",
+            name: "uDAI",
+            symbol: "uDAI",
+            initialExchangeRateMantissa: parseUnits("1"), // 100%,
+            reserveFactorMantissa: parseUnits("1"), // 100%
+            originationFee: parseUnits("0.005"), // 0.5%
+            debtCeiling: parseUnits("250000"),
+            maxBorrow: parseUnits("25000"),
+            minBorrow: parseUnits("100"), // 100 dai
+            overdueBlocks: "197250" // in blocks, 30 days
+        },
+        SumOfTrust: {
+            effectiveNumber: "3"
+        },
+        UnionToken: {
+            name: "Union Token",
+            symbol: "UNION",
+            mintingAllowedAfter: "1766361600", // 2025/12/22 00:00:00 GMT+0000
+            comptrollerAmount: parseUnits("9000000"), //9m
+            amountForTreasuryVester: parseUnits("150000000"), //150m
+            amountForTreasury: parseUnits("40000000") //40m
+        },
+        TreasuryVester: {
+            vestingAmount: parseUnits("150000000"), //150m
+            vestingBegin: "1671667200", // 2022/12/22 00:00:00 GMT+0000
+            vestingCliff: "1671667200", // 2022/12/22 00:00:00 GMT+0000
+            vestingEnd: "1766361600" // 2025/12/22 00:00:00 GMT+0000
+        },
+        Treasury: {
+            dripStart: "", // in blocks, leave empty to use the current block number
+            dripRate: parseUnits("1"),
+            dripAmount: parseUnits("20000000") //20m
+        },
+        TimelockController: {
+            minDelay: "300" // in seconds, 1 day
+        },
+        UserManager: {
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        },
+        UnionGovernor: {
+            initialVotingDelay: "10",
+            initialVotingPeriod: "20",
+            initialProposalThreshold: parseUnits("10000000")
+        }
+    },
+    421613: {
+        // arbitrum Nitro
+        Guardian: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        Admin: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        DAI: "0xDF1742fE5b0bFc12331D8EAec6b478DfDbD31464",
+        Timelock: "0x80e220f2799345E8d99C41f104cA052B99b43398",
+        ArbUnionWrapper: "0xbf723c4641800a5878654ca9384145D70721f9E8", // L1 ArbUnionWrapper
+        ArbL2Gateway: "0x8b6990830cF135318f75182487A4D7698549C717",
+        AssetManager: {
+            newSeq: [0]
+        },
+        PureTokenAdapter: {
+            floor: parseUnits("50000"),
+            ceiling: parseUnits("1000000000")
+        },
+        FixedInterestRateModel: {
+            interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
+        },
+        UToken: {
+            contract: "UErc20",
+            name: "uDAI",
+            symbol: "uDAI",
+            initialExchangeRateMantissa: parseUnits("1"), // 100%,
+            reserveFactorMantissa: parseUnits("1"), // 100%
+            originationFee: parseUnits("0.005"), // 0.5%
+            debtCeiling: parseUnits("250000"),
+            maxBorrow: parseUnits("25000"),
+            minBorrow: parseUnits("100"), // 100 dai
+            overdueBlocks: "197250" // in blocks, 30 days
+        },
+        SumOfTrust: {
+            effectiveNumber: "3"
+        },
+        UserManager: {
+            maxStakeAmount: parseUnits("5000"),
+            newMemberFee: parseUnits("1")
+        }
     }
 };
 

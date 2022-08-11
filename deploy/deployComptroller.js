@@ -8,7 +8,7 @@ module.exports = async ({getNamedAccounts, deployments, network, getChainId}) =>
     const chainId = await getChainId();
 
     const unionTokenAddress =
-        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" || network.name === "arbitrumNitroDevnet"
             ? (await deployments.get("ArbUnion")).address
             : (await deployments.get("UnionToken")).address;
     const marketRegistry = await deployments.get("MarketRegistry");

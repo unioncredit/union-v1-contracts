@@ -1,7 +1,7 @@
 const configs = require("../deployConfig.js");
 
 module.exports = async () => {
-    if (network.name === "rinkeby" || network.name === "mainnet") {
+    if (network.name === "rinkeby" || network.name === "goerli" || network.name === "mainnet") {
         const {deploy, execute, read} = deployments;
         const {deployer} = await getNamedAccounts();
         const chainId = await getChainId();

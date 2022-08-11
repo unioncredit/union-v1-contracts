@@ -1,6 +1,6 @@
 const configs = require("../deployConfig.js");
 
-module.exports = async ({getNamedAccounts, getChainId}) => {
+module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
     const chainId = await getChainId();
@@ -8,7 +8,9 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
     const uTokenContract = await deployments.get("UDai");
 
     const UserManagerContract =
-        network.name === "arbitrum" || network.name === "arbitrumRinkeby" ? "UserManagerArb" : "UserManager";
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" || network.name === "arbitrumNitroDevnet"
+            ? "UserManagerArb"
+            : "UserManager";
 
     console.log("setUserManager start");
     if (!((await read(UserManagerContract, {from: deployer}, "uToken")) === uTokenContract.address)) {

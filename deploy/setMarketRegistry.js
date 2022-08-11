@@ -11,7 +11,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const uDai = await deployments.get("UDai");
 
     const userManager =
-        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" || network.name === "arbitrumNitroDevnet"
             ? await deployments.get("UserManagerArb")
             : await deployments.get("UserManager");
 

@@ -1,7 +1,7 @@
 const configs = require("../deployConfig.js");
 
 module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
-    if (network.name === "rinkeby" || network.name === "mainnet") {
+    if (network.name === "rinkeby" || network.name === "goerli" || network.name === "mainnet") {
         const {deploy, execute} = deployments;
         const {deployer} = await getNamedAccounts();
         const chainId = await getChainId();
@@ -24,6 +24,6 @@ module.exports = async ({getNamedAccounts, deployments, getChainId}) => {
         }
     }
 };
-module.exports.tags = ["Connector"];
+//module.exports.tags = ["Connector"];
 // make sure not to deploy UnionToken again
-// module.exports.dependencies = ["UnionToken", "UnionWrapper"];
+module.exports.dependencies = ["UnionToken", "UnionWrapper"];
