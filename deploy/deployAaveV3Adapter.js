@@ -27,5 +27,5 @@ module.exports = async ({getNamedAccounts, deployments, getChainId, network}) =>
         });
     }
 };
-module.exports.tags = ["AaveV3Adapter"];
-// module.exports.dependencies = ["AssetManager", "Aave"];
+module.exports.tags = ["AaveV3Adapter", "Arbitrum"];
+module.exports.dependencies = ["AssetManager", "Aave"];

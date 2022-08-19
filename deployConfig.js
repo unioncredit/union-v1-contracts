@@ -386,14 +386,20 @@ var configs = {
         DAI: "0xDF1742fE5b0bFc12331D8EAec6b478DfDbD31464",
         ArbL1Router: "0x4c7708168395aEa569453Fc36862D2ffcDaC588c",
         ArbL1Gateway: "0x9fDD1C4E4AA24EEc1d913FABea925594a20d43C7",
-        ArbComptroller: "0x057947C9951e01481AB3c890ab02B74b4Ca3bA29", //l2 comptroller
-        ArbUnion: "0xD7c33F78fACEfa7AA98a2Df50B1D9759F2878b0C", // L2 union token
+        ArbComptroller: "0x1fF6c719a652Bb3dF9EE2740fD0E9524dBdd331c", //l2 comptroller
+        ArbUnion: "0x804FB9d2B0f3310bC20D91B958D33F40fA87ee5a", // L2 union token
         AssetManager: {
             newSeq: [0]
         },
         PureTokenAdapter: {
             floor: parseUnits("50000"),
             ceiling: parseUnits("1000000000")
+        },
+        AaveV3Adapter: {
+            floor: parseUnits("10000"),
+            ceiling: parseUnits("50000"),
+            market: "0x0C501fB73808e1BD73cBDdd0c99237bbc481Bb58",
+            lendingPool: "0x368EedF3f56ad10b9bC57eed4Dac65B26Bb667f6"
         },
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
@@ -459,6 +465,12 @@ var configs = {
         PureTokenAdapter: {
             floor: parseUnits("50000"),
             ceiling: parseUnits("1000000000")
+        },
+        AaveV3Adapter: {
+            floor: parseUnits("10000"),
+            ceiling: parseUnits("50000"),
+            market: "0xCf9C57744E10495490cB873612Db709417cFe4f4",
+            lendingPool: "0x6Cbb4E8eC402E07fDF96DbbC6c752aCfB0eB6075"
         },
         FixedInterestRateModel: {
             interestRatePerBlock: "41668836919" // 10% APR, 41668836919 x 6575 (blocks per day) x 365,
