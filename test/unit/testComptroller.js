@@ -99,10 +99,12 @@ describe("Comptroller Contract", () => {
         // Calculate the rewards for the next block
         const nextRewards = await comptrollerContract.calculateRewardsByBlocks(BOB.address, testToken.address, 1);
 
-        await userManager.connect(BOB).withdrawRewards();
-
+        await userManager.setComptroller(comptrollerContract.address);
+        await userManager.setTotalStaked(ethers.utils.parseEther("100"));
+        //In a transaction, the reward for the second execution of the withdrawal is 0, only the first time is valid
+        await userManager.connect(BOB).withdrawRewardsDouble(testToken.address);
+        await userManager.setTotalStaked(ethers.utils.parseEther("0"));
         const newBalance = await unionToken.balanceOf(BOB.address);
-
         nextRewards.toString().should.eq((newBalance - oldBalance).toString());
     });
 
@@ -168,11 +170,12 @@ describe("Comptroller Contract", () => {
         await expect(comptrollerContract.addFrozenCoinAge(BOB.address, testToken.address, 0, 0)).to.be.revertedWith(
             "UnionToken: only user manager can call"
         );
-        await userManager.connect(BOB).withdrawRewards();
+        await userManager.connect(BOB).withdrawRewards(testToken.address);
         await userManager.repayLoanOverdue(BOB.address, testToken.address, 0);
         const latestBlock = await ethers.provider.getBlock("latest");
-        await userManager.repayLoanOverdue(BOB.address, testToken.address, latestBlock.number);
-        await userManager.connect(BOB).withdrawRewards();
+        await waitNBlocks(10);
+        await userManager.repayLoanOverdue(BOB.address, testToken.address, latestBlock.number + 10);
+        await userManager.connect(BOB).withdrawRewards(testToken.address);
     });
 
     it("Set half decay point", async () => {

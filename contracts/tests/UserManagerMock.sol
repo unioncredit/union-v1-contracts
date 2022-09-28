@@ -40,6 +40,10 @@ contract UserManagerMock {
         stakerBalance = stakerBalance_;
     }
 
+    function setTotalStaked(uint256 totalStaked_) public {
+        totalStaked = totalStaked_;
+    }
+
     function getStakerBalance(address) public view returns (uint256) {
         return stakerBalance;
     }
@@ -136,7 +140,17 @@ contract UserManagerMock {
 
     function unstake(uint256 amount) external {}
 
-    function withdrawRewards() external {}
+    function withdrawRewards(address token) external {
+        if (address(comptroller) != address(0)) comptroller.withdrawRewards(msg.sender, token);
+    }
+
+    //Execute withdrawReward 2 times in one transaction for simple testing
+    function withdrawRewardsDouble(address token) external {
+        if (address(comptroller) != address(0)) {
+            comptroller.withdrawRewards(msg.sender, token);
+            comptroller.withdrawRewards(msg.sender, token);
+        }
+    }
 
     function updateTotalFrozen(address, bool) external {}
 
@@ -151,15 +165,15 @@ contract UserManagerMock {
         comptroller = IComptroller(comptroller_);
     }
 
-    function updateTotalStaked(address token, uint256 totalStaked) external {
-        if (address(comptroller) != address(0)) comptroller.updateTotalStaked(token, totalStaked);
+    function updateTotalStaked(address token_, uint256 totalStaked_) external {
+        if (address(comptroller) != address(0)) comptroller.updateTotalStaked(token_, totalStaked_);
     }
 
     function repayLoanOverdue(
         address account,
         address token,
         uint256 lastRepay
-    ) external returns (uint8) {
+    ) external {
         if (address(comptroller) != address(0)) comptroller.addFrozenCoinAge(account, token, 0, lastRepay);
     }
 }

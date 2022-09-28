@@ -397,6 +397,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @return Frozen token amount
      */
     function getTotalFrozenAmount(address staker) public view override returns (uint256) {
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         uint256 totalFrozenAmount = 0;
         trustInfo.borrowerAddresses = members[staker].creditLine.borrowerAddresses;
@@ -424,6 +425,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      *  @return Credit line amount
      */
     function getCreditLimit(address borrower) public view override returns (int256) {
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
         // Get the number of effective vouchee, first
@@ -523,6 +525,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         if (borrower_ == address(0)) revert AddressZero();
         address borrower = borrower_;
 
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         trustInfo.staker = msg.sender;
         if (trustInfo.staker == borrower) revert ErrorSelfVouching();
@@ -659,6 +662,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
                 effectiveStakerNumber += 1;
         }
 
+        // slither-disable-next-line reentrancy-no-eth
         if (effectiveStakerNumber < creditLimitModel.effectiveNumber()) revert NotEnoughStakers();
 
         members[newMember].isMember = true;
@@ -678,6 +682,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 amount,
         bool isBorrow
     ) external override onlyMarketOrAdmin {
+        // slither-disable-next-line uninitialized-local
         TrustInfo memory trustInfo;
         trustInfo.stakerAddresses = members[borrower].creditLine.stakerAddresses;
 
@@ -725,7 +730,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
      */
     function stake(uint256 amount) public override whenNotPaused nonReentrant {
         IERC20Upgradeable erc20Token = IERC20Upgradeable(stakingToken);
-
+        // slither-disable-next-line unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         uint256 balance = stakers[msg.sender];
@@ -794,6 +799,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
 
         if (stakingAmount - getTotalLockedStake(msg.sender) < amount) revert InsufficientBalance();
 
+        // slither-disable-next-line reentrancy-no-eth,unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         stakers[msg.sender] = stakingAmount - amount;
@@ -808,11 +814,12 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     }
 
     function withdrawRewards() external whenNotPaused nonReentrant {
+        // slither-disable-next-line unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
     }
 
     /**
-     *  @dev Repay user's loan overdue, called only from the lending market
+     *  @dev Repay user's loan overdue, only called by UToken
      *  @param account User address
      *  @param token The asset token repaying to
      *  @param lastRepay Last repay block number
@@ -823,7 +830,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         uint256 lastRepay
     ) external override whenNotPaused onlyMarketOrAdmin {
         address[] memory stakerAddresses = getStakerAddresses(account);
-        uint256 addressesLength;
+        uint256 addressesLength = stakerAddresses.length;
         for (uint256 i = 0; i < addressesLength; i++) {
             address staker = stakerAddresses[i];
             (, , uint256 lockedStake) = getStakerAsset(account, staker);
@@ -849,6 +856,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         _updateTotalFrozen(borrower, true);
         if (amount > totalFrozen) revert ExceedsTotalFrozen();
 
+        // slither-disable-next-line reentrancy-no-eth,unused-return
         comptroller.withdrawRewards(msg.sender, stakingToken);
 
         //The borrower is still overdue, do not call comptroller.addFrozenCoinAge
@@ -861,6 +869,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         } else {
             memberFrozen[borrower] = 0;
         }
+
         members[msg.sender].creditLine.lockedAmount[borrower] = lockedAmount - amount;
         uint256 trustAmount = members[msg.sender].creditLine.borrowers[borrower];
         uint256 newTrustAmount = trustAmount - amount;
@@ -879,6 +888,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
     function updateTotalFrozen(address account, bool isOverdue) external override onlyMarketOrAdmin whenNotPaused {
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        // slither-disable-next-line unused-return,reentrancy-no-eth
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         _updateTotalFrozen(account, isOverdue);
     }
@@ -897,6 +907,7 @@ contract UserManager is Controller, IUserManager, ReentrancyGuardUpgradeable {
         if (accounts.length != isOverdues.length) revert LengthNotMatch();
         if (totalStaked < totalFrozen) revert ErrorTotalStake();
         uint256 effectiveTotalStaked = totalStaked - totalFrozen;
+        // slither-disable-next-line unused-return,reentrancy-no-eth
         comptroller.updateTotalStaked(stakingToken, effectiveTotalStaked);
         for (uint256 i = 0; i < accounts.length; i++) {
             if (accounts[i] != address(0)) _updateTotalFrozen(accounts[i], isOverdues[i]);
