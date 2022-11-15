@@ -37,7 +37,8 @@ const main = async () => {
         callValue: callValue.toString()
     });
 
-    const connector = await ethers.getContract(CONNECTOR_ADDR, CONNECTOR_ABI, signer);
+    const connector = await ethers.getContractAt(CONNECTOR_ABI, CONNECTOR_ADDR);
+
     const bridgeTx = await connector.bridge(maxGas, gasPriceBid, submissionPriceWei, {
         value: callValue
     });
