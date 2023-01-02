@@ -46,6 +46,7 @@ module.exports = async ({getNamedAccounts, getChainId, network}) => {
     }
 
     if (!(await read("AssetManager", {from: deployer}, "isMarketSupported", DAI))) {
+        console.log(DAI);
         tx = await execute("AssetManager", {from: deployer}, "addToken", DAI);
         console.log("AssetManager addToken, tx is:", tx.transactionHash);
     }

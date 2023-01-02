@@ -8,7 +8,6 @@ const getDAIAddress = async chainId => {
 
 const checkAssetManager = async chainId => {
     const assetManager = await ethers.getContract("AssetManager");
-
     const newSeq = configs[chainId]["AssetManager"]["newSeq"];
     for (let i = 0; i < newSeq.length; i++) {
         const seq = await assetManager.withdrawSeq(i);
@@ -16,14 +15,11 @@ const checkAssetManager = async chainId => {
             throw new Error("assetManager sequence set error");
         }
     }
-
     const DAI = await getDAIAddress(chainId);
-
     const isSupported = await assetManager.supportedMarkets(DAI);
     if (!isSupported) {
         throw new Error("assetManager DAI not add");
     }
-
     const marketRegistry = await assetManager.marketRegistry();
     const marketRegistryParams = await ethers.getContract("MarketRegistry");
     if (marketRegistry.toLowerCase() != marketRegistryParams.address?.toLowerCase()) {
@@ -408,24 +404,39 @@ const checkGovernance = async chainId => {
 
 async function main() {
     const chainId = await getChainId();
+    console.log("checkAssetManager");
     await checkAssetManager(chainId);
+    console.log("checkPureTokenAdapter");
     await checkPureTokenAdapter(chainId);
     if (chainId == 1 || chainId == 4 || chainId == 42) {
+        console.log("checkCompoundAdapter");
         await checkCompoundAdapter(chainId);
     }
     if (chainId == 1) {
+        console.log("checkAaveAdapter");
         await checkAaveAdapter(chainId);
     }
+    console.log("checkComptroller");
     await checkComptroller(chainId);
+    console.log("checkFixedInterestRateModel");
     await checkFixedInterestRateModel(chainId);
+    console.log("checkMarketRegistry");
     await checkMarketRegistry(chainId);
+    console.log("checkSumOfTrust");
     await checkSumOfTrust(chainId);
+    console.log("checkTimelock");
     await checkTimelock(chainId);
+    console.log("checkTreasury");
     await checkTreasury(chainId);
+    console.log("checkTreasuryVester");
     await checkTreasuryVester(chainId);
+    console.log("checkUnionToken");
     await checkUnionToken(chainId);
+    console.log("checkUserManager");
     await checkUserManager(chainId);
+    console.log("checkUToken");
     await checkUToken(chainId);
+    console.log("checkGovernance");
     await checkGovernance(chainId);
 }
 

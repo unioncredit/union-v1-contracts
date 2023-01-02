@@ -1,7 +1,7 @@
 const {deployments} = require("hardhat");
 
 module.exports = async ({getNamedAccounts, network}) => {
-    if (network.name === "arbitrum" || network.name === "arbitrumRinkeby") {
+    if (network.name === "arbitrum" || network.name === "arbitrumRinkeby" || network.name === "arbitrumNitroDevnet") {
         console.log("set ArbUnion start");
         const {deployer} = await getNamedAccounts();
         const {execute, read} = deployments;

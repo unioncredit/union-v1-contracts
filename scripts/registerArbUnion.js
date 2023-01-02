@@ -18,6 +18,10 @@ const main = async () => {
         ArbUnion = configs[chainId]["ArbUnion"];
         l1Provider = new providers.JsonRpcProvider("https://rinkeby.infura.io/v3/" + process.env.INFURA_ID);
         l2Provider = new providers.JsonRpcProvider("https://rinkeby.arbitrum.io/rpc");
+    } else if (chainId == 5) {
+        ArbUnion = configs[chainId]["ArbUnion"];
+        l1Provider = new providers.JsonRpcProvider("https://goerli.infura.io/v3/" + process.env.INFURA_ID);
+        l2Provider = new providers.JsonRpcProvider("https://goerli-rollup.arbitrum.io/rpc");
     } else {
         throw new Error("network not support");
     }

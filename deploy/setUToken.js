@@ -1,7 +1,7 @@
 const {deployments} = require("hardhat");
 const configs = require("../deployConfig.js");
 
-module.exports = async ({getNamedAccounts, getChainId}) => {
+module.exports = async ({getNamedAccounts, getChainId, network}) => {
     const {execute, read} = deployments;
     const {deployer} = await getNamedAccounts();
     const chainId = await getChainId();
@@ -9,13 +9,10 @@ module.exports = async ({getNamedAccounts, getChainId}) => {
     const assetManager = await deployments.get("AssetManager");
 
     const fixedInterestRateModel = await deployments.get("FixedInterestRateModel");
-
     const userManager =
-        network.name === "arbitrum" || network.name === "arbitrumRinkeby"
+        network.name === "arbitrum" || network.name === "arbitrumRinkeby" || network.name === "arbitrumNitroDevnet"
             ? await deployments.get("UserManagerArb")
             : await deployments.get("UserManager");
-
-    console.log({userManager: userManager.address});
 
     const uTokenContract = "UDai";
     console.log("setUToken start");
