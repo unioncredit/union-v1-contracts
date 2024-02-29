@@ -378,6 +378,22 @@ var configs = {
             maxStakeAmount: parseUnits("5000"),
             newMemberFee: parseUnits("1")
         }
+    },
+    11155111: {
+        // Sepolia
+        UnionToken: {
+            name: "Union Token",
+            symbol: "UNION",
+            mintingAllowedAfter: "1766361600" // 2025/12/22 00:00:00 GMT+0000
+        },
+        TimelockController: {
+            minDelay: "60" // in seconds, 1 min
+        },
+        UnionGovernor: {
+            initialVotingDelay: "5", // in blocks, 1 min
+            initialVotingPeriod: "274", // 1 hr
+            initialProposalThreshold: parseUnits("10000000")
+        }
     }
 };
 
