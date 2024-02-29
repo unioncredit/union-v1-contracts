@@ -8,6 +8,8 @@ require("hardhat-gas-reporter");
 require("hardhat-contract-sizer");
 require("hardhat-deploy");
 require("solidity-coverage");
+require("@nomicfoundation/hardhat-verify");
+
 require("dotenv").config();
 
 // tasks
@@ -108,5 +110,13 @@ module.exports = {
     },
     mocha: {
         timeout: 0
+    },
+    sourcify: {
+        enabled: true
+    },
+    etherscan: {
+        apiKey: {
+            sepolia: process.env.ETHERSCAN_API_KEY
+        }
     }
 };
